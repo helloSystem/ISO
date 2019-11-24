@@ -9,8 +9,6 @@ mdmfs -P -F /cdrom/data/usr.uzip -o ro md.uzip /usr
 mdmfs -s 512m md /union || exit 1 
 mount -t unionfs /union /usr
 
-ls -la /
-
 BOOTMODE=`sysctl -n machdep.bootmethod`
 export BOOTMODE
 

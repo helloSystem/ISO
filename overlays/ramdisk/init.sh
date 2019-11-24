@@ -29,6 +29,7 @@ mount -t tmpfs tmpfs /tmp
 echo "==> Mount swap-based memdisk"
 mdmfs -s 1024m md /memdisk || exit 1
 dump -0f - /dev/md1.uzip | (cd /memdisk; restore -rf -)
+rm /memdisk/restoresymtable
 
 kenv vfs.root.mountfrom=ufs:/dev/md2
 kenv init_script="/init-reroot.sh"

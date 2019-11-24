@@ -239,15 +239,14 @@ cleanup()
 
 workspace
 base
-#packages
-#ports
-#rc
-#dm
-#live-settings
-#user
+packages
+ports
+rc
+dm
+live-settings
+user
 uzip
 ramdisk
 boot
 image
-exit 0
 cleanup
