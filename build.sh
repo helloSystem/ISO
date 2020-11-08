@@ -66,7 +66,15 @@ else
 fi
 
 label="FURYBSD"
-isopath="${iso}/${vol}-${arch}.iso"
+
+# Get the short git SHA
+SHA=$(echo ${CIRRUS_CHANGE_IN_REPO}| cut -c1-7)
+
+if [ -z "${SHA}" ] ; then
+  isopath="${iso}/${vol}-${arch}.iso"
+else
+  isopath="${iso}/${vol}-${SHA}-${arch}.iso"
+fi
 
 cleanup()
 {
