@@ -1,4 +1,4 @@
-#!/rescue/sh
+#!/bin/sh
 
 PATH="/rescue"
 
@@ -7,52 +7,61 @@ if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
 	SINGLE_USER="true"
 fi
 
-echo "==> Remount rootfs as read-write"
-mount -u -w /
-
-echo "==> Make mountpoints"
-mkdir -p /cdrom
-
 echo "Waiting for FURYBSD media to initialize"
 while : ; do
     [ -e "/dev/iso9660/FURYBSD" ] && echo "found /dev/iso9660/FURYBSD" && break
     sleep 1
 done
 
+mount -t tmpfs tmpfs /etc
+mount -t tmpfs tmpfs /usr/home
+mount -t tmpfs tmpfs /tmp
+mount -t tmpfs tmpfs /var
+tar -xf /etc.txz -C /etc
+tar -xf /home.txz -C /usr/home
+tar -xf /var.txz -C /var
+
 echo "==> Mount cdrom"
-mount_cd9660 /dev/iso9660/FURYBSD /cdrom
-mdconfig -f /cdrom/data/system.uzip -u 1
-zpool import furybsd -o readonly=on
+mdmfs -P -F /system.uzip -o ro md.uzip /usr/local
 
 if [ "$SINGLE_USER" = "true" ]; then
-        echo "Starting interactive shell in temporary rootfs ..."
-        exit 0
+	echo -n "Enter memdisk size used for read-write access in the live system: "
+	read MEMDISK_SIZE
+else
+	MEMDISK_SIZE="1024"
 fi
 
-# Ensure the system has more than enough memory for memdisk
- x=3163787264
- y=$(sysctl -n hw.physmem)
- echo "Required memory ${x} for memdisk"
- echo "Detected memory ${y} for memdisk"
- if [ $x -gt $y ] ; then 
-  echo "FuryBSD requires 4GB of memory for memdisk, and operation!"
-  echo "Type exit, and press enter after entering the rescue shell to power off."
-  exit 1
- fi
-
 echo "==> Mount swap-based memdisk"
-mdconfig -a -t swap -s 3g -u 2 >/dev/null 2>/dev/null
-gpart create -s GPT md2 >/dev/null 2>/dev/null
-gpart add -t freebsd-zfs md2 >/dev/null 2>/dev/null
-zpool create livecd /dev/md2p1 >/dev/null 2>/dev/null
-zfs set compression=gzip livecd 
-zfs set primarycache=none livecd
+mdmfs -s "${MEMDISK_SIZE}m" md /memdisk || exit 1
+mount -t unionfs /memdisk /usr/local
 
-echo "==> Replicate system image to swap-based memdisk"
-zfs send -c -e furybsd | dd status=progress bs=1M | zfs recv -F livecd
+BOOTMODE=`sysctl -n machdep.bootmethod`
+export BOOTMODE
 
-mount -t devfs devfs /livecd/dev
-chroot /livecd /usr/local/bin/furybsd-init-helper
+if [ "${BOOTMODE}" = "BIOS" ]; then
+  echo "BIOS detected"
+  cp /usr/home/liveuser/xorg.conf.d/driver-vesa.conf /etc/X11/xorg.conf
+fi
 
-kenv init_shell="/rescue/sh"
+if [ "${BOOTMODE}" = "UEFI" ]; then
+  echo "UEFI detected"
+  cp /usr/home/liveuser/xorg.conf.d/driver-scfb.conf /etc/X11/xorg.conf
+fi
+
+VMGUEST=`sysctl -n kern.vm_guest`
+export VMGUEST
+
+if [ "${VMGUEST}" = "xen" ]; then
+  echo "XEN guest detected"
+  sysrc devd_enable="NO"
+fi
+
+sysrc -f /etc/rc.conf kld_list+="sysctlinfo"
+
+if [ "$SINGLE_USER" = "true" ]; then
+	echo "Starting interactive shell in temporary rootfs ..."
+	sh
+fi
+
+kenv init_shell="/bin/sh"
 exit 0
