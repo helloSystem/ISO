@@ -26,7 +26,7 @@ echo "==> Remount rootfs as read-write"
 mount -u -w /
 
 echo "==> Make mountpoints"
-mkdir -p /cdrom /memdisk /sysroot
+mkdir -p /cdrom /memdisk /sysroot /usr/local/furybsd/uzip/
 
 echo "Waiting for Live media to appear"
 while : ; do
@@ -37,9 +37,6 @@ done
 echo "==> Mount cdrom"
 mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
 mdconfig -o readonly -f /cdrom/data/system.img -u 1
-zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
-zpool list # furybsd
-mount
 
 if [ "$SINGLE_USER" = "true" ]; then
         echo "Starting interactive shell in temporary rootfs ..."
@@ -48,28 +45,27 @@ fi
 
 # Optionally use unionfs if requested. FIXME: This does not boot yet
 if [ "$(kenv use_unionfs)" = "YES" ] ; then
-  echo "==> Trying unionfs"
+  echo "==> Importing zfs pool"
+  zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+  zpool list # furybsd
+  mount
   
   ## Could we snapshot /usr/local/furybsd/uzip here?
   ## zfs snapshot furybsd@now
   ## results in:
   ## cannot create shapshots : pool is read-only
-  
-  mount -t devfs devfs /dev
-  mount -t tmpfs tmpfs /tmp
-  
-  ### cp -r /usr/local/furybsd/uzip/var /null/var ### With this it did boot but D-Bus complains and start-hello needs to be executed manually
-  mount -t tmpfs tmpfs /var
-  
-  # chroot /usr/local/furybsd/uzip /usr/local/bin/furybsd-init-helper # Should we run it? Only makes sense if we can become r/w until here
-  
-  kenv use_unionfs=YES # So that /etc/rc in the ramdisk knows what to do
+
   kenv -u init_chroot ### Because zfs pool mounts at /, we don't hopefully need this anymore
   kenv -u init_path
   kenv -u init_script
   kenv -u init_shell
   exit 0 # /etc/rc gets executed next which should now come from zfs
 fi
+
+echo "==> Importing zfs pool"
+zpool import -R /usr/local/furybsd/uzip/ furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+zpool list # furybsd
+mount
 
 # Ensure the system has more than enough memory for memdisk
  x=3163787264
