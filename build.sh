@@ -310,6 +310,7 @@ uzip()
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
   sync ### Needed?
   ### mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img" ### It is already compressed by zfs
+  cp "${livecd}/pool.img" "${cdroot}/data/system.img"
   ls -lh "${livecd}/pool.img"
 }
 
