@@ -305,7 +305,7 @@ script()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  zfs set mountpoint="/" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
+  zfs set mountpoint="none" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
   sync ### Needed?
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
   sync ### Needed?
