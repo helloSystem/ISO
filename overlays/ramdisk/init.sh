@@ -37,7 +37,7 @@ done
 echo "==> Mount cdrom"
 mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
 mdconfig -o readonly -f /cdrom/data/system.img -u 1
-zpool import furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
 mount
 
