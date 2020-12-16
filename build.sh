@@ -105,7 +105,7 @@ cleanup()
 workspace()
 {
   mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 3g "${livecd}/pool.img"
+  truncate -s 1900m "${livecd}/pool.img"
   mdconfig -f "${livecd}/pool.img" -u 0
   gpart create -s GPT md0
   gpart add -t freebsd-zfs md0
@@ -306,6 +306,7 @@ uzip()
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
   zfs set mountpoint="none" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
+  df -h
   sync ### Needed?
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
   sync ### Needed?
