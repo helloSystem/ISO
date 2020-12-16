@@ -305,10 +305,12 @@ script()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
+  zfs set mountpoint="/" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
   sync ### Needed?
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
   sync ### Needed?
-  mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img"
+  ### mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img" ### It is already compressed by zfs
+  ls -lh "${livecd}/pool.img"
 }
 
 ramdisk() 
