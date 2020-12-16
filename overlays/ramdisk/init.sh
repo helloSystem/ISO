@@ -36,10 +36,10 @@ done
 
 echo "==> Mount cdrom"
 mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
-mdconfig -o readonly -f /cdrom/data/system.uzip -u 1
+mdconfig -o readonly -f /cdrom/data/system.img -u 1
 zpool import furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
-mount # /usr/local/furybsd/uzip
+mount
 
 if [ "$SINGLE_USER" = "true" ]; then
         echo "Starting interactive shell in temporary rootfs ..."
@@ -55,49 +55,20 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   ## results in:
   ## cannot create shapshots : pool is read-only
   
-  ## FIXME: The following does NOT seem to work
-  ## mkdir /tmp
-  ## mount -t tmpfs tmpfs /tmp
-  ## It is said that tmpfs and unionfs should be avoided, hence using a swap based md(4) devices; FIXME
-  #mkdir /md
-  #mdmfs -s 64m md /md
-  #kldload /usr/local/furybsd/uzip/boot/kernel/unionfs.ko # Fixes next line: mount_unionfs: /usr/local/furybsd/uzip: Operation not supported by device
-  #mount -t unionfs /md /usr/local/furybsd/uzip
-  ## Result: Stalls later on after /etc/rc in the ramdisk exits. Why? FIXME
-  ## Same result of one applies the unionfs only selectively, e.g., to /usr/local.
-  ## https://wiki.freebsd.org/AndriyGapon/AvgLiveCD#Further_enhancements
-  ## https://forums.freebsd.org/threads/combining-tmpfs-and-unionfs-on-root-filesystem.16279/
+  mount -t devfs devfs /dev
+  mount -t tmpfs tmpfs /tmp
   
-  ## TODO: https://github.com/lantw44/freebsd-gnome-livecd/blob/master/init.sh.in
-  ## shows how to make /cdrom available to the booted system
-  
-  mount -t devfs devfs /usr/local/furybsd/uzip/dev
-  mount -t tmpfs tmpfs /usr/local/furybsd/uzip/tmp
-  
-  # Since unionfs does not work, let's use a workaround
-  mkdir /null
-  mount -t tmpfs tmpfs /null
-  cp -r /usr/local/furybsd/uzip/etc /null/etc
-  cp -r /usr/local/furybsd/uzip/usr/local/etc /null/usr-local-etc
-  cp -r /usr/local/furybsd/uzip/root /null/root
-  cp -r /usr/local/furybsd/uzip/usr/local/var /null/usr-local-var
-  cp -r /usr/local/furybsd/uzip/home /null/home
   ### cp -r /usr/local/furybsd/uzip/var /null/var ### With this it did boot but D-Bus complains and start-hello needs to be executed manually
-  kldload /usr/local/furybsd/uzip/boot/kernel/nullfs.ko # Fixes next line: mount_nullfs: /usr/local/furybsd/uzip: Operation not supported by device
-  mount -t nullfs /null/etc /usr/local/furybsd/uzip/etc
-  mount -t nullfs /null/usr-local-etc /usr/local/furybsd/uzip/usr/local/etc
-  mount -t nullfs /null/root /usr/local/furybsd/uzip/root
-  mount -t nullfs /null/usr-local-var /usr/local/furybsd/uzip/usr/local/var
-  mount -t nullfs /null/home /usr/local/furybsd/uzip/home
-  ### mount -t nullfs /null/var /usr/local/furybsd/uzip/var ### With this it did boot but D-Bus complains and start-hello needs to be executed manually
-  mount -t tmpfs tmpfs /usr/local/furybsd/uzip/var
+  mount -t tmpfs tmpfs /var
   
   # chroot /usr/local/furybsd/uzip /usr/local/bin/furybsd-init-helper # Should we run it? Only makes sense if we can become r/w until here
   
   kenv use_unionfs=YES # So that /etc/rc in the ramdisk knows what to do
-  kenv init_chroot=/usr/local/furybsd/uzip # TODO: Can we possibly reroot instead of chroot?
-  kenv init_shell="/rescue/sh"
-  exit 0 # etc/rc in he ramdisk gets executed next
+  kenv -u init_chroot ### Because zfs pool mounts at /, we don't hopefully need this anymore
+  kenv -u init_path
+  kenv -u init_script
+  kenv -u init_shell
+  exit 0 # /etc/rc gets executed next which should now come from zfs
 fi
 
 # Ensure the system has more than enough memory for memdisk
