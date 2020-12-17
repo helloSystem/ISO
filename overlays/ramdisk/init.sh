@@ -45,9 +45,17 @@ fi
 
 # Optionally use unionfs if requested. FIXME: This does not boot yet
 if [ "$(kenv use_unionfs)" = "YES" ] ; then
+
+  kenv -u init_chroot ### Because zfs pool mounts at /, we don't hopefully need this anymore
+  kenv -u init_path
+  kenv -u init_script
+  kenv -u init_shell
+  
   echo "==> Importing zfs pool"
   zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
+  echo "==> Mounting zfs pool"
+  zfs mount -O furybsd/ # -O = mount over non-empty directory
   mount
   
   ## Could we snapshot /usr/local/furybsd/uzip here?
@@ -55,10 +63,6 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   ## results in:
   ## cannot create shapshots : pool is read-only
 
-  kenv -u init_chroot ### Because zfs pool mounts at /, we don't hopefully need this anymore
-  kenv -u init_path
-  kenv -u init_script
-  kenv -u init_shell
   exit 0 # /etc/rc gets executed next which should now come from zfs
 fi
 
