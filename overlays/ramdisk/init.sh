@@ -36,7 +36,7 @@ done
 
 echo "==> Mount cdrom"
 mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
-mdconfig -o readonly -f /cdrom/data/system.img -u 1
+mdconfig -o readonly -f /cdrom/data/system.uzip -u 1
 
 if [ "$SINGLE_USER" = "true" ]; then
         echo "Starting interactive shell in temporary rootfs ..."
