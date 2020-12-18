@@ -55,7 +55,8 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
   echo "==> Mounting zfs pool"
-  zfs mount furybsd/ # -O = mount over non-empty directory, results in: "no overlay mounts support on FreeBSD, ignoring"
+  # zfs mount furybsd/ # -O = mount over non-empty directory, results in: "no overlay mounts support on FreeBSD, ignoring"
+  mount -F zfs furybsd /
   mount
   
   ## Could we snapshot /usr/local/furybsd/uzip here?
@@ -69,6 +70,8 @@ fi
 echo "==> Importing zfs pool"
 zpool import -R /usr/local/furybsd/uzip/ furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
+mkdir -p /usr/local/furybsd/uzip/
+mount -F zfs furybsd /usr/local/furybsd/uzip/
 mount
 
 # Ensure the system has more than enough memory for memdisk
