@@ -96,7 +96,7 @@ cleanup()
     umount ${uzip}/var/cache/pkg >/dev/null 2>/dev/null || true
     umount ${uzip}/dev >/dev/null 2>/dev/null || true
     zpool destroy -f furybsd >/dev/null 2>/dev/null || true
-    mdconfig -d -u 0 >/dev/null 2>/dev/null || true
+    # mdconfig -d -u 0 >/dev/null 2>/dev/null || true
     rm ${livecd}/pool.img >/dev/null 2>/dev/null || true
     rm -rf ${cdroot} >/dev/null 2>/dev/null || true
   fi
@@ -331,7 +331,7 @@ boot()
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
   sync ### Needed?
-  cd ${cwd} && zpool export furybsd && mdconfig -d -u 0
+  cd ${cwd} && zpool export furybsd # && mdconfig -d -u 0
   sync ### Needed?
   # The name of a dependency for zfs.ko changed, violating POLA
   # If we are loading both modules, then at least 13 cannot boot, hence only load one based on the FreeBSD major version
