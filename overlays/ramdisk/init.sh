@@ -36,7 +36,6 @@ done
 
 echo "==> Mount cdrom"
 mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
-mdconfig -o readonly -f /cdrom/data/system.uzip -u 1
 
 if [ "$SINGLE_USER" = "true" ]; then
         echo "Starting interactive shell in temporary rootfs ..."
@@ -52,11 +51,10 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   kenv -u init_shell
   
   echo "==> Importing zfs pool"
-  zpool import -R / furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+  zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.uzip -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
-  echo "==> Mounting zfs pool"
-  # zfs mount furybsd/ # -O = mount over non-empty directory, results in: "no overlay mounts support on FreeBSD, ignoring"
-  mount -F zfs furybsd /
+  mkdir -p /usr/local/furybsd/uzip/
+  mount -F zfs furybsd /usr/local/furybsd/uzip/
   mount
   
   ## Could we snapshot /usr/local/furybsd/uzip here?
@@ -68,7 +66,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
 fi
 
 echo "==> Importing zfs pool"
-zpool import -R /usr/local/furybsd/uzip/ furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.uzip -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
 mkdir -p /usr/local/furybsd/uzip/
 mount -F zfs furybsd /usr/local/furybsd/uzip/
