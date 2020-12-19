@@ -105,7 +105,7 @@ cleanup()
 workspace()
 {
   mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 1800m "${livecd}/pool.img"
+  truncate -s 1800M "${livecd}/pool.img"
   zpool create furybsd "${livecd}/pool.img"
   sync ### Needed?
   zfs set mountpoint="${uzip}" furybsd
