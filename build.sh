@@ -316,7 +316,7 @@ ramdisk()
 {
   cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
   sync ### Needed?
-  cd ${cwd} && zpool import -d "${cdroot}/data/system.img" && zfs set mountpoint=/usr/local/furybsd/uzip furybsd
+  cd ${cwd} && zpool import -d "${cdroot}/data/system.img" furybsd && zfs set mountpoint=/usr/local/furybsd/uzip furybsd
   sync ### Needed?
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
   touch "${ramdisk_root}/etc/fstab"
