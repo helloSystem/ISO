@@ -51,7 +51,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   kenv -u init_shell
   
   echo "==> Importing zfs pool"
-  zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.uzip -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+  zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.img -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
   mkdir -p /usr/local/furybsd/uzip/
   mount -F zfs furybsd /usr/local/furybsd/uzip/
@@ -66,7 +66,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
 fi
 
 echo "==> Importing zfs pool"
-zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.uzip -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+zpool import -R /usr/local/furybsd/uzip/ /cdrom/data/system.img -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
 mkdir -p /usr/local/furybsd/uzip/
 mount -F zfs furybsd /usr/local/furybsd/uzip/
