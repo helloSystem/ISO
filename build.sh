@@ -109,7 +109,7 @@ workspace()
   zpool create furybsd "${livecd}/pool.img"
   sync ### Needed?
   zfs set mountpoint="${uzip}" furybsd
-  zfs set -o recordsize=512k furybsd 
+  zfs set recordsize=512k furybsd 
   # From FreeBSD 13 on, zstd can be used with zfs in base
   # TODO: Why are we compressing here, if we compress the zfs into a uzip anyway?
   MAJOR=$(uname -r | cut -d "." -f 1)
