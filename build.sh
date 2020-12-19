@@ -105,14 +105,11 @@ cleanup()
 workspace()
 {
   mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 1900m "${livecd}/pool.img"
-  mdconfig -f "${livecd}/pool.img" -u 0
-  gpart create -s GPT md0
-  gpart add -t freebsd-zfs md0
-  sync ### Needed?
-  zpool create furybsd /dev/md0p1
+  truncate -s 1800m "${livecd}/pool.img"
+  zpool create furybsd "${livecd}/pool.img"
   sync ### Needed?
   zfs set mountpoint="${uzip}" furybsd
+  zfs set -o recordsize=512k furybsd 
   # From FreeBSD 13 on, zstd can be used with zfs in base
   # TODO: Why are we compressing here, if we compress the zfs into a uzip anyway?
   MAJOR=$(uname -r | cut -d "." -f 1)
@@ -306,11 +303,13 @@ script()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  zfs set mountpoint="legacy" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
+  # zfs set mountpoint="legacy" furybsd ### If we can get the pool to mount at /, then maybe we can do away with reroot, chroot, nullfs?
   sync ### Needed?
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
   sync ### Needed?
-  mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img" # Looks like the img is too large for the 2GB limit on GitHub Releases
+  # mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img" # Looks like the img is too large for the 2GB limit on GitHub Releases
+  ls -lh "${livecd}/pool.img"
+  mv "${livecd}/pool.img" "${cdroot}/data/system.img"
 }
 
 ramdisk() 
