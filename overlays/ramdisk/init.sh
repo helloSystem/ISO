@@ -53,8 +53,6 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   echo "==> Importing zfs pool"
   zpool import -d /cdrom/data/system.img furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
-  mkdir -p /usr/local/furybsd/uzip/
-  mount -F zfs furybsd /usr/local/furybsd/uzip/
   mount
   
   ## Could we snapshot /usr/local/furybsd/uzip here?
