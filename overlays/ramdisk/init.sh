@@ -26,7 +26,7 @@ echo "==> Remount rootfs as read-write"
 mount -u -w /
 
 echo "==> Make mountpoints"
-mkdir -p /cdrom /memdisk /sysroot /usr/local/furybsd/uzip/
+mkdir -p /cdrom /memdisk /sysroot /tmp/ro/
 
 echo "Waiting for Live media to appear"
 while : ; do
@@ -51,11 +51,11 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   kenv -u init_shell
   
   echo "==> Importing zfs pool"
-  zpool import -d /cdrom/data/system.img furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+  zpool import -d /cdrom/data/system.img -R /tmp/ro/ furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
   zpool list # furybsd
   mount
   
-  ## Could we snapshot /usr/local/furybsd/uzip here?
+  ## Could we snapshot /tmp/ro/usr/local/furybsd/uzip here?
   ## zfs snapshot furybsd@now
   ## results in:
   ## cannot create shapshots : pool is read-only
@@ -64,7 +64,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
 fi
 
 echo "==> Importing zfs pool"
-zpool import -d /cdrom/data/system.img furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
+zpool import -d /cdrom/data/system.img -R /tmp/ro/ furybsd -o readonly=on # Without readonly=on zfs refuses to mount this with: "one or more devices is read only"
 zpool list # furybsd
 mount
 
