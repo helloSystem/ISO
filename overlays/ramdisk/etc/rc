@@ -24,9 +24,10 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   
   echo "==> XXXXXXXXXXXXXXXXXXX UNION XXXXXXXXXXXXXXXXXXXXXXXXX"
 
-  umount -uw /
+  mount -uw /
   
   kldload  /usr/local/furybsd/uzip/boot/kernel/nullfs.ko
+  kldload  /usr/local/furybsd/uzip/boot/kernel/unionfs.ko
 
   # TODO: Use DIRS=$(find  /* \! -name . -prune -type d) but clean it
   DIRS="/Applications /bin /lib /libexec /sbin /System /root /etc" # /var
