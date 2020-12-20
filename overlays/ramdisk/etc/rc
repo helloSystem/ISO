@@ -25,13 +25,15 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   echo "==> XXXXXXXXXXXXXXXXXXX UNION XXXXXXXXXXXXXXXXXXXXXXXXX"
 
   umount -uw /
+  
+  kldload  /usr/local/furybsd/uzip/boot/kernel/nullfs.ko
 
   # TODO: Use DIRS=$(find  /* \! -name . -prune -type d) but clean it
   DIRS="/Applications /bin /lib /libexec /sbin /System /root /etc" # /var
   # FIXME: Having added /etc to the above results in 30 extra seconds related to the default route...
   # var will make initgfx crash X once; but maybe that's just initgx at work?
   for DIR in $DIRS; do
-    mkdir -p /tmp/union/rw$DIR
+    mkdir -p /tmp/union/rw$DIR $DIR
     mount -t nullfs /usr/local/furybsd/uzip$DIR $DIR
     mount -t unionfs /tmp/union/rw$DIR $DIR
   done
@@ -41,7 +43,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
 
    DIRS="local bin sbin include lib lib32 libdata libexec obj ports share src tests"
    for DIR in $DIRS; do
-     mkdir -p /tmp/union/rwusr/$DIR
+     mkdir -p /tmp/union/rwusr/$DIR /usr/$DIR
      mount -t nullfs /usr/local/furybsd/uzip/usr/$DIR /usr/$DIR
      mount -t unionfs /tmp/union/rwusr/$DIR /usr/$DIR
    done
