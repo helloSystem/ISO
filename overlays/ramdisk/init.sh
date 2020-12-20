@@ -59,8 +59,42 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   ## zfs snapshot furybsd@now
   ## results in:
   ## cannot create shapshots : pool is read-only
+  
+  echo "==> XXXXXXXXXXXXXXXXXXX UNION XXXXXXXXXXXXXXXXXXXXXXXXX"
 
-  exit 0 # /etc/rc gets executed next which should now come from zfs
+  mount -uw /
+  
+  kldload  /tmp/ro/usr/local/furybsd/uzip/boot/kernel/nullfs.ko
+  kldload  /tmp/ro/usr/local/furybsd/uzip/boot/kernel/unionfs.ko
+
+  # TODO: Use DIRS=$(find  /* \! -name . -prune -type d) but clean it
+  DIRS="/Applications /bin /lib /libexec /sbin /System /root /etc" # /var
+  # FIXME: Having added /etc to the above results in 30 extra seconds related to the default route...
+  # var will make initgfx crash X once; but maybe that's just initgx at work?
+  for DIR in $DIRS; do
+    mkdir -p /tmp/union/rw$DIR $DIR
+    mount -t nullfs /tmp/ro/usr/local/furybsd/uzip$DIR $DIR
+    mount -t unionfs /tmp/union/rw$DIR $DIR
+  done
+  
+  mkdir -p /var
+  mdmfs -s 256m md98 /var # Without this, rc.d/var leads to reboot
+  chmod a+rwx /var # Will this help???
+
+   DIRS="local bin sbin include lib lib32 libdata libexec obj ports share src tests"
+   for DIR in $DIRS; do
+     mkdir -p /tmp/union/rwusr/$DIR /usr/$DIR
+     mount -t nullfs /tmp/ro/usr/local/furybsd/uzip/usr/$DIR /usr/$DIR
+     mount -t unionfs /tmp/union/rwusr/$DIR /usr/$DIR
+   done
+  
+   # unionfs-nullfs for /usr/home leads to crashes when trying to use Chromium
+   mkdir -p /usr/home
+   mdmfs -s 256m md99 /usr/home
+   cp -r -p /tmp/ro/usr/local/furybsd/uzip/usr/home/* /usr/home/
+ 
+   chmod a+rwx /tmp # So that Chrome can start
+  exit 0 # Hopefully boot continues from our newly-mounted /etc
 fi
 
 echo "==> Importing zfs pool"
