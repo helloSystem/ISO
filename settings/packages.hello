@@ -1,6 +1,6 @@
 # Graphical login manager for X11
 slim
-# Required for hello QtPlugin and Menu
+# Required for helloSystem QtPlugin and Menu
 kf5-kdbusaddons
 libdbusmenu-qt5
 # Required for gmenudbusmenuproxy
@@ -127,6 +127,8 @@ font-awesome
 libappindicator
 # Needed for mountarchive tool to mount archives and disk images
 archivemount
+# To handle .zip archives more reliably than mountarchive
+deskutils/lumina-archiver
 # Needed to load HiDPI cursors [ci skip]
 xrdb
 # Needed for Simple Browser
