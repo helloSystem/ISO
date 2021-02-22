@@ -260,10 +260,7 @@ ramdisk()
 boot() 
 {
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
-  cd "${uzip}" && tar -cf - --exclude boot/kernel boot | tar -xf - -C "${cdroot}"
-  for kfile in kernel geom_uzip.ko opensolaris.ko tmpfs.ko xz.ko zfs.ko; do
-  tar -cf - boot/kernel/${kfile} | tar -xf - -C "${cdroot}"
-  done
+  cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
   cd ${cwd} && zpool export furybsd && mdconfig -d -u 0
 }
 
