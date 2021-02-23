@@ -41,7 +41,6 @@ fi
 
 echo "==> Mount unionfs"
 mdmfs -s "${MEMDISK_SIZE}m" md /memdisk || exit 1
-kldload unionfs
 mount -t unionfs /memdisk /sysroot
 
 echo "==> Change into /sysroot"

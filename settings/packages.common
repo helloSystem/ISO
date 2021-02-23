@@ -14,7 +14,6 @@ xf86-video-vesa
 xf86-video-vmware
 xf86-video-qxl # !i386
 drm-kmod
-drm-legacy-kmod
 libva-intel-driver
 drm-kmod
 nvidia-driver # !i386
