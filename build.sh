@@ -331,9 +331,9 @@ script()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  makefs "${cdroot}/data/system.ufs" "${uzip}"
-  mkuzip -o "${cdroot}/data/system.uzip" "${cdroot}/data/system.ufs"
-  rm -f "${cdroot}/data/system.ufs"
+  makefs "${iso}/system.ufs" "${uzip}"
+  mkuzip -o "${cdroot}/data/system.uzip" "${iso}/system.ufs"
+  rm -f "${iso}/system.ufs"
   cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
 }
 
