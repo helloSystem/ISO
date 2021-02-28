@@ -330,7 +330,6 @@ script()
 
 uzip() 
 {
-  ( cd "${uzip}" ; ln -s . sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
   makefs "${iso}/system.ufs" "${uzip}"
   mkuzip -o "${cdroot}/data/system.uzip" "${iso}/system.ufs"
