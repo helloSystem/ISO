@@ -1,5 +1,7 @@
 #!/bin/sh
 
+ln -s / /sysroot # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
+
 BOOTMODE=$(/sbin/sysctl -n machdep.bootmethod)
 export BOOTMODE
 
