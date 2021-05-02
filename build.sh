@@ -369,6 +369,16 @@ uzip()
 ramdisk() 
 {
   cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
+  # Copy the 'geom' command and its dependencies needed to mount using geom_rowr
+  mkdir -p "${ramdisk_root}"/sbin "${ramdisk_root}"/lib
+  cp "${uzip}"/sbin/geom "${ramdisk_root}"/sbin/
+  cp "${uzip}"/lib/libgeom.so.5 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libutil.so.9 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libc.so.7 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libbsdxml.so.4 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libsbuf.so.6 "${ramdisk_root}"/lib/
+  # TODO: Replace the lines above with something more robust that won't break
+  # when the dependencies of the 'geom' command change
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
   touch "${ramdisk_root}/etc/fstab"
   cp ${uzip}/etc/login.conf ${ramdisk_root}/etc/login.conf
