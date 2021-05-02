@@ -129,8 +129,10 @@ cleanup()
   else
     umount ${uzip}/var/cache/pkg >/dev/null 2>/dev/null || true
     umount ${uzip}/dev >/dev/null 2>/dev/null || true
-    zpool destroy -f furybsd >/dev/null 2>/dev/null || true
-    mdconfig -d -u 0 >/dev/null 2>/dev/null || true
+    if [ -d "${livecd}" ] ;then
+      chflags -R noschg ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+      rm -rf ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+    fi
     rm ${livecd}/pool.img >/dev/null 2>/dev/null || true
     rm -rf ${cdroot} >/dev/null 2>/dev/null || true
   fi
@@ -138,22 +140,18 @@ cleanup()
 
 workspace()
 {
+
+  # Mount a  temporary filesystem image at "${uzip}" so that we can clean up afterwards more easily
+  # dd if=/dev/zero of=test.img bs=1M count=512
+  # mdconfig -a -t vnode -f test.img -u 9
+  # newfs /dev/md9
+  # mount /dev/md9 "${uzip}"
+
   mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 3g "${livecd}/pool.img"
-  mdconfig -f "${livecd}/pool.img" -u 0
-  gpart create -s GPT md0
-  gpart add -t freebsd-zfs md0
+  #truncate -s 3g "${livecd}/pool.img"
+  #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
-  zpool create furybsd /dev/md0p1
-  sync ### Needed?
-  zfs set mountpoint="${uzip}" furybsd
-  # From FreeBSD 13 on, zstd can be used with zfs in base
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 13 ] ; then
-    zfs set compression=gzip-6 furybsd 
-  else
-    zfs set compression=zstd-9 furybsd 
-  fi
+
 
 }
 
@@ -357,19 +355,20 @@ script()
 
 uzip() 
 {
+  ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
-  sync ### Needed?
-  mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img"
+  # geom_rowr needs some free extra space on the r/o filesystem, otherwise it reports
+  # no free space for the combined /dev/rowrX filesystem
+  makefs -b '20%' -f '20%' "${cdroot}/data/system.ufs" "${uzip}"
+  wc -c < "${cdroot}/data/system.ufs" > "${cdroot}/data/system.bytes" # Size in bytes, needed by init.sh
+  mkuzip -o "${cdroot}/data/system.uzip" "${cdroot}/data/system.ufs"
+  rm -f "${cdroot}/data/system.ufs"
+  
 }
 
 ramdisk() 
 {
   cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
-  sync ### Needed?
-  cd ${cwd} && zpool import furybsd && zfs set mountpoint=/usr/local/furybsd/uzip furybsd
-  sync ### Needed?
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
   touch "${ramdisk_root}/etc/fstab"
   cp ${uzip}/etc/login.conf ${ramdisk_root}/etc/login.conf
@@ -395,33 +394,16 @@ boot()
     -not -name 'xz.ko' \
     -not -name 'zfs.ko' \
     -delete
+  # Add geom_rowr kernel module for combining read-only with read-write device
+  # Note that this also requires a library geom_rowr.so
+  cp "/home/user/Desktop/geom_rowr/geom_rowr.ko" "${cdroot}"/boot/kernel/ # FIXME: Download from elsewhere
+  ls "${cdroot}"/boot/kernel/geom_rowr.ko || exit 1
+  mkdir -p "${cdroot}"/lib/geom/
+  cp "/home/user/Desktop/geom_rowr/geom_rowr.so" "${cdroot}"/lib/geom/ # FIXME: Download from elsewhere
   # Compress the kernel
   gzip "${cdroot}"/boot/kernel/kernel
   # Compress the remaining modules
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && mdconfig -d -u 0
-  sync ### Needed?
-  # The name of a dependency for zfs.ko changed, violating POLA
-  # If we are loading both modules, then at least 13 cannot boot, hence only load one based on the FreeBSD major version
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 13 ] ; then
-    echo "Major version < 13, hence using opensolaris.ko"
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-  else
-    echo "Major version >= 13, hence using cryptodev.ko"
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-  fi
   sync ### Needed?
 }
 
