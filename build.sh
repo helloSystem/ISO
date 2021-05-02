@@ -399,10 +399,10 @@ boot()
   # Note that this also requires a library geom_rowr.so
   wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/geom_rowr.tar.gz"
   tar xf geom_rowr.tar.gz
-  cp "{$VER}"/geom_rowr.ko "${cdroot}"/boot/kernel/
+  cp "${VER}"/geom_rowr.ko "${cdroot}"/boot/kernel/
   ls "${cdroot}"/boot/kernel/geom_rowr.ko || exit 1
   mkdir -p "${cdroot}"/lib/geom/
-  cp "{$VER}"/geom_rowr.so "${cdroot}"/lib/geom/
+  cp "${VER}"/geom_rowr.so "${cdroot}"/lib/geom/
   ls "${cdroot}"/lib/geom/geom_rowr.so || exit 1
   rm -rf "12.2" "13.0" "geom_rowr.tar.gz"
   # Compress the kernel
