@@ -401,7 +401,7 @@ boot()
   cp "{VER}"/geom_rowr.ko "${cdroot}"/boot/kernel/
   ls "${cdroot}"/boot/kernel/geom_rowr.ko || exit 1
   mkdir -p "${cdroot}"/lib/geom/
-  cp "{VER}"/geom_rowr.so" "${cdroot}"/lib/geom/
+  cp "{VER}"/geom_rowr.so "${cdroot}"/lib/geom/
   ls "${cdroot}"/lib/geom/geom_rowr.so || exit 1
   rm -rf "12.2" "13.0" "geom_rowr.tar.gz"
   # Compress the kernel
