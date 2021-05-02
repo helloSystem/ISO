@@ -370,8 +370,9 @@ ramdisk()
 {
   cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
   # Copy the 'geom' command and its dependencies needed to mount using geom_rowr
-  mkdir -p "${ramdisk_root}"/sbin "${ramdisk_root}"/lib
+  mkdir -p "${ramdisk_root}"/sbin "${ramdisk_root}"/lib "${ramdisk_root}"/libexec
   cp "${uzip}"/sbin/geom "${ramdisk_root}"/sbin/
+  cp "${uzip}"/libexec/ld-elf.so.1 "${ramdisk_root}"/libexec/
   cp "${uzip}"/lib/libgeom.so.5 "${ramdisk_root}"/lib/
   cp "${uzip}"/lib/libutil.so.9 "${ramdisk_root}"/lib/
   cp "${uzip}"/lib/libc.so.7 "${ramdisk_root}"/lib/
