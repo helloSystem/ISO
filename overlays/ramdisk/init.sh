@@ -49,7 +49,7 @@ ls -lh /dev/md1*
 echo "==> Mount swap-based memdisk (md2)"
 # Make a swap-based memdisk (md2) with the exact same size as system.uzip
 x=$(cat /cdrom/data/system.bytes)
-mdconfig -a -t swap -s $x -u 2 >/dev/null 2>/dev/null
+mdconfig -a -t swap -s ${x}b -u 2 >/dev/null 2>/dev/null # Note the 'b' suffix to the -s option
 ls -lh /dev/md2*
 
 echo "==> Combine r/o (md1.uzip) and r/w (md2) devices using geom_rowr"
