@@ -2,6 +2,10 @@
 
 This Live ISO builder builds Live ISOs from FreeBSD ingredients. It is based on [furybsd-livecd](https://github.com/furybsd/furybsd-livecd/) by Joe Maloney.
 
+## Release
+
+The latest release build r0.5.0 can be downloaded [here](../../releases/tag/r0.5.0).
+
 ## Continuous builds
 
 Continuous builds can be downloaded [here](../../releases/). __CAUTION:__ These are meant for development only. Use at your own risk. Do not use in production environments.
