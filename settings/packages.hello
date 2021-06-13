@@ -30,6 +30,7 @@ automount
 # Small, fast, standards compliant, extensible window manager
 # FIXME: Find Qt replacement without too many Kf5 dependencies
 openbox
+plasma5-kwin
 # Library used to read freedesktop.org menus; Filer needs this
 menu-cache
 # Library to read digital camera file meta-data; Filer needs this
