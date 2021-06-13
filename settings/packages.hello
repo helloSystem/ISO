@@ -31,6 +31,8 @@ automount
 # FIXME: Find Qt replacement without too many Kf5 dependencies
 openbox
 plasma5-kwin
+# Custom version of the Breeze theme for added configurability; https://github.com/tsujan/BreezeEnhanced/issues/32
+https://github.com/helloSystem/BreezeEnhanced/releases/download/continuous/breezeenhanced-0.1.0.txz
 # Library used to read freedesktop.org menus; Filer needs this
 menu-cache
 # Library to read digital camera file meta-data; Filer needs this
