@@ -197,13 +197,16 @@ packages()
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
     # sed -i -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     # rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
-    echo "Major version 12, hence using quarterly packages to see whether it performs better than release_2"
+    # echo "Major version 12, hence using quarterly packages to see whether it performs better than release_2"
+    echo "Use latest packages because kwin_x11 has fewer dependencies there. TODO: Switch back in Q3/2021"
+    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
   elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, hence using quarterly packages since release_2 will probably not have compatible Intel driver"
+    # echo "Major version 13, hence using quarterly packages since release_2 will probably not have compatible Intel driver"
+    echo "Use latest packages because kwin_x11 has fewer dependencies there. TODO: Switch back in Q3/2021"
+    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
   else
     echo "Other major version, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
-    sed -i -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
-    rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
+    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
   fi
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
