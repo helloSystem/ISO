@@ -182,15 +182,15 @@ pkg_add_from_url()
       abi=${3+env ABI=$3} # Set $abi to "env ABI=$3" only if a third argument is provided
 
       pkgfile=${url##*/}
-      if [ ! -e "${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}" ]; then
-        fetch -o "${uzip}${pkg_cachedir}/${pkg_cachesubdir}/" "$url"
+      if [ ! -e ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} ]; then
+        fetch -o ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/ $url
       fi
-      deps=$(/usr/local/sbin/pkg-static query -F "${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}" %dn)
-      if [ -n "${deps}" ] ; then
-        IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" install -y "$(/usr/local/sbin/pkg-static query -F "${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}" %dn)"
+      deps=$(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
+      if [ ! -z "${deps}" ] ; then
+        env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" install -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
       fi
-      $abi IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add "${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}"
-      IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" lock -y "$(/usr/local/sbin/pkg-static query -F "${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}" %o)"
+      $abi env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add ${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}
+      env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" lock -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %o)
 }
 
 packages()
