@@ -185,7 +185,7 @@ pkg_add_from_url()
         fetch -o ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/ $url
       fi
       deps=$(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
-      if [ -n "$deps"] ; then
+      if [ ! -z "${deps}" ] ; then
         IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" install -y "${deps}"
       fi
       IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add ${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}
