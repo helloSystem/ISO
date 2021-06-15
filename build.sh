@@ -179,7 +179,7 @@ pkg_add_from_url()
 {
       url=$1
       pkg_cachesubdir=$2
-      abi=${3+env ABI=$3}
+      abi=${3+env ABI=$3} # Set $abi to "env ABI=$3" only if a third argument is provided
 
       pkgfile=${url##*/}
       if [ ! -e ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} ]; then
