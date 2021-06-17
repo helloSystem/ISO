@@ -1,3 +1,7 @@
+[Compositing]
+Enabled=true
+OpenGLIsUnsafe=false
+
 [MouseBindings]
 # Disable right-click context menu on title bar
 CommandActiveTitlebar3=Nothing
