@@ -18,7 +18,7 @@ appmenu-gtk-module
 # Global keyboard shortcuts registration
 lxqt-globalkeys
 # Compositor for drop shadows
-picom
+# picom # No more needed with KWin.app
 # Lightweight notification daemon
 dunst
 # Qt audio mixer for FreeBSD
@@ -29,10 +29,15 @@ redshift
 automount
 # Small, fast, standards compliant, extensible window manager
 # FIXME: Find Qt replacement without too many Kf5 dependencies
-openbox
-plasma5-kwin
+# openbox
+# plasma5-kwin # We now ship it in KWin.app
+# KWin.app needs this
+xcb-util-cursor
+qt5-sensors
+qt5-wayland
 # Custom version of the Breeze theme for added configurability; https://github.com/tsujan/BreezeEnhanced/issues/32
-https://github.com/helloSystem/BreezeEnhanced/releases/download/continuous/breezeenhanced-0.1.0.txz
+# We now ship it in KWin.app
+# https://github.com/helloSystem/BreezeEnhanced/releases/download/continuous/breezeenhanced-0.1.0.txz
 # Library used to read freedesktop.org menus; Filer needs this
 menu-cache
 # Library to read digital camera file meta-data; Filer needs this
