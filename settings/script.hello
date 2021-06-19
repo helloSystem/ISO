@@ -41,6 +41,11 @@ rm macOSBigSur.tar.gz
 # Icon
 wget "https://raw.githubusercontent.com/helloSystem/hello/master/branding/computer-hello.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer-hello.png
 
+# KWin
+wget -q "https://github.com/helloSystem/KWin/releases/download/latest/KWin.app.zip"
+unzip KWin.app.zip
+rm KWin.app.zip
+
 # Filer
 wget -q https://github.com/helloSystem/Filer/releases/download/continuous/Filer_FreeBSD.zip
 unzip Filer_FreeBSD.zip
