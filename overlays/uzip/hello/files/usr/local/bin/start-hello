@@ -227,7 +227,7 @@ else
   xrdb -load ~/.Xresources-2x # Also change cursor size
 fi
 
-kwin_x11 &
+launch /System/KWin.app &
 
 # Desktop notifications
 dunst &
