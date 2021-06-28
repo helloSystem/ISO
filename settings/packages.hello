@@ -67,6 +67,8 @@ arandr
 qpdfview
 # GUI to set up printers. TODO: Find Qt-based system-config-printer replacement
 system-config-printer
+# hplip is apparently needed for non-network HP printers; https://github.com/helloSystem/ISO/issues/225
+hplip
 # cups-pdf is needed to print PDFs
 cups-pdf
 # The 'desktop2app' command needs py37-xdg
