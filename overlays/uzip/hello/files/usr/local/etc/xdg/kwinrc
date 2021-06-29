@@ -1,3 +1,12 @@
+[Compositing]
+Enabled=true
+OpenGLIsUnsafe=false
+
+[MouseBindings]
+# Disable right-click context menu on title bar
+CommandActiveTitlebar3=Nothing
+CommandInactiveTitlebar3=Nothing
+
 [Desktops]
 Number=1
 
@@ -20,10 +29,16 @@ BlurStrength=8
 NoiseStrength=0
 
 [Windows]
+# Enable Window shading (reduce window to title bar)
+TitlebarDoubleClickCommand=Shade
+# Window unshading after titlebar hover after x milliseconds
+ShadeHover=true
+ShadeHoverInterval=500
+# Window placement strategy
+Placement=Cascade
 FocusStealingPreventionLevel=1
 HideUtilityWindowsForInactive=false
 BorderlessMaximizedWindows=false
-Placement=Cascade
 
 [Effect-FlipSwitch]
 TabBox=false
