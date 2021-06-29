@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Customize this menu
+Name[de]=Dieses Menü anpassen
+Profiles=profile;
+
+[X-Action-Profile profile]
+MimeTypes=all/all;
+Exec=launch Filer /usr/local/share/file-manager/actions/

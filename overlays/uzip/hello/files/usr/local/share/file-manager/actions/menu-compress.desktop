@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Menu
+Name=Compress
+Name[de]=Komprimieren
+Tooltip=Compress files
+Icon=application-x-compressed-tar
+ItemsList=compress;
