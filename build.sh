@@ -429,6 +429,7 @@ boot()
     sed -i -e 's|tmpfs_load=".*"|tmpfs_load="NO"|g' "${cdroot}"/boot/loader.conf
     rm -f "${cdroot}"/boot/loader.conf-e
   fi
+  echo 'exec="mode 0"' >> "${cdroot}"/boot/loader.conf
   sync ### Needed?
 }
 
