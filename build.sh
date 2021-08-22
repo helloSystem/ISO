@@ -429,7 +429,7 @@ boot()
     sed -i -e 's|tmpfs_load=".*"|tmpfs_load="NO"|g' "${cdroot}"/boot/loader.conf
     rm -f "${cdroot}"/boot/loader.conf-e
   fi
-  echo 'exec="mode 0"' >> "${cdroot}"/boot/loader.conf
+  echo 'exec="mode 0"' >> "${cdroot}"/boot/loader.conf # Prevent the FreeBSD 13 bootloader from changing the screen resolution, https://github.com/helloSystem/ISO/issues/198#issuecomment-901919172
   sync ### Needed?
 }
 
