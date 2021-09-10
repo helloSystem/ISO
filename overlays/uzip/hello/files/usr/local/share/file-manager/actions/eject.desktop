@@ -7,4 +7,4 @@ Profiles=profile-zero;
 
 [X-Action-Profile profile-zero]
 MimeTypes=inode/mount-point;
-Exec=sudo eject /dev/%w
+Exec=sudo eject /media/%w
