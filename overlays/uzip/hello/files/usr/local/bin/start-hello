@@ -250,14 +250,6 @@ if [ -z "$VIRTUAL_MACHINE" ] ; then
   redshift -l$(getlalo) &
 fi
 
-# Welcome Wizard
-uid="$(id -u)"
-if [ -e /System/Welcome.app/Welcome ] ; then
-  if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
-    /System/Welcome.app/Welcome
-  fi
-fi
-
 # Menubar
 export GTK_MODULES=appmenu-gtk-module
 /System/Menu.AppDir/usr/bin/menubar & # FIXME: Use AppRun
@@ -269,6 +261,11 @@ gmenudbusmenuproxy &
 
 # Desktop
 /System/Filer.AppDir/AppRun --desktop &
+
+# Welcome Wizard
+if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
+  launch Welcome
+fi
 
 # Wait for Menu to appear on D-Bus; this is needed for autostart to work properly
 while true; do 
