@@ -286,6 +286,7 @@ user()
   chroot ${uzip} pw groupmod wheel -m liveuser
   chroot ${uzip} pw groupmod video -m liveuser
   chroot ${uzip} pw groupmod webcamd -m liveuser
+  chroot ${uzip} pw groupmod cups -m liveuser
 }
 
 dm()
