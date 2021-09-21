@@ -209,8 +209,8 @@ if [ "$HIDPI" != "" ] ; then
   # export GDK_DPI_SCALE=1.5 # Not working
   # See https://ricostacruz.com/til/fractional-scaling-on-xorg-linux for a possible solution
   # for other scaling factors
+  export BREEZE_SCALE_FACTOR=$QT_SCALE_FACTOR # https://github.com/helloSystem/KWin/issues/3
 fi
-export BREEZE_SCALE_FACTOR=$QT_SCALE_FACTOR # https://github.com/helloSystem/KWin/issues/3
 
 # Launch per-user daemons
 
