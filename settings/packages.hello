@@ -171,3 +171,5 @@ multimedia/py-qt5-multimedia
 fusefs-squashfuse
 # Needed for Command-Tab in KWin
 kf5-kglobalaccel
+# Needed for Command+H to minimize
+xdotool
