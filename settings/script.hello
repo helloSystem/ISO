@@ -338,6 +338,12 @@ esac
 EOF
 chmod +x "${uzip}/usr/sbin/pkg"
 
+# Get newer version of automount than is packaged for FreeBSD as of 10/2021; https://github.com/vermaden/automount/issues/30
+# FIXME: Remove this once a suitable version is packaged for FreeBSD
+rm "${uzip}/usr/local/sbin/automount"
+wget -q "https://raw.githubusercontent.com/vermaden/automount/2a1f2a29725165d7dc4c422849668546fab010da/automount" -O "${uzip}/usr/local/sbin/automount"
+chmod +x "${uzip}/usr/local/sbin/automount"
+
 # Brute force method to make FAT media fully accessible and executable by everyone
 # https://github.com/vermaden/automount/issues/21#issuecomment-808753031
 # https://github.com/vermaden/automount/issues/27
