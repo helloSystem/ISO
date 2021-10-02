@@ -173,3 +173,6 @@ fusefs-squashfuse
 kf5-kglobalaccel
 # Needed for Command+H to minimize
 xdotool
+# Broadcom firmware (originating from https://sources.openwrt.org/)
+https://github.com/helloSystem/ISO/releases/download/assets/bwi-firmware-kmod-3.130.20.txz
+https://github.com/helloSystem/ISO/releases/download/assets/bwn-firmware-kmod-0.1.2.txz
