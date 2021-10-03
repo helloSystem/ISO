@@ -56,6 +56,7 @@ if __name__ == "__main__":
 
     # Get the old name with
     # blkid -s LABEL -o value /dev/da0
+    # FIXME: Other than fstyp, this only shows UPPERCASE for msdosfs. Why?
     result = subprocess.run(["blkid", "-s", "LABEL", "-o" ,"value", device], capture_output=True)
     if result.returncode != 0:
         exit("Could not determine the old label for %s. Exiting." % device)
@@ -105,14 +106,8 @@ if __name__ == "__main__":
     mntfstypes = list(map(lambda line: line.split()[2], lines))
     mntopts = list(map(lambda line: line.split()[3], lines))
     was_mounted = False
-    mount_mountpoint = None
-    mount_fs = None
-    mount_options = ""
     if device in mntdevs:
         was_mounted = True
-        mount_mountpoint = mntpoints[mntdevs.index(device)]
-        mount_fs = mntfstypes[mntdevs.index(device)]
-        mount_options = mntopts[mntdevs.index(device)]
 
     # Unmount the device if it is mounted
     if was_mounted:
@@ -131,6 +126,7 @@ if __name__ == "__main__":
 
     # Get the new name with
     # blkid -s LABEL -o value /dev/da0
+    # FIXME: Other than fstyp, this only shows UPPERCASE for msdosfs. Why?
     result = subprocess.run(["blkid", "-s", "LABEL", "-o" ,"value", device], capture_output=True)
     if result.returncode != 0:
         exit("Could not determine the new label for %s. Exiting." % device)
@@ -140,7 +136,8 @@ if __name__ == "__main__":
     # Mount the device again if it was mounted before
     # Potentially by sending a devd/udev message that lets automount do its thing?
     if was_mounted:
-        args = ["mount", "-t", mount_fs, "-o", mount_options, device, mount_mountpoint]
+        # Note: Need /usr/local/sbin/automount, not /usr/sbin/automount
+        args = ["/usr/local/sbin/automount", device.replace("/dev/", ""), "attach"]
         result = subprocess.run(args, capture_output=True)
         print(" ".join(args))
         if result.returncode != 0:
