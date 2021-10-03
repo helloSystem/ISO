@@ -12,7 +12,7 @@ def ensure_avail(tool):
 
     from shutil import which
     if which(tool) is None:
-        exit("The command line tool '%s' is needed but is not available.\nPlease install it, then try again. Exiting." % tool)
+        exit("The command line tool '%s' is needed but is not available.\nPlease install it, then try again." % tool)
         # TODO: Also print the name of the command to install the package for well-known operating systems
 
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         # Get the device name from the mount point
         result = subprocess.run(["mount", "-p"], capture_output=True)
         if result.returncode != 0:
-            exit("Could get list of mounted devices. Exiting.")
+            exit("Could get list of mounted devices.")
         lines = str(result.stdout.decode()).strip().split("\n")
         mntdevs = list(map(lambda line: line.split()[0], lines))
         mntpoints = list(map(lambda line: line.split()[1], lines))
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         if args.rename[1].startswith("/dev"):
             device = args.rename[1]
         else:
-            exit("Device must start with /dev. Exiting.")
+            exit("Device must start with /dev.")
 
     # Check if the device exists
     if not os.path.exists(device):
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     # FIXME: Other than fstyp, this only shows UPPERCASE for msdosfs. Why?
     result = subprocess.run(["blkid", "-s", "LABEL", "-o" ,"value", device], capture_output=True)
     if result.returncode != 0:
-        exit("Could not determine the old label for %s. Exiting." % device)
+        exit("Could not determine the old label for %s." % device)
     old_name = str(result.stdout.decode()).strip()
     print("Old name: '%s'" % old_name)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # blkid -s TYPE -o value /dev/da0
     result = subprocess.run(["blkid", "-s", "TYPE", "-o" ,"value", device], capture_output=True)
     if result.returncode != 0:
-        exit("Could not determine the file system on %s. Exiting." % device)
+        exit("Could not determine the file system on %s." % device)
     filesystem = str(result.stdout.decode()).strip()
 
     # TODO: Find the canonical source of all the filesystem names in blkid
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         args = []
 
     if tool is None:
-        exit("The file system %s on %s is not supported by this tool. Exiting." % (filesystem, device))
+        exit("The file system %s on %s is not supported by this tool." % (filesystem, device))
 
     # TODO: Check if the name given can be used for this type of file system
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # Check if the device is mounted
     result = subprocess.run(["mount", "-p"], capture_output=True)
     if result.returncode != 0:
-        exit("Could not determine whether %s is mounted. Exiting." % device)
+        exit("Could not determine whether %s is mounted." % device)
     lines = str(result.stdout.decode()).strip().split("\n")
     mntdevs = list(map(lambda line: line.split()[0], lines))
     mntpoints = list(map(lambda line: line.split()[1], lines))
@@ -114,7 +114,7 @@ if __name__ == "__main__":
         print("Unmounting %s..." % device)
         result = subprocess.run(["umount", device], capture_output=True)
         if result.returncode != 0:
-            exit("Could not unmount %s. Exiting." % device)
+            exit("Could not unmount %s." % device)
 
     # Perform the rename
     print("Renaming device %s to '%s'..." % (device, name))
@@ -122,14 +122,14 @@ if __name__ == "__main__":
     print( " ".join(args))
     result = subprocess.run(args, capture_output=True)
     if result.returncode != 0:
-        exit("Could not rename %s. Exiting." % device)
+        exit("Could not rename %s." % device)
 
     # Get the new name with
     # blkid -s LABEL -o value /dev/da0
     # FIXME: Other than fstyp, this only shows UPPERCASE for msdosfs. Why?
     result = subprocess.run(["blkid", "-s", "LABEL", "-o" ,"value", device], capture_output=True)
     if result.returncode != 0:
-        exit("Could not determine the new label for %s. Exiting." % device)
+        exit("Could not determine the new label for %s." % device)
     new_name = str(result.stdout.decode()).strip()
     print("New name: '%s'" % new_name)
 
@@ -141,8 +141,8 @@ if __name__ == "__main__":
         result = subprocess.run(args, capture_output=True)
         print(" ".join(args))
         if result.returncode != 0:
-            exit("Could not mount %s. Exiting." % device)
+            exit("Could not mount %s." % device)
 
     if os.geteuid() != 0:
-        exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
-
+        exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'.")
+    
