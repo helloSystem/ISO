@@ -95,6 +95,9 @@ mv * "${uzip}/System/"
 # Symlink menubar in place; FIXME: Remove once desktop2app does not need to restart it from there anymore
 chroot "${uzip}" ln -s /System/Menu.AppDir/usr/bin/menubar /usr/local/bin
 
+# Needed for translations in the helloSystem/Utilities repository
+chroot "${uzip}" python3 -m pip install translate-toolkit
+
 # Add applications from the helloSystem/Utilities repository
 mkdir -p "${uzip}/Applications/"
 mkdir -p "${uzip}/System/"
