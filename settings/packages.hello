@@ -178,3 +178,6 @@ https://github.com/helloSystem/ISO/releases/download/assets/bwi-firmware-kmod-3.
 https://github.com/helloSystem/ISO/releases/download/assets/bwn-firmware-kmod-0.1.2.txz
 # Needed to rename MSDOSFS disks
 mtools
+# Needed to install software for Python that is not in FreeBSD packages yet,
+# such as translate-toolkit which is needed for the applications in the helloSystem/Utilities repository
+devel/py-pip
