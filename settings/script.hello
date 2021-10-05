@@ -95,9 +95,6 @@ mv * "${uzip}/System/"
 # Symlink menubar in place; FIXME: Remove once desktop2app does not need to restart it from there anymore
 chroot "${uzip}" ln -s /System/Menu.AppDir/usr/bin/menubar /usr/local/bin
 
-# Needed for translations in the helloSystem/Utilities repository
-chroot "${uzip}" python3 -m pip install translate-toolkit
-
 # Add applications from the helloSystem/Utilities repository
 mkdir -p "${uzip}/Applications/"
 mkdir -p "${uzip}/System/"
@@ -217,6 +214,9 @@ rm -rf ${uzip}/usr/local/share/xsessions/*.desktop
 cp /etc/resolv.conf ${uzip}/etc/resolv.conf
 mount_nullfs ${packages} ${uzip}/var/cache/pkg
 mount -t devfs devfs ${uzip}/dev
+
+# Needed for translations in the helloSystem/Utilities repository
+chroot "${uzip}" python3 -m pip install translate-toolkit
 
 # Workaround for: appmenu-gtk-module is not yet in quarterly packages; FIXME: install it from the packages once it is there
 # https://github.com/helloSystem/ISO/issues/20
