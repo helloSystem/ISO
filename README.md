@@ -1,10 +1,8 @@
 # hello Live ISO builder [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO)
 
-This Live ISO builder builds Live ISOs from FreeBSD ingredients. It is based on [furybsd-livecd](https://github.com/furybsd/furybsd-livecd/) by Joe Maloney.
-
 ## Release
 
-The latest release build r0.5.0 can be downloaded [here](../../releases/tag/r0.5.0).
+The latest release build r0.6.0 can be downloaded [here](../../releases/tag/r0.5.0).
 
 ## Continuous builds
 
