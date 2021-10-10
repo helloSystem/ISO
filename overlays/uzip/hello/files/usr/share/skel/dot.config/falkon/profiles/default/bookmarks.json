@@ -57,6 +57,14 @@
                         {
                             "description": "",
                             "keyword": "",
+                            "name": "helloSystem Discussion Forum",
+                            "type": "url",
+                            "url": "https://github.com/helloSystem/hello/discussions",
+                            "visit_count": 0
+                        },
+                        {
+                            "description": "",
+                            "keyword": "",
                             "name": "helloSystem Chat on Matrix",
                             "type": "url",
                             "url": "https://app.element.io/#/room/%23helloSystem:matrix.org",
