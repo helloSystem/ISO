@@ -405,7 +405,7 @@ chroot ${uzip} pkg remove -y python39 python37 python36 python27
 # https://www.freedesktop.org/software/systemd/man/os-release.html
 if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
   SHA=$(echo "${CIRRUS_CHANGE_IN_REPO}" | head -c 7)
-  cat >> "${uzip}/etc/os-release" << `  eof`
+  cat >> "${uzip}/etc/os-release" << '  eof'
   VARIANT=\"helloSystem\"
   VARIANT_ID=\"hellosystem\"
   IMAGE_ID=\"iso\"
