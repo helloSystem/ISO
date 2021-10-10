@@ -400,3 +400,15 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list plasma5-breeze) ; do rm $FILE ; don
 # FIXME: Prevent extraneous versions of Python from being installed in the first place
 # https://github.com/helloSystem/ISO/issues/191#issuecomment-861822967
 chroot ${uzip} pkg remove -y python39 python37 python36 python27
+
+# Amend /etc/os-release by helloSystem specific entries
+# https://www.freedesktop.org/software/systemd/man/os-release.html
+if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
+  SHA=$(echo "${CIRRUS_CHANGE_IN_REPO}" | head -c 7)
+  cat >> "${uzip}/etc/os-release" << `  eof`
+  VARIANT=\"helloSystem\"
+  VARIANT_ID=\"hellosystem\"
+  IMAGE_ID=\"iso\"
+  IMAGE_VERSION="\${BUILDNUMBER}_"${SHA}\"
+  eof
+fi
