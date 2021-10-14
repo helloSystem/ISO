@@ -113,7 +113,7 @@ pkg create --verbose -r ${STAGEDIR} -m . -o .
 # Replace transient-packages-list with a new one reflecting all transient packages;
 # this will be used for installing them later on
 ls -lh
-ls *.txz > transient-packages-list
+ls *.pkg > transient-packages-list
 readlink -f transient-packages-list
 cat transient-packages-list
 
