@@ -379,6 +379,11 @@ if [ -f "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonito
   chflags schg "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonitor.service"
 fi
 
+# Library needed to display symbols for keyboard shortcuts
+# https://github.com/helloSystem/hello/issues/46
+wget -c -q "https://github.com/helloSystem/QKeySequenceOverride/releases/download/continuous/libQKeySequenceOverride.so.1.0.0"
+mv libQKeySequenceOverride.so.1.0.0 "${uzip}/usr/local/lib/"
+
 # FIXME: Desperate attempt at reducing image size
 rm -rf "${uzip}"/usr/local/share/icons/breeze*
 rm -rf "${uzip}"/usr/local/*-portbld-*/ # What is it; is it actually needed? https://forums.freebsd.org/threads/what-is-the-portbld-directory.71759/
