@@ -4,6 +4,10 @@
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
+# Use library to display symbols for keyboard shortcuts
+# https://github.com/helloSystem/hello/issues/46
+export LD_PRELOAD=/usr/local/lib/libQKeySequenceOverride.so.1.0.0
+
 # Find out whether we are running in a virtual machine
 VM_GUEST=$(/sbin/sysctl -n kern.vm_guest)
 HV_VENDOR=$(/sbin/sysctl -n hw.hv_vendor | /usr/bin/awk '{print $1}')
