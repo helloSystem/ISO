@@ -2,7 +2,7 @@
 
 ## Release
 
-The latest release build r0.6.0 can be downloaded [here](../../releases/tag/r0.5.0).
+The latest release build r0.6.0 can be downloaded [here](../../releases/tag/r0.6.0).
 
 ## Continuous builds
 
