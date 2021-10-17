@@ -153,7 +153,7 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_SESSION_CLASS=user
 export XDG_SESSION_TYPE=x11
 
-# When 'sudo -A -E <command>' is executed, use this helper appliction to get the password
+# When 'sudo -A -E <command>' is executed, use this helper application to get the password
 export SUDO_ASKPASS=/usr/local/bin/askpass
 # Using sudo.conf resulted in a password dialog when X starts
 
