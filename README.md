@@ -20,7 +20,7 @@ root@FreeBSD:/ # curl -L "https://github.com/probonopd/furybsd-livecd/releases/d
 ## System Requirements for live media
 
 * 2 GHz dual core processor
-* 4 GiB RAM (system memory for physical and viritualized installs)
+* 4 GiB RAM (system memory for physical and virtualized installs)
 * VGA capable of 1024x768 screen resolution 
 * Either a CD/DVD drive or a USB port for booting the installer media
 
