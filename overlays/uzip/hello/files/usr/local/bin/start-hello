@@ -257,7 +257,7 @@ fi
 
 # Menubar
 export GTK_MODULES=appmenu-gtk-module
-/System/Menu.AppDir/usr/bin/menubar & # FIXME: Use AppRun
+launch Menu &
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
@@ -265,7 +265,7 @@ export GTK_MODULES=appmenu-gtk-module
 gmenudbusmenuproxy &
 
 # Desktop
-/System/Filer.AppDir/AppRun --desktop &
+launch Filer &
 
 # Welcome Wizard
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
