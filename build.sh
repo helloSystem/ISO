@@ -16,7 +16,7 @@ fi
 VER=$(uname -r | cut -d "-" -f 1) # "12.2" or "13.0"
 MAJOR=$(uname -r | cut -d "." -f 1) # "12" or "13"
 
-# Dwnload from either https://download.freebsd.org/ftp/releases/
+# Download from either https://download.freebsd.org/ftp/releases/
 #                  or https://download.freebsd.org/ftp/snapshots/
 VERSIONSUFFIX=$(uname -r | cut -d "-" -f 2) # "RELEASE" or "CURRENT"
 FTPDIRECTORY="releases" # "releases" or "snapshots"

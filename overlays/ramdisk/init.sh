@@ -53,7 +53,7 @@ if [ "$(kenv use_unionfs)" = "YES" ] ; then
   ## Could we snapshot /usr/local/furybsd/uzip here?
   ## zfs snapshot furybsd@now
   ## results in:
-  ## cannot create shapshots : pool is read-only
+  ## cannot create snapshots : pool is read-only
   
   ## FIXME: The following does NOT seem to work
   ## mkdir /tmp

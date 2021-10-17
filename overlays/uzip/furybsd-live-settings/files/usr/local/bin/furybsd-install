@@ -161,7 +161,7 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   echo "Not setting time for now; let's handle this by ntpd and dhcp"
 else
   echo "Environment variable INSTALLER_DEVICE not set, running bsdinstall time"
-  # FIXME: Do we still want this given that we will use ntpd and dhcp timzeones?
+  # FIXME: Do we still want this given that we will use ntpd and dhcp timezones?
   bsdinstall time
 fi
 

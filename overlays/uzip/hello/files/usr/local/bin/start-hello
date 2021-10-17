@@ -153,7 +153,7 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_SESSION_CLASS=user
 export XDG_SESSION_TYPE=x11
 
-# When 'sudo -A -E <command>' is executed, use this helper appliction to get the password
+# When 'sudo -A -E <command>' is executed, use this helper application to get the password
 export SUDO_ASKPASS=/usr/local/bin/askpass
 # Using sudo.conf resulted in a password dialog when X starts
 
@@ -246,9 +246,9 @@ dunst &
 # dsbmc
 
 # Variable color temperature
-# without getlalo it would use network locatization from geoclue2,
+# without getlalo it would use network localization from geoclue2,
 # with getlalo it gets the location from /var/db/zoneinfo
-# which we posssibly should set in the Welcome Wizard,
+# which we possibly should set in the Welcome Wizard,
 # but then the color would be wrong for the Welcome Wizard
 # Do not run this if we are running inside a virtual machine
 if [ -z "$VIRTUAL_MACHINE" ] ; then
