@@ -307,7 +307,7 @@ if __name__ == "__main__":
             if desktop_file_candidate == pkg_name + ".desktop":
                 desktop_file = desktop_file_candidate
 
-        # Second, look for desktop files with the nae of the requested packge in reverse-DNS format
+        # Second, look for desktop files with the nae of the requested package in reverse-DNS format
         for desktop_file_candidate in desktop_file_candidates:
             if desktop_file == None:
                 parts = desktop_file_candidate.split(".")
