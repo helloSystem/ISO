@@ -68,7 +68,7 @@ class ArchiveMounter(object):
 
         self.p = QtCore.QProcess()
         self.p.setProgram("archivemount")
-        # TODO: perhaps we need something along the lines of modules=iconv,from_code=ISO-8859-2,to_code=utf-8 for Windows compatiblity?
+        # TODO: perhaps we need something along the lines of modules=iconv,from_code=ISO-8859-2,to_code=utf-8 for Windows compatibility?
         args = ['-o', 'readonly,nonempty,allow_root', filename, self.mountpoint]
         print(self.p.program() + " " + " ".join(args))
         self.p.setArguments(args)
