@@ -246,7 +246,7 @@ dunst &
 # dsbmc
 
 # Variable color temperature
-# without getlalo it would use network locatization from geoclue2,
+# without getlalo it would use network localization from geoclue2,
 # with getlalo it gets the location from /var/db/zoneinfo
 # which we posssibly should set in the Welcome Wizard,
 # but then the color would be wrong for the Welcome Wizard
