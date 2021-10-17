@@ -231,7 +231,10 @@ chroot "${uzip}" python3 -m pip install translate-toolkit
 
 # Remove pkg (it will be bootstrapped if needed)
 # chroot "${uzip}" sudo pkg remove -y -f pkg # Breaks furybsd-init-helper
-chroot "${uzip}" pkg lock -y hello # Prevent the hello package from being upgraded with an unrelated package of the same name
+# Prevent the hello package from being upgraded with an unrelated package of the same name
+# and prevent the modifications made to the system in this script from being overwritten
+# by package updates done by the user at a later time; FIXME: Find a cleaner way
+chroot "${uzip}" pkg lock -y hello automount slim gvfs dejavu liberation-fonts-ttf
 rm ${uzip}/etc/resolv.conf
 umount ${uzip}/var/cache/pkg
 umount ${uzip}/dev
