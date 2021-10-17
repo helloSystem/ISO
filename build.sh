@@ -200,11 +200,11 @@ packages()
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
     # sed -i -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     # rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
-    echo "Major version 12, hence using quarterly packages to see whether it performs better than release_2"
+    echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, hence using quarterly packages since release_2 will probably not have compatible Intel driver"
-  else
-    echo "Other major version, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
+    echo "Major version 13, using quarterly packages"
+  elif [ $MAJOR -eq 14 ] ; then
+    echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
     sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
   fi
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
@@ -326,8 +326,8 @@ initgfx()
   if [ "${arch}" != "i386" ] ; then
     MAJOR=$(uname -r | cut -d "." -f 1)
     if [ $MAJOR -lt 14 ] ; then
-      # PKGS="quarterly"
-      PKGS="latest" # This must match what we specify in packages()
+      PKGS="quarterly"
+      # PKGS="latest" # This must match what we specify in packages()
     else
       PKGS="latest"
     fi
