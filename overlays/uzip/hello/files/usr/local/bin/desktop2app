@@ -178,7 +178,7 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
     # TODO: Handle MIME types and file associations more adequately.
     # Again, it is refreshing to see how straightforward things are in GNUstep compared to XDG,
     # e.g., how easy an application can set the file types it understands, define what those files
-    # are called, and which icons to use to represent them. What is imlemented below is the bare minimum
+    # are called, and which icons to use to represent them. What is implemented below is the bare minimum
     # to get things going. Feel free to implement more.
     nstypes = []
     if mime != None:
