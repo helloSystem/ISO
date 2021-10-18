@@ -153,6 +153,10 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_SESSION_CLASS=user
 export XDG_SESSION_TYPE=x11
 
+if [ -z "${XDG_RUNTIME_DIR}" ] ; then
+  export XDG_RUNTIME_DIR=/var/run/user/$(id -u)
+fi
+
 # When 'sudo -A -E <command>' is executed, use this helper application to get the password
 export SUDO_ASKPASS=/usr/local/bin/askpass
 # Using sudo.conf resulted in a password dialog when X starts
