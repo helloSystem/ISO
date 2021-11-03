@@ -162,12 +162,18 @@ unzip QHexEdit_FreeBSD.zip
 mv QHexEdit.app "${uzip}/Applications/Developer/"
 rm -f QHexEdit_FreeBSD.zip
 
-# Fonts
+# URW fonts including Nimbus Sans
 wget -c -q https://github.com/ArtifexSoftware/urw-base35-fonts/archive/20200910.zip
 unzip -q 20200910.zip
 mkdir -p "${uzip}/usr/local/share/fonts/TTF/"
 cp -R urw-base35-fonts-20200910/fonts/*.ttf "${uzip}/usr/local/share/fonts/TTF/"
 rm -rf urw-base35-fonts-20200910/ 20200910.zip
+
+# Inter font, needed for proper special characters in menus
+wget -c -q https://github.com/rsms/inter/releases/download/v3.19/Inter-3.19.zip
+unzip Inter-3.19.zip
+mv 'Inter Desktop/Inter-V.ttf' "${uzip}/usr/local/share/fonts/TTF/"
+rm -rf "Inter *"
 
 # Applications
 mkdir -p "${uzip}/Applications"
