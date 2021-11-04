@@ -149,9 +149,10 @@ workspace()
   zfs set mountpoint="${uzip}" furybsd
   # From FreeBSD 13 on, zstd can be used with zfs in base
   MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 13 ] ; then
+  if [ $MAJOR -lt 14 ] ; then
     zfs set compression=gzip-6 furybsd 
   else
+    # zstd conflicts uzip for good compression ratio?
     zfs set recordsize=1M furybsd # This may influence the compression ratio
     zfs set compression=zstd-15 furybsd # Since we do not write to it, 15 may be ok (but may need more RAM?)
   fi
