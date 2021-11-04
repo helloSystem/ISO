@@ -152,9 +152,9 @@ workspace()
   if [ $MAJOR -lt 13 ] ; then
     zfs set compression=gzip-6 furybsd 
   else
-    zfs set compression=zstd-9 furybsd 
+    zfs set recordsize=1M furybsd # This may influence the compression ratio
+    zfs set compression=zstd-15 furybsd # Since we do not write to it, 15 may be ok (but may need more RAM?)
   fi
-
 }
 
 base()
