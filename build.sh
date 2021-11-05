@@ -129,8 +129,10 @@ cleanup()
   else
     umount ${uzip}/var/cache/pkg >/dev/null 2>/dev/null || true
     umount ${uzip}/dev >/dev/null 2>/dev/null || true
-    zpool destroy -f furybsd >/dev/null 2>/dev/null || true
-    mdconfig -d -u 0 >/dev/null 2>/dev/null || true
+    if [ -d "${livecd}" ] ;then
+      chflags -R noschg ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+      rm -rf ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+    fi
     rm ${livecd}/pool.img >/dev/null 2>/dev/null || true
     rm -rf ${cdroot} >/dev/null 2>/dev/null || true
   fi
@@ -138,24 +140,17 @@ cleanup()
 
 workspace()
 {
+
+  # Mount a  temporary filesystem image at "${uzip}" so that we can clean up afterwards more easily
+  # dd if=/dev/zero of=test.img bs=1M count=512
+  # mdconfig -a -t vnode -f test.img -u 9
+  # newfs /dev/md9
+  # mount /dev/md9 "${uzip}"
+
   mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 3g "${livecd}/pool.img"
-  mdconfig -f "${livecd}/pool.img" -u 0
-  gpart create -s GPT md0
-  gpart add -t freebsd-zfs md0
+  #truncate -s 3g "${livecd}/pool.img"
+  #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
-  zpool create furybsd /dev/md0p1
-  sync ### Needed?
-  zfs set mountpoint="${uzip}" furybsd
-  # From FreeBSD 13 on, zstd can be used with zfs in base
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 14 ] ; then
-    zfs set compression=gzip-6 furybsd 
-  else
-    # zstd conflicts uzip for good compression ratio?
-    zfs set recordsize=1M furybsd # This may influence the compression ratio
-    zfs set compression=zstd-15 furybsd # Since we do not write to it, 15 may be ok (but may need more RAM?)
-  fi
 }
 
 base()
@@ -365,19 +360,31 @@ script()
 
 uzip() 
 {
+  ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
-  sync ### Needed?
-  mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img"
+  # geom_rowr needs some free extra space on the r/o filesystem, otherwise it reports
+  # no free space for the combined /dev/rowrX filesystem
+  makefs -b '50%' -f '50%' "${cdroot}/data/system.ufs" "${uzip}"
+  wc -c < "${cdroot}/data/system.ufs" > "${cdroot}/data/system.bytes" # Size in bytes, needed by init.sh
+  mkuzip -o "${cdroot}/data/system.uzip" "${cdroot}/data/system.ufs"
+  rm -f "${cdroot}/data/system.ufs"
+  
 }
 
 ramdisk() 
 {
   cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
-  sync ### Needed?
-  cd ${cwd} && zpool import furybsd && zfs set mountpoint=/usr/local/furybsd/uzip furybsd
-  sync ### Needed?
+  # Copy the 'geom' command and its dependencies needed to mount using geom_rowr
+  mkdir -p "${ramdisk_root}"/sbin "${ramdisk_root}"/lib "${ramdisk_root}"/libexec
+  cp "${uzip}"/sbin/geom "${ramdisk_root}"/sbin/
+  cp "${uzip}"/libexec/ld-elf.so.1 "${ramdisk_root}"/libexec/
+  cp "${uzip}"/lib/libgeom.so.5 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libutil.so.9 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libc.so.7 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libbsdxml.so.4 "${ramdisk_root}"/lib/
+  cp "${uzip}"/lib/libsbuf.so.6 "${ramdisk_root}"/lib/
+  # TODO: Replace the lines above with something more robust that won't break
+  # when the dependencies of the 'geom' command change
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
   touch "${ramdisk_root}/etc/fstab"
   cp ${uzip}/etc/login.conf ${ramdisk_root}/etc/login.conf
@@ -402,35 +409,22 @@ boot()
     -not -name 'tmpfs.ko' \
     -not -name 'xz.ko' \
     -not -name 'zfs.ko' \
+    -not -name 'geom_rowr.ko' \
     -delete
+  # Add geom_rowr kernel module for combining read-only with read-write device
+  # Note that this also requires a library geom_rowr.so
+  wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/geom_rowr.tar.gz"
+  tar xf geom_rowr.tar.gz
+  cp "${VER}"/geom_rowr.ko "${cdroot}"/boot/kernel/
+  ls "${cdroot}"/boot/kernel/geom_rowr.ko || exit 1
+  mkdir -p "${cdroot}"/lib/geom/
+  cp "${VER}"/geom_rowr.so "${cdroot}"/lib/geom/
+  ls "${cdroot}"/lib/geom/geom_rowr.so || exit 1
+  rm -rf "12.2" "13.0" "geom_rowr.tar.gz"
   # Compress the kernel
   gzip "${cdroot}"/boot/kernel/kernel
   # Compress the remaining modules
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && mdconfig -d -u 0
-  sync ### Needed?
-  # The name of a dependency for zfs.ko changed, violating POLA
-  # If we are loading both modules, then at least 13 cannot boot, hence only load one based on the FreeBSD major version
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 13 ] ; then
-    echo "Major version < 13, hence using opensolaris.ko"
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-  else
-    echo "Major version >= 13, hence using cryptodev.ko"
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-  fi
-  echo 'exec="mode 0"' >> "${cdroot}"/boot/loader.conf # Prevent the FreeBSD 13 bootloader from changing the screen resolution, https://github.com/helloSystem/ISO/issues/198#issuecomment-901919172
   sync ### Needed?
 }
 
