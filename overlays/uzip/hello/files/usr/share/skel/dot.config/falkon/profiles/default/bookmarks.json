@@ -57,6 +57,14 @@
                         {
                             "description": "",
                             "keyword": "",
+                            "name": "helloSystem Discussion Forum",
+                            "type": "url",
+                            "url": "https://github.com/helloSystem/hello/discussions",
+                            "visit_count": 0
+                        },
+                        {
+                            "description": "",
+                            "keyword": "",
                             "name": "helloSystem Chat on Matrix",
                             "type": "url",
                             "url": "https://app.element.io/#/room/%23helloSystem:matrix.org",
@@ -78,13 +86,30 @@
                     "type": "folder"
                 },
                 {
+                    "children": [
+                        {
+                            "description": "",
+                            "keyword": "",
+                            "name": "Continuing Ed - with Edward Snowden",
+                            "type": "url",
+                            "url": "https://edwardsnowden.substack.com/",
+                            "visit_count": 0
+                        },
+                		{
+                    		"description": "",
+                    		"keyword": "",
+                    		"name": "Watch Video on Invidious",
+                    		"type": "url",
+                    		"url": "https://docs.invidious.io/Invidious-Instances.md",
+                    		"visit_count": 0
+                		}
+                    ],
                     "description": "",
-                    "keyword": "",
-                    "name": "Watch Video on Invidious",
-                    "type": "url",
-                    "url": "https://docs.invidious.io/Invidious-Instances.md",
-                    "visit_count": 0
-                }
+                    "expanded": false,
+                    "expanded_sidebar": false,
+                    "name": "Privacy",
+                    "type": "folder"
+                },
             ],
             "description": "",
             "expanded": true,

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Action
+Name=git-cola
+Icon=git-cola
+Profiles=profile-zero;
+
+[X-Action-Profile profile-zero]
+# Apparently git-cola can only handle the exact path to the repository, not to files/directories within
+TryExec=git-cola
+Exec=git-cola -r %f

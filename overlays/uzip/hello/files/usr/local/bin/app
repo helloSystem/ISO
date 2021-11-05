@@ -218,7 +218,7 @@ sudo chroot -u "${USER}" "${CHROOT}" "%EXEC%" "$@"
     # TODO: Handle MIME types and file associations more adequately.
     # Again, it is refreshing to see how straightforward things are in GNUstep compared to XDG,
     # e.g., how easy an application can set the file types it understands, define what those files
-    # are called, and which icons to use to represent them. What is imlemented below is the bare minimum
+    # are called, and which icons to use to represent them. What is implemented below is the bare minimum
     # to get things going. Feel free to implement more.
     nstypes = []
     if mime != None:
@@ -307,7 +307,7 @@ if __name__ == "__main__":
             if desktop_file_candidate == pkg_name + ".desktop":
                 desktop_file = desktop_file_candidate
 
-        # Second, look for desktop files with the nae of the requested packge in reverse-DNS format
+        # Second, look for desktop files with the nae of the requested package in reverse-DNS format
         for desktop_file_candidate in desktop_file_candidates:
             if desktop_file == None:
                 parts = desktop_file_candidate.split(".")

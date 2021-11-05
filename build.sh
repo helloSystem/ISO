@@ -16,7 +16,7 @@ fi
 VER=$(uname -r | cut -d "-" -f 1) # "12.2" or "13.0"
 MAJOR=$(uname -r | cut -d "." -f 1) # "12" or "13"
 
-# Dwnload from either https://download.freebsd.org/ftp/releases/
+# Download from either https://download.freebsd.org/ftp/releases/
 #                  or https://download.freebsd.org/ftp/snapshots/
 VERSIONSUFFIX=$(uname -r | cut -d "-" -f 2) # "RELEASE" or "CURRENT"
 FTPDIRECTORY="releases" # "releases" or "snapshots"
@@ -24,7 +24,7 @@ if [ "${VERSIONSUFFIX}" = "CURRENT" ] ; then
   FTPDIRECTORY="snapshots"
 fi
 # RCs are in the 'releases' ftp directory; hence check if $VERSIONSUFFIX begins with 'RC' https://serverfault.com/a/252406
-if [ "${VERSIONSUFFIX#RC}"x = "${VERSIONSUFFIX}x" ]  ; then
+if [ "${VERSIONSUFFIX#RC}"x != "${VERSIONSUFFIX}x" ]  ; then
   FTPDIRECTORY="releases"
 fi
 
@@ -151,8 +151,6 @@ workspace()
   #truncate -s 3g "${livecd}/pool.img"
   #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
-
-
 }
 
 base()
@@ -177,15 +175,18 @@ pkg_add_from_url()
 {
       url=$1
       pkg_cachesubdir=$2
-      abi=${3+env ABI=$3}
+      abi=${3+env ABI=$3} # Set $abi to "env ABI=$3" only if a third argument is provided
 
       pkgfile=${url##*/}
       if [ ! -e ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} ]; then
         fetch -o ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/ $url
       fi
-      IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" install -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
-      IGNORE_OSVERSION=yes $abi /usr/local/sbin/pkg-static -c "${uzip}" add ${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}
-      IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" lock -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %o)
+      deps=$(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
+      if [ ! -z "${deps}" ] ; then
+        env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" install -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %dn)
+      fi
+      $abi env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add ${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile}
+      env IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" lock -y $(/usr/local/sbin/pkg-static query -F ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} %o)
 }
 
 packages()
@@ -195,13 +196,12 @@ packages()
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
     # sed -i -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     # rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
-    echo "Major version 12, hence using quarterly packages to see whether it performs better than release_2"
+    echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, hence using quarterly packages since release_2 will probably not have compatible Intel driver"
-  else
-    echo "Other major version, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
-    sed -i -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
-    rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
+    echo "Major version 13, using quarterly packages"
+  elif [ $MAJOR -eq 14 ] ; then
+    echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
+    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
   fi
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
@@ -238,6 +238,9 @@ packages()
   # Manifest of installed packages ordered by size in bytes
   /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${cdroot}/data/system.uzip.manifest"
   cp "${cdroot}/data/system.uzip.manifest" "${isopath}.manifest"
+  # zip local.sqlite and put in output directory next to the ISO
+  zip pkg.zip ${uzip}/var/db/pkg/local.sqlite
+  mv pkg.zip "${isopath}.pkg.zip"
 }
 
 rc()
@@ -278,6 +281,7 @@ user()
   chroot ${uzip} pw groupmod wheel -m liveuser
   chroot ${uzip} pw groupmod video -m liveuser
   chroot ${uzip} pw groupmod webcamd -m liveuser
+  chroot ${uzip} pw groupmod cups -m liveuser
 }
 
 dm()
@@ -322,6 +326,7 @@ initgfx()
     MAJOR=$(uname -r | cut -d "." -f 1)
     if [ $MAJOR -lt 14 ] ; then
       PKGS="quarterly"
+      # PKGS="latest" # This must match what we specify in packages()
     else
       PKGS="latest"
     fi

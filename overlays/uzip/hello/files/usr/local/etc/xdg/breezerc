@@ -28,4 +28,4 @@ BorderSize=BorderNone
 MacOSButtons=false
 BackgroundGradientIntensity=30
 DrawTitleBarSeparator=true
-TitleBarFont=Nimbus Sans,10,-1,5,75,0,0,0,0,0,Bold
+TitleBarFont=Nimbus Sans,10.5,0,0,0,0,0,0,0,0,Regular

@@ -41,6 +41,11 @@ rm macOSBigSur.tar.gz
 # Icon
 wget "https://raw.githubusercontent.com/helloSystem/hello/master/branding/computer-hello.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer-hello.png
 
+# KWin
+wget -q "https://github.com/helloSystem/KWin/releases/download/latest/KWin.app.zip"
+unzip KWin.app.zip
+rm KWin.app.zip
+
 # Filer
 wget -q https://github.com/helloSystem/Filer/releases/download/continuous/Filer_FreeBSD.zip
 unzip Filer_FreeBSD.zip
@@ -157,12 +162,18 @@ unzip QHexEdit_FreeBSD.zip
 mv QHexEdit.app "${uzip}/Applications/Developer/"
 rm -f QHexEdit_FreeBSD.zip
 
-# Fonts
+# URW fonts including Nimbus Sans
 wget -c -q https://github.com/ArtifexSoftware/urw-base35-fonts/archive/20200910.zip
 unzip -q 20200910.zip
 mkdir -p "${uzip}/usr/local/share/fonts/TTF/"
 cp -R urw-base35-fonts-20200910/fonts/*.ttf "${uzip}/usr/local/share/fonts/TTF/"
 rm -rf urw-base35-fonts-20200910/ 20200910.zip
+
+# Inter font, needed for proper special characters in menus
+wget -c -q https://github.com/rsms/inter/releases/download/v3.19/Inter-3.19.zip
+unzip Inter-3.19.zip
+mv 'Inter Desktop/Inter-V.ttf' "${uzip}/usr/local/share/fonts/TTF/"
+rm -rf "Inter *"
 
 # Applications
 mkdir -p "${uzip}/Applications"
@@ -210,6 +221,9 @@ cp /etc/resolv.conf ${uzip}/etc/resolv.conf
 mount_nullfs ${packages} ${uzip}/var/cache/pkg
 mount -t devfs devfs ${uzip}/dev
 
+# Needed for translations in the helloSystem/Utilities repository
+chroot "${uzip}" python3 -m pip install translate-toolkit
+
 # Workaround for: appmenu-gtk-module is not yet in quarterly packages; FIXME: install it from the packages once it is there
 # https://github.com/helloSystem/ISO/issues/20
 # FIXME: This fails on 13-CURRENT https://github.com/helloSystem/ISO/issues/27
@@ -223,7 +237,10 @@ mount -t devfs devfs ${uzip}/dev
 
 # Remove pkg (it will be bootstrapped if needed)
 # chroot "${uzip}" sudo pkg remove -y -f pkg # Breaks furybsd-init-helper
-chroot "${uzip}" pkg lock -y hello # Prevent the hello package from being upgraded with an unrelated package of the same name
+# Prevent the hello package from being upgraded with an unrelated package of the same name
+# and prevent the modifications made to the system in this script from being overwritten
+# by package updates done by the user at a later time; FIXME: Find a cleaner way
+chroot "${uzip}" pkg lock -y hello automount slim gvfs dejavu liberation-fonts-ttf
 rm ${uzip}/etc/resolv.conf
 umount ${uzip}/var/cache/pkg
 umount ${uzip}/dev
@@ -235,7 +252,6 @@ umount ${uzip}/dev
 mkdir -p "${uzip}/Applications/Autostart/"
 chmod g+w "${uzip}/Applications/Autostart/"
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/BuildNotify.app . )
-( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/"Sticky Notes.app" . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Volume.app . )
 
 # Silence late boot messages
@@ -291,10 +307,10 @@ rm "${uzip}/etc/syslog.conf-e"
 
 # Workaround to get rounded corners as long as picom in FreeBSD ports
 # does not have this yet; FIXME: Remove once no longer needed
-wget -q https://github.com/helloSystem/ISO/releases/download/assets/picom.tar.bz2
-tar xf picom.tar.bz2
-mv picom "${uzip}/usr/local/bin/picom"
-rm -f picom.tar.bz2
+# wget -q https://github.com/helloSystem/ISO/releases/download/assets/picom.tar.bz2
+# tar xf picom.tar.bz2
+# mv picom "${uzip}/usr/local/bin/picom"
+# rm -f picom.tar.bz2
 
 # https://github.com/helloSystem/hello/issues/50#issuecomment-753237990
 # Workaround to allow unmounting as normal user
@@ -313,7 +329,7 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list font-bh-ttf) ; do rm $FILE ; done'
 chroot ${uzip} sh -c 'for FILE in $(pkg list font-misc-ethiopic) ; do rm $FILE ; done'
 chroot ${uzip} sh -c 'for FILE in $(pkg list font-misc-meltho) ; do rm $FILE ; done'
 # Liberation was released in 2007 by Red Hat, who had commissioned the designs from the 
-# commercial foundry Ascender Corporationn Serif, and Liberation Mono. 
+# commercial foundry Ascender Corporation Serif, and Liberation Mono. 
 # Designed to have the same metrics as the proprietary Monotype fonts 
 # Arial, Times New Roman, and Courier New. Ever since, every Linux desktops looks ugly
 chroot ${uzip} sh -c 'for FILE in $(pkg list liberation-fonts-ttf) ; do rm $FILE ; done'
@@ -332,6 +348,12 @@ case "$@" in
 esac
 EOF
 chmod +x "${uzip}/usr/sbin/pkg"
+
+# Get newer version of automount than is packaged for FreeBSD as of 10/2021; https://github.com/vermaden/automount/issues/30
+# FIXME: Remove this once a suitable version is packaged for FreeBSD
+rm "${uzip}/usr/local/sbin/automount"
+wget -q "https://raw.githubusercontent.com/vermaden/automount/2a1f2a29725165d7dc4c422849668546fab010da/automount" -O "${uzip}/usr/local/sbin/automount"
+chmod +x "${uzip}/usr/local/sbin/automount"
 
 # Brute force method to make FAT media fully accessible and executable by everyone
 # https://github.com/vermaden/automount/issues/21#issuecomment-808753031
@@ -366,6 +388,11 @@ if [ -f "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonito
   chflags schg "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonitor.service"
 fi
 
+# Library needed to display symbols for keyboard shortcuts
+# https://github.com/helloSystem/hello/issues/46
+wget -c -q "https://github.com/helloSystem/QKeySequenceOverride/releases/download/continuous/libQKeySequenceOverride.so.1.0.0"
+mv libQKeySequenceOverride.so.1.0.0 "${uzip}/usr/local/lib/"
+
 # FIXME: Desperate attempt at reducing image size
 rm -rf "${uzip}"/usr/local/share/icons/breeze*
 rm -rf "${uzip}"/usr/local/*-portbld-*/ # What is it; is it actually needed? https://forums.freebsd.org/threads/what-is-the-portbld-directory.71759/
@@ -375,9 +402,27 @@ rm -rf "${uzip}"/usr/local/*-portbld-*/ # What is it; is it actually needed? htt
 # installed whenever the file that is needed is missing. Good!
 chroot ${uzip} sh -c 'for FILE in $(pkg list spidermonkey78) ; do rm $FILE ; done' # Delete the contents of the spidermonkey78 package while keeping the package "installed"
 chroot ${uzip} sh -c 'for FILE in $(pkg list adwaita-icon-theme) ; do rm $FILE ; done' # Was: rm -rf "${uzip}"/usr/local/share/icons/Adwaita
-chroot ${uzip} sh -c 'for FILE in $(pkg list perl5) ; do rm $FILE ; done'
+chroot ${uzip} sh -c 'for FILE in $(pkg list kf5-breeze-icons) ; do rm $FILE ; done' # Pulled in by plasma5-kwin? https://github.com/helloSystem/hello/issues/164#issuecomment-861800117
+chroot ${uzip} sh -c 'for FILE in $(pkg list plasma5-breeze) ; do rm $FILE ; done' # Pulled in by plasma5-kwin? https://github.com/helloSystem/hello/issues/164#issuecomment-861800117
+# chroot ${uzip} sh -c 'for FILE in $(pkg list perl5) ; do rm $FILE ; done' # FIXME: Hardware Probe needs Perl
 # A more proper way to do this would not require us the unwanted packages in the first place. There should really be a global blacklist of unwanted packages!
 # * Debian can do: Install the package with '--ignore-depends', then edit /var/lib/dpkg/status to remove unwanted packages, then run 'apt-get -f install'
 # * Unpack the pkg, remove the dependency, repack the pkg, then install - https://serverfault.com/a/859394
 # Remove all .a files; TODO: Create a separate download for those
-find ${uzip} -name '*.a' -delete
+# find ${uzip} -name '*.a' -delete # https://github.com/helloSystem/ISO/issues/213 # Breaks the compiler!
+
+# FIXME: Prevent extraneous versions of Python from being installed in the first place
+# https://github.com/helloSystem/ISO/issues/191#issuecomment-861822967
+chroot ${uzip} pkg remove -y python39 python37 python36 python27
+
+# Amend /etc/os-release by helloSystem specific entries
+# https://www.freedesktop.org/software/systemd/man/os-release.html
+if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
+  SHA=$(echo "${CIRRUS_CHANGE_IN_REPO}" | head -c 7)
+  cat >> "${uzip}/etc/os-release" << '  eof'
+  VARIANT=\"helloSystem\"
+  VARIANT_ID=\"hellosystem\"
+  IMAGE_ID=\"iso\"
+  IMAGE_VERSION="\${BUILDNUMBER}_"${SHA}\"
+  eof
+fi

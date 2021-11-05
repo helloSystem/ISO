@@ -39,25 +39,15 @@ mount_cd9660 -o ro /dev/iso9660/LIVE /cdrom
 
 if [ "$SINGLE_USER" = "true" ]; then
         echo "Starting interactive shell in temporary rootfs ..."
-        exit 0
+        sh
 fi
 
 echo "==> Preparing r/o device (md1)"
 mdconfig -a -t vnode -o readonly -f /cdrom/data/system.uzip -u 1
 ls -lh /dev/md1*
 
-echo "==> Mount swap-based memdisk (md2)"
-# Make a swap-based memdisk (md2) with the exact same size as system.uzip
-x=$(cat /cdrom/data/system.bytes)
-mdconfig -a -t swap -s ${x}b -u 2 >/dev/null 2>/dev/null # Note the 'b' suffix to the -s option
-ls -lh /dev/md2*
-
-echo "==> Combine r/o (md1.uzip) and r/w (md2) devices using geom_rowr"
-LD_LIBRARY_PATH=/lib GEOM_LIBRARY_PATH=/cdrom/lib/geom /sbin/geom rowr create rowr0 md1.uzip md2 || /sbin/geom rowr help
-
-echo "==> Mounting combined device (/dev/rowr0) at /sysroot"
-ls -lh /dev/rowr0
-mount /dev/rowr0 /sysroot || echo "Could not mount /dev/rowr0 to /sysroot" >/dev/tty
+echo "==> Mounting device (/dev/md1.uzip) at /sysroot"
+mount /dev/md1.uzip /sysroot || echo "Could not mount /dev/rowr0 to /sysroot" >/dev/tty
 ls -lh /sysroot/
 
 echo "==> Mount /sysroot/sysroot/boot"

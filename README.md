@@ -1,6 +1,8 @@
 # hello Live ISO builder [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO)
 
-This Live ISO builder builds Live ISOs from FreeBSD ingredients. It is based on [furybsd-livecd](https://github.com/furybsd/furybsd-livecd/) by Joe Maloney.
+## Release
+
+The latest release build r0.6.0 can be downloaded [here](../../releases/tag/r0.6.0).
 
 ## Continuous builds
 
@@ -18,7 +20,7 @@ root@FreeBSD:/ # curl -L "https://github.com/probonopd/furybsd-livecd/releases/d
 ## System Requirements for live media
 
 * 2 GHz dual core processor
-* 4 GiB RAM (system memory for physical and viritualized installs)
+* 4 GiB RAM (system memory for physical and virtualized installs)
 * VGA capable of 1024x768 screen resolution 
 * Either a CD/DVD drive or a USB port for booting the installer media
 

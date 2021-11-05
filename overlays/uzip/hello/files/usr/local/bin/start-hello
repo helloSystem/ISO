@@ -4,44 +4,48 @@
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
+# Use library to display symbols for keyboard shortcuts
+# https://github.com/helloSystem/hello/issues/46
+export LD_PRELOAD=/usr/local/lib/libQKeySequenceOverride.so.1.0.0
+
 # Find out whether we are running in a virtual machine
 VM_GUEST=$(/sbin/sysctl -n kern.vm_guest)
 HV_VENDOR=$(/sbin/sysctl -n hw.hv_vendor | /usr/bin/awk '{print $1}')
 
 if [ "${VM_GUEST}" = "xen" ]; then
-  VIRTUAL_MACHINE=YES
+  export VIRTUAL_MACHINE=YES
 fi
 
 if [ "${VM_GUEST}" = "vmware" ]; then
-  VIRTUAL_MACHINE=YES
+  export VIRTUAL_MACHINE=YES
 fi
 
 if [ "${VM_GUEST}" = "kvm" ]; then
-  VIRTUAL_MACHINE=YES
+  export VIRTUAL_MACHINE=YES
 fi
 
 if [ "${HV_VENDOR}" = "bhyve" ]; then
-  VIRTUAL_MACHINE=YES
+  export VIRTUAL_MACHINE=YES
 fi
 
 if [ -f "/usr/sbin/pciconf" ] ; then
   /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q VirtualBox 2>/dev/null
   if [ $? -eq 0 ] ; then
-      VIRTUAL_MACHINE=YES
+      export VIRTUAL_MACHINE=YES
   fi
 fi
 
 if [ -f "/usr/sbin/pciconf" ] ; then
   /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q VMware 2>/dev/null
   if [ $? -eq 0 ] ; then
-      VIRTUAL_MACHINE=YES
+      export VIRTUAL_MACHINE=YES
   fi
 fi
 
 if [ -f "/usr/sbin/pciconf" ] ; then
   /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q QXL 2>/dev/null
   if [ $? -eq 0 ] ; then
-      VIRTUAL_MACHINE=YES
+      export VIRTUAL_MACHINE=YES
   fi
 fi
 
@@ -149,7 +153,11 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_SESSION_CLASS=user
 export XDG_SESSION_TYPE=x11
 
-# When 'sudo -A -E <command>' is executed, use this helper appliction to get the password
+if [ -z "${XDG_RUNTIME_DIR}" ] ; then
+  export XDG_RUNTIME_DIR=/var/run/user/$(id -u)
+fi
+
+# When 'sudo -A -E <command>' is executed, use this helper application to get the password
 export SUDO_ASKPASS=/usr/local/bin/askpass
 # Using sudo.conf resulted in a password dialog when X starts
 
@@ -190,7 +198,7 @@ vertical_pixels=$(cat /var/log/Xorg.0.log | grep "using initial mode" | cut -d x
 dpi=$(expr "${vertical_pixels}" / "${vertical_inches}")
 # echo "${dpi}"
 # On some systems, vertical_cm and/or vertical_pixels may not be there; in this case do not assume HiDPI
-if [ "${dpi}" -gt 200 ] && [ ! -z "${vertical_cm}" ] && [ ! -z "${vertical_pixels}" ] ; then
+if [ "${dpi}" -gt 160 ] && [ ! -z "${vertical_cm}" ] && [ ! -z "${vertical_pixels}" ] ; then
   echo "Assuming HiDPI"
   HIDPI="YES"
 else
@@ -209,6 +217,7 @@ if [ "$HIDPI" != "" ] ; then
   # export GDK_DPI_SCALE=1.5 # Not working
   # See https://ricostacruz.com/til/fractional-scaling-on-xorg-linux for a possible solution
   # for other scaling factors
+  export BREEZE_SCALE_FACTOR=$QT_SCALE_FACTOR # https://github.com/helloSystem/KWin/issues/3
 fi
 
 # Launch per-user daemons
@@ -220,17 +229,14 @@ fi
 # TODO: Move this functionality into Menu?
 /usr/local/bin/lxqt-globalkeysd &
 
-# Drop shadows
-/usr/local/bin/picom --dbus &
-
 # Window decorations
 if [ "$HIDPI" = "" ] ; then
   xrdb -load ~/.Xresources # Ensure a constant font DPI setting; https://linuxreviews.org/HOWTO_set_DPI_in_Xorg
-  /usr/local/bin/openbox --config-file ~/.openbox &
 else
   xrdb -load ~/.Xresources-2x # Also change cursor size
-  /usr/local/bin/openbox --config-file ~/.openbox-2x &
 fi
+
+launch /System/KWin.app &
 
 # Desktop notifications
 dunst &
@@ -244,26 +250,18 @@ dunst &
 # dsbmc
 
 # Variable color temperature
-# without getlalo it would use network locatization from geoclue2,
+# without getlalo it would use network localization from geoclue2,
 # with getlalo it gets the location from /var/db/zoneinfo
-# which we posssibly should set in the Welcome Wizard,
+# which we possibly should set in the Welcome Wizard,
 # but then the color would be wrong for the Welcome Wizard
 # Do not run this if we are running inside a virtual machine
 if [ -z "$VIRTUAL_MACHINE" ] ; then
   redshift -l$(getlalo) &
 fi
 
-# Welcome Wizard
-uid="$(id -u)"
-if [ -e /System/Welcome.app/Welcome ] ; then
-  if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
-    /System/Welcome.app/Welcome
-  fi
-fi
-
 # Menubar
 export GTK_MODULES=appmenu-gtk-module
-/System/Menu.AppDir/usr/bin/menubar & # FIXME: Use AppRun
+launch Menu &
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
@@ -271,7 +269,12 @@ export GTK_MODULES=appmenu-gtk-module
 gmenudbusmenuproxy &
 
 # Desktop
-/System/Filer.AppDir/AppRun --desktop &
+launch Filer &
+
+# Welcome Wizard
+if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
+  launch Welcome
+fi
 
 # Wait for Menu to appear on D-Bus; this is needed for autostart to work properly
 while true; do 

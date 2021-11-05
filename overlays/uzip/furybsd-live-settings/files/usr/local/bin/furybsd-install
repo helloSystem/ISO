@@ -118,13 +118,14 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   chroot "${FSMNT}" pw usermod "${username}" -s /usr/local/bin/zsh && \
   chroot "${FSMNT}" pw groupmod wheel -m "${username}" && \
   chroot "${FSMNT}" pw groupmod video -m "${username}" && \
-  chroot "${FSMNT}" pw groupmod webcamd -m "${username}"
+  chroot "${FSMNT}" pw groupmod webcamd -m "${username}" && \
+  chroot "${FSMNT}" pw groupmod cups -m "${username}"
 else
   echo "Environment variable INSTALLER_DEVICE not set, asking the user for input"
   while true; do
     echo ""
     echo "Add User"
-    echo "This user will be added to the video, wheel, and webcamd groups."
+    echo "This user will be added to the video, wheel, webcamd, and cups groups."
       while true; do
       echo "Username: "
       read -r username
@@ -147,7 +148,8 @@ else
       chroot "${FSMNT}" pw usermod "${username}" -s /usr/local/bin/zsh && \
       chroot "${FSMNT}" pw groupmod wheel -m "${username}" && \
       chroot "${FSMNT}" pw groupmod video -m "${username}" && \
-      chroot "${FSMNT}" pw groupmod webcamd -m "${username}" && break
+      chroot "${FSMNT}" pw groupmod webcamd -m "${username}" && \
+      chroot "${FSMNT}" pw groupmod cups -m "${username}" && break
   done
 fi
 
@@ -159,7 +161,7 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   echo "Not setting time for now; let's handle this by ntpd and dhcp"
 else
   echo "Environment variable INSTALLER_DEVICE not set, running bsdinstall time"
-  # FIXME: Do we still want this given that we will use ntpd and dhcp timzeones?
+  # FIXME: Do we still want this given that we will use ntpd and dhcp timezones?
   bsdinstall time
 fi
 
