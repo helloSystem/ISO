@@ -362,10 +362,7 @@ uzip()
 {
   ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  # geom_rowr needs some free extra space on the r/o filesystem, otherwise it reports
-  # no free space for the combined /dev/rowrX filesystem
-  makefs -b '50%' -f '50%' "${cdroot}/data/system.ufs" "${uzip}"
-  wc -c < "${cdroot}/data/system.ufs" > "${cdroot}/data/system.bytes" # Size in bytes, needed by init.sh
+  makefs "${cdroot}/data/system.ufs" "${uzip}"
   mkuzip -o "${cdroot}/data/system.uzip" "${cdroot}/data/system.ufs"
   rm -f "${cdroot}/data/system.ufs"
   
