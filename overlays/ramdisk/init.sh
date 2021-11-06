@@ -47,7 +47,7 @@ mdconfig -a -t vnode -o readonly -f /cdrom/data/system.uzip -u 1
 ls -lh /dev/md1*
 
 echo "==> Mounting device (/dev/md1.uzip) at /sysroot"
-mount /dev/md1.uzip /sysroot || echo "Could not mount /dev/rowr0 to /sysroot" >/dev/tty
+mount -o ro /dev/md1.uzip /sysroot || echo "Could not mount /dev/md1.uzip to /sysroot" >/dev/tty
 ls -lh /sysroot/
 
 echo "==> Mount /sysroot/sysroot/boot"
