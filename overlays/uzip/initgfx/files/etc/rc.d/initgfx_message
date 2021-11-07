@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
+#
+# PROVIDE: initgfx
+# REQUIRE: LOGIN
+# BEFORE: slim
+
+. /etc/rc.subr
+
+name=initgfx_message
+start_cmd="do_initgfx_message"
+
+rcvar=initgfx_enable
+
+load_rc_config ${name}
+
+: ${initgfx_enable:="YES"}
+
+initgfx_warn()
+{
+	echo "${name}:" $* >&2
+}
+
+initgfx_debug()
+{
+	echo "${name}:" $* >&2
+}
+
+do_initgfx_message()
+{
+# Wait for one minute after running initfgx
+sleep 60
+
+# Exit if Xorg is running
+pgrep -f Xorg && exit 0
+
+# If we don't have Xorg running by then, output a message and offer to log into the machine
+
+cat > /dev/console <<EOF
+Failed to start the desktop. Possibly the graphics hardware in this device is not supported yet. Please let us know.
+
+Der Desktop konnte nicht gestartet werden. Möglicherweise wird die Grafikhardware in diesem Gerät noch nicht unterstützt. Bitte geben Sie uns Bescheid.
+
+Impossible de démarrer le bureau. Il est possible que le matériel graphique de cet appareil ne soit pas encore pris en charge. Veuillez nous le faire savoir.
+
+启动桌面失败了。可能是这个设备的图形硬件还不支持。请让我们知道。
+
+https://git.io/JXs1V
+EOF
+
+echo ""
+
+echo "FreeBSD kernel version: $(freebsd-version -k)"
+echo ""
+sysctl dev.vgapci | grep pnpinfo
+echo ""
+
+exec login
+
+}
+
+run_rc_command "$1"
