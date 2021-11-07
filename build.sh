@@ -335,8 +335,10 @@ initgfx()
     else
       PKGS="latest"
     fi
+
+    # 390 needed for Nvidia Quadro 2000, https://github.com/helloSystem/hello/discussions/241#discussioncomment-1599131
+    for ver in '390'; do # Only use NVIDIA version 440 and 390 for now to reduce ISO image size
     # for ver in '' 390 340 304; do
-    for ver in ''; do # Only use NVIDIA version 440 for now to reduce ISO image size
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
         fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-440}/"
