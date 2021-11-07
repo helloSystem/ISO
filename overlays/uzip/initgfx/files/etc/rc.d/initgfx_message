@@ -2,9 +2,9 @@
 #
 # Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
 #
-# PROVIDE: initgfx
+# PROVIDE: initgfx_message
 # REQUIRE: LOGIN
-# BEFORE: slim
+# BEFORE: initgfx
 
 . /etc/rc.subr
 
