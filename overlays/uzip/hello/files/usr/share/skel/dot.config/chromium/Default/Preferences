@@ -1,1 +1,6 @@
-{"custom_chrome_frame":true}
+{
+   "browser":{
+      "custom_chrome_frame":false,
+      "has_seen_welcome_page":true
+   }
+}
