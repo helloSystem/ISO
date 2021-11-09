@@ -234,8 +234,7 @@ packages()
   done <"${packages}/transient/transient-packages-list"
   
   # Manifest of installed packages ordered by size in bytes
-  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${cdroot}/boot/rootfs.uzip.manifest"
-  cp "${cdroot}/boot/rootfs.uzip.manifest" "${isopath}.manifest"
+  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${isopath}.manifest"
   # zip local.sqlite and put in output directory next to the ISO
   zip pkg.zip ${uzip}/var/db/pkg/local.sqlite
   mv pkg.zip "${isopath}.pkg.zip"
