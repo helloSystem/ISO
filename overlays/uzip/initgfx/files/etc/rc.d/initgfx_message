@@ -36,27 +36,36 @@ sleep 60
 pgrep -f Xorg && exit 0
 
 # If we don't have Xorg running by then, output a message and offer to log into the machine
-
+clear
 cat > /dev/console <<EOF
-Failed to start the desktop. Possibly the graphics hardware in this device is not supported yet. Please let us know.
+Failed to start the desktop.
+Possibly the graphics hardware
+in this device is not supported yet.
+Please let us know.
 
-Der Desktop konnte nicht gestartet werden. Möglicherweise wird die Grafikhardware in diesem Gerät noch nicht unterstützt. Bitte geben Sie uns Bescheid.
+Der Desktop konnte nicht gestartet werden.
+Möglicherweise wird die Grafikhardware
+in diesem Gerät noch nicht unterstützt.
+Bitte geben Sie uns Bescheid.
 
-Impossible de démarrer le bureau. Il est possible que le matériel graphique de cet appareil ne soit pas encore pris en charge. Veuillez nous le faire savoir.
-
-启动桌面失败了。可能是这个设备的图形硬件还不支持。请让我们知道。
-
-https://git.io/JXs1V
+Impossible de démarrer le bureau.
+Il est possible que le matériel graphique
+de cet appareil ne soit pas encore pris en charge.
+Veuillez nous le faire savoir.
 EOF
 
-echo ""
+# echo ""
+# echo "FreeBSD kernel version: $(freebsd-version -k)"
 
-echo "FreeBSD kernel version: $(freebsd-version -k)"
 echo ""
 sysctl dev.vgapci | grep pnpinfo
 echo ""
+echo "https://git.io/JXs1V"
 
-exec login
+# TODO: Output QR code for https://bsd-hardware.info/?id=pci:1002-67df-1682-c570
+# qrencode -m 2 -t utf8 <<< "https://superuser.com/questions/1492624/how-do-you-output-a-qr-code-to-the-linux-cli-terminal-for-scanning/1492625"
+
+# exec login
 
 }
 
