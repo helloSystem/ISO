@@ -51,7 +51,6 @@ iso="${livecd}/iso"
   fi
 export uzip="${livecd}/uzip"
 export cdroot="${livecd}/cdroot"
-ramdisk_root="${cdroot}/data/ramdisk"
 vol="furybsd"
 label="LIVE"
 export DISTRIBUTIONS="kernel.txz base.txz"
@@ -147,7 +146,7 @@ workspace()
   # newfs /dev/md9
   # mount /dev/md9 "${uzip}"
 
-  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
+  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" >/dev/null 2>/dev/null
   #truncate -s 3g "${livecd}/pool.img"
   #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
@@ -234,10 +233,9 @@ packages()
     /usr/local/sbin/pkg-static -r ${uzip} add "${packages}/transient/${p}" # pkg-static add has no -y
   done <"${packages}/transient/transient-packages-list"
   
-  # /usr/local/sbin/pkg-static -c ${uzip} info > "${cdroot}/data/system.uzip.manifest"
   # Manifest of installed packages ordered by size in bytes
-  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${cdroot}/data/system.uzip.manifest"
-  cp "${cdroot}/data/system.uzip.manifest" "${isopath}.manifest"
+  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${cdroot}/boot/rootfs.uzip.manifest"
+  cp "${cdroot}/boot/rootfs.uzip.manifest" "${isopath}.manifest"
   # zip local.sqlite and put in output directory next to the ISO
   zip pkg.zip ${uzip}/var/db/pkg/local.sqlite
   mv pkg.zip "${isopath}.pkg.zip"
@@ -364,32 +362,11 @@ uzip()
 {
   ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  makefs "${cdroot}/data/system.ufs" "${uzip}"
-  mkuzip -o "${cdroot}/data/system.uzip" "${cdroot}/data/system.ufs"
-  rm -f "${cdroot}/data/system.ufs"
+  makefs "${cdroot}/rootfs.ufs" "${uzip}"
+  mkdir -p "${cdroot}/boot/"
+  mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  rm -f "${cdroot}/rootfs.ufs"
   
-}
-
-ramdisk() 
-{
-  cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
-  # Copy the 'geom' command and its dependencies needed to mount using geom_rowr
-  mkdir -p "${ramdisk_root}"/sbin "${ramdisk_root}"/lib "${ramdisk_root}"/libexec
-  cp "${uzip}"/sbin/geom "${ramdisk_root}"/sbin/
-  cp "${uzip}"/libexec/ld-elf.so.1 "${ramdisk_root}"/libexec/
-  cp "${uzip}"/lib/libgeom.so.5 "${ramdisk_root}"/lib/
-  cp "${uzip}"/lib/libutil.so.9 "${ramdisk_root}"/lib/
-  cp "${uzip}"/lib/libc.so.7 "${ramdisk_root}"/lib/
-  cp "${uzip}"/lib/libbsdxml.so.4 "${ramdisk_root}"/lib/
-  cp "${uzip}"/lib/libsbuf.so.6 "${ramdisk_root}"/lib/
-  # TODO: Replace the lines above with something more robust that won't break
-  # when the dependencies of the 'geom' command change
-  cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
-  touch "${ramdisk_root}/etc/fstab"
-  cp ${uzip}/etc/login.conf ${ramdisk_root}/etc/login.conf
-  makefs -b '10%' "${cdroot}/data/ramdisk.ufs" "${ramdisk_root}"
-  gzip -f "${cdroot}/data/ramdisk.ufs"
-  rm -rf "${ramdisk_root}"
 }
 
 boot() 
@@ -404,27 +381,17 @@ boot()
     -not -name 'cryptodev.ko' \
     -not -name 'firewire.ko' \
     -not -name 'geom_uzip.ko' \
-    -not -name 'opensolaris.ko' \
     -not -name 'tmpfs.ko' \
     -not -name 'xz.ko' \
-    -not -name 'zfs.ko' \
-    -not -name 'geom_rowr.ko' \
     -delete
-  # Add geom_rowr kernel module for combining read-only with read-write device
-  # Note that this also requires a library geom_rowr.so
-  wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/geom_rowr.tar.gz"
-  tar xf geom_rowr.tar.gz
-  cp "${VER}"/geom_rowr.ko "${cdroot}"/boot/kernel/
-  ls "${cdroot}"/boot/kernel/geom_rowr.ko || exit 1
-  mkdir -p "${cdroot}"/lib/geom/
-  cp "${VER}"/geom_rowr.so "${cdroot}"/lib/geom/
-  ls "${cdroot}"/lib/geom/geom_rowr.so || exit 1
-  rm -rf "12.2" "13.0" "geom_rowr.tar.gz"
   # Compress the kernel
   gzip "${cdroot}"/boot/kernel/kernel
   # Compress the remaining modules
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
-  sync ### Needed?
+  # sync ### Needed?
+  mkdir -p "${cdroot}"/dev "${cdroot}"/chroot "${cdroot}"/etc
+  cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
+  cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
 }
 
 tag()
@@ -478,7 +445,6 @@ dm
 script
 tag
 uzip
-ramdisk
 boot
 image
 

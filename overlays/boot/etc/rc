@@ -1,0 +1,34 @@
+#!/rescue/sh
+
+# https://wiki.freebsd.org/AndriyGapon/AvgLiveCD
+
+mdconfig -a -t vnode -f /boot/rootfs.uzip -o readonly -u 0
+mount -r /dev/md0.uzip /chroot
+
+# mdconfig and mount need to be on the ISO9660,
+# everything else we can use from inside the compressed filesystem image
+PATH=/chroot/rescue
+
+# Silence messages if boot_mute="YES" is set
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+      exec 1>>/dev/null 2>&1
+else
+  set -x
+fi
+
+mount -t devfs devfs /chroot/dev
+# kenv init_shell="/bin/sh"
+
+# After this script has exited, the outside of the chroot
+# cannot be accessed anymore. Hence we run our preboot script
+# already before we chroot the system
+mount -t tmpfs tmpfs /chroot/tmp
+cp /boot/bootscript /chroot/tmp/bootscript
+chroot /chroot /bin/sh /tmp/bootscript
+umount -f /chroot/tmp
+
+kenv init_chroot="/chroot"
+
+echo "--> chroot into uzip"
+
+exit 0
