@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # PROVIDE: localize
-# REQUIRE: DAEMON NETWORKING
-# BEFORE:  LOGIN
+# REQUIRE: ldconfig
+# BEFORE:  hostid
 # KEYWORD: nojail shutdown
 
 PATH=$PATH:/usr/local/sbin
