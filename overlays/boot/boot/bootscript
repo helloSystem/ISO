@@ -120,7 +120,7 @@ EOF
 # Log to boot.log; FIXME: does not work yet. Why?
 # sed -i '' -e 's|1>>/dev/null|1>>/var/log/boot.log|g' /etc/rc
 
-# TODO: Consider moving this elsewhere
+# TODO: Consider moving this elsewhere. Could be done later in the boot process
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_enable="NO" >/dev/null 2>/dev/null
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_submit_enable="NO" >/dev/null 2>/dev/null
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_outbound_enable="NO" >/dev/null 2>/dev/null
@@ -131,8 +131,5 @@ EOF
 /usr/sbin/sysrc -f /etc/rc.conf allscreens_kbdflags="-b quiet.off" >/dev/null 2>/dev/null
 
 # Set hostname other than the default based on SMBIOS information
-# TODO: Consider moving this into a rc script that runs before/after /etc/rc.d/hostname
-HOSTNAME=$(hostname)
-if [ "${HOSTNAME}" = "FreeBSD" ] ; then
-  hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
-fi
+# TODO: Consider moving this into a rc script that runs after /etc/rc.d/hostname
+hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
