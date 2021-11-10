@@ -146,7 +146,7 @@ workspace()
   # newfs /dev/md9
   # mount /dev/md9 "${uzip}"
 
-  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" >/dev/null 2>/dev/null
+  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${cdroot}" >/dev/null 2>/dev/null
   #truncate -s 3g "${livecd}/pool.img"
   #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
