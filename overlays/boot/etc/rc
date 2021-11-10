@@ -22,10 +22,11 @@ kenv init_shell="/bin/sh" # set in loader.conf
 # After this script has exited, the outside of the chroot
 # cannot be accessed anymore. Hence we run our preboot script
 # already before we chroot the system
-mount -t tmpfs tmpfs /chroot/tmp
-cp /boot/bootscript /chroot/tmp/bootscript
+kldload -v /chroot/boot/kernel/tmpfs.ko
+kldload -v /chroot/boot/kernel/nullfs.ko
+mount_nullfs /boot /chroot/tmp/
 chroot /chroot /bin/sh /tmp/bootscript
-
+umount /chroot/tmp/
 echo "--> chroot into uzip"
 
 exit 0
