@@ -25,7 +25,8 @@
 
 set -e
 
-. install-boot.sh
+HERE="$(dirname "$(readlink -f "${0}")")"
+. ${HERE}/install-boot.sh
 
 if [ -z $ETDUMP ]; then
     ETDUMP=etdump
