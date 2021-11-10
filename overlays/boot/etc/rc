@@ -26,10 +26,6 @@ mount -t tmpfs tmpfs /chroot/tmp
 cp /boot/bootscript /chroot/tmp/bootscript
 chroot /chroot /bin/sh /tmp/bootscript
 
-# TODO: Make the ISO9660 available to the chroot;
-# this apparently also requires the use of a pre-loaded image as root filesystem; see
-# https://wiki.freebsd.org/AndriyGapon/AvgLiveCD
-
 echo "--> chroot into uzip"
 
 exit 0
