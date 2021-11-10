@@ -3,8 +3,7 @@
 # Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
 #
 # PROVIDE: initgfx_message
-# REQUIRE: LOGIN
-# BEFORE: initgfx
+# REQUIRE: initgfx
 
 . /etc/rc.subr
 
@@ -29,9 +28,6 @@ initgfx_debug()
 
 do_initgfx_message()
 {
-# Wait for one minute after running initfgx
-sleep 60
-
 # Exit if Xorg is running
 pgrep -f Xorg && exit 0
 

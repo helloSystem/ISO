@@ -58,7 +58,6 @@ pw useradd liveuser -u 1000 \
 -c "Live User" -d "/home/liveuser" \
 -g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
 sudo pw groupdel liveuser # TODO: Don't create in build.sh in the first place
-# pw groupadd liveuser -g 1000 # TODO: Remove once upstreamed
 chown -R 1000:1000 /usr/home/liveuser
 pw groupmod wheel -m liveuser
 pw groupmod video -m liveuser
@@ -74,12 +73,8 @@ chown -R 1000:1000 /usr/home/liveuser/.config
 # From here on optional, helloSystem specific optimizations
 ######################################################################
 
-# TODO: Port furybsd-init-helper into this script; also make it faster
-/usr/local/bin/furybsd-init-helper
-
 # Make initgfx run earlier
 sed -i '' -e 's|REQUIRE: LOGIN|REQUIRE: ldconfig|g' /etc/rc.d/initgfx
-sed -i '' -e 's|BEFORE: slim|BEFORE: ipnat|g' /etc/rc.d/initgfx
 
 # Make /usr/local/bin writeable - using unionfs here seems not to deteriorate stability
 mkdir -p /tmp/unionfs/usr/local
@@ -90,7 +85,7 @@ sed -i '' -e 's|REQUIRE: FILESYSTEMS|REQUIRE: live|g' /etc/rc.d/ldconfig
 sed -i '' -e 's|BEFORE:  DAEMON|BEFORE: hostid|g' /etc/rc.d/ldconfig
 
 # Run slim and helloDesktop earlier
-sed -i '' -e 's|REQUIRE: LOGIN dbus|REQUIRE: initgfx dbus\n# BEFORE: ipnat|g' /usr/local/etc/rc.d/slim
+sed -i '' -e 's|REQUIRE: LOGIN dbus|REQUIRE: initgfx dbus\n# BEFORE:  hostid|g' /usr/local/etc/rc.d/slim
 
 # Run dbus earlier because slim and helloDesktop need it
 sed -i '' -e 's|REQUIRE: DAEMON ldconfig|REQUIRE: ldconfig|g' /usr/local/etc/rc.d/dbus
@@ -102,10 +97,42 @@ sed -i '' -e 's|REQUIRE: DAEMON ldconfig|REQUIRE: ldconfig|g' /usr/local/etc/rc.
 # sed -i '' -e 's|# This script is intended to be invoked by a desktop file|exec 1>>/tmp/start-hello.log 2>\&1\nset -x|g' /usr/local/bin/start-hello
 
 # Prevent /tmp and /var from being overwritten later in the boot process
-# Disabling these is not enough. Why?
-rm /etc/rc.d/tmp
-rm /etc/rc.d/cleartmp
-rm /etc/rc.d/cleanvar
+# FIXME: Disabling these fails because 'service ... disable' does not find them. Side effect of chrooting?
+# Outright deleting them messes up rcorder,
+# So we are replacing them with dummy files that do nothing
+# but offer the PROVIDEs that other rc scripts are using
+cat > /etc/rc.d/tmp << \EOF
+#!/bin/sh
+# PROVIDE: tmp
+# REQUIRE: mountcritremote
+EOF
+cat > /etc/rc.d/cleartmp << \EOF
+#!/bin/sh
+# PROVIDE: cleartmp
+# REQUIRE: mountcritremote tmp
+# BEFORE: DAEMON
+EOF
+cat > /etc/rc.d/cleanvar << \EOF
+# PROVIDE: cleanvar
+# REQUIRE: var
+EOF
 
 # Log to boot.log; FIXME: does not work yet. Why?
 # sed -i '' -e 's|1>>/dev/null|1>>/var/log/boot.log|g' /etc/rc
+
+# TODO: Consider moving this elsewhere
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_submit_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_outbound_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_msp_queue_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf linux_enable="YES" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf dbus_enable="YES" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf kld_list+="cuse ig4 iicbus iichid utouch asmc" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf allscreens_kbdflags="-b quiet.off" >/dev/null 2>/dev/null
+
+# Set hostname other than the default based on SMBIOS information
+# TODO: Consider moving this into a rc script that runs before/after /etc/rc.d/hostname
+HOSTNAME=$(hostname)
+if [ "${HOSTNAME}" = "FreeBSD" ] ; then
+  hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
+fi
