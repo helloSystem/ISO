@@ -32,8 +32,8 @@ mkdir -p /var/log/
 # Silence messages if boot_mute="YES" is set
 if [ "$(kenv boot_mute) 2>/dev/null" = "YES" ] ; then
   exec 1>>/var/log/live.log 2>&1
-  set -x
 fi
+set -x
 
 mount -t tmpfs tmpfs /media
 mount -t devfs devfs /dev
