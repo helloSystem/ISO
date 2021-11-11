@@ -431,19 +431,19 @@ split()
   fi
 }
 
-cleanup
-workspace
-repos
-pkg
-base
-packages
-initgfx
-rc
-user
-dm
-script
-tag
-uzip
+#cleanup
+#workspace
+#repos
+#pkg
+#base
+#packages
+#initgfx
+#rc
+#user
+#dm
+#script
+#tag
+#uzip
 boot
 image
 

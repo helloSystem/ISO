@@ -50,13 +50,10 @@ de cet appareil ne soit pas encore pris en charge.
 Veuillez nous le faire savoir.
 EOF
 
-# echo ""
-# echo "FreeBSD kernel version: $(freebsd-version -k)"
-
-echo ""
-sysctl dev.vgapci | grep pnpinfo
-echo ""
-echo "https://git.io/JXs1V"
+echo "" > /dev/console
+sysctl dev.vgapci | grep pnpinfo > /dev/console
+echo "" > /dev/console
+echo "https://git.io/JXs1V" > /dev/console
 
 # TODO: Output QR code for https://bsd-hardware.info/?id=pci:1002-67df-1682-c570
 # qrencode -m 2 -t utf8 <<< "https://superuser.com/questions/1492624/how-do-you-output-a-qr-code-to-the-linux-cli-terminal-for-scanning/1492625"

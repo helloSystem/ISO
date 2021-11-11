@@ -1,4 +1,6 @@
 mount -t tmpfs tmpfs /tmp
+chmod 777 /tmp # FreeBSD 13 needs this
+
 mount -t devfs devfs /dev
 
 # RAM compression
