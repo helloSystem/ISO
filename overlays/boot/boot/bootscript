@@ -1,4 +1,13 @@
+if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
+        echo "==> Running in single-user mode"
+        SINGLE_USER="true"
+        kenv boot_mute="NO"
+        sh
+fi
+
 mount -t tmpfs tmpfs /tmp
+chmod 777 # FreeBSD 13 seems to need this
+
 mount -t devfs devfs /dev
 
 # RAM compression
@@ -36,6 +45,7 @@ fi
 set -x
 
 mount -t tmpfs tmpfs /media
+
 mount -t devfs devfs /dev
 
 # /etc, needed for networking
