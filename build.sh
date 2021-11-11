@@ -43,12 +43,6 @@ cache="${livecd}/${arch}/cache"
 base="${cache}/${version}/base"
 export packages="${cache}/packages"
 iso="${livecd}/iso"
-  if [ -n "$CIRRUS_CI" ] ; then
-    # On Cirrus CI ${livecd} is in tmpfs for speed reasons
-    # and tends to run out of space. Writing the final ISO
-    # to non-tmpfs should be an acceptable compromise
-    iso="${CIRRUS_WORKING_DIR}/artifacts"
-  fi
 export uzip="${livecd}/uzip"
 export cdroot="${livecd}/cdroot"
 vol="furybsd"
