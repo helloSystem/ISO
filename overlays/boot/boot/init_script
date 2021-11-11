@@ -1,74 +1,76 @@
 if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
-        echo "==> Running in single-user mode"
-        SINGLE_USER="true"
-        kenv boot_mute="NO"
+	echo "==> Running in single-user mode"
+	SINGLE_USER="true"
+	kenv boot_mute="NO"
         sh
 fi
 
+set -x 
+
+# kldload /boot/kernel/tmpfs.ko # TODO: must not be gzipped so that this works here?
 mount -t tmpfs tmpfs /tmp
-chmod 777 /tmp # FreeBSD 13 needs this
+chmod 1777 /tmp # TODO: Check if really needed by FreeBSD 13
 
-mount -t devfs devfs /dev
-
-# RAM compression
-# avail_ram=$(sysctl -a |grep "Free Memory" | awk '{ print $3 }' | cut -d K -f 1)
-# use_ram_for_compressed_ramdisk=$(expr $avail_ram \- 1048576) # all but 1M
-# mdconfig -a -t malloc -o compress -o reserve -s ${use_ram_for_compressed_ramdisk}K -u 1000
-# swapon /dev/md1000
-
-# The /var dance is likely time and RAM costly. Maybe revert to just doing /var/log
-# But then pkg does not work...
-cp -R /var /tmp
-mount -t tmpfs tmpfs /var
-mv /tmp/var/* /var
-rm -r /tmp/var
-mkdir -p /var/log/
-
-# This would be faster, but...
-# FIXME: Why does this instantly reboot?
-# mkdir -p /tmp/unionfs/var
-# mount -t unionfs -o noatime /tmp/unionfs/var /var
-# HOWEVER, we can do this once fully booted w/o issues!
-#    1  mkdir -p /tmp/unionfs/var
-#    2  sudo mkdir -p /tmp/unionfs/var
-#    3  sudo mount -t unionfs /tmp/unionfs/var /var
-#    4  sudo pkg install xvier
-#    5  xvier
-# --> we could move-mount the original /var and LATER in the boot process
-#     mount it UNDER the tmpfs one above?
-#     This would save us from needing the cp above
-
-# Silence messages if boot_mute="YES" is set
-if [ "$(kenv boot_mute) 2>/dev/null" = "YES" ] ; then
-  exec 1>>/var/log/live.log 2>&1
-fi
-set -x
+mdconfig -a -t vnode -o readonly -f /boot/rootfs.uzip
 
 mount -t tmpfs tmpfs /media
+chmod 1777 /media # TODO: Check if really needed by FreeBSD 13
 
-mount -t devfs devfs /dev
+mkdir -p /media/uzip
+
+# kldload /boot/kernel/geom_uzip.ko # TODO: must not be gzipped so that this works here?
+mount -t ufs -o ro /dev/md0.uzip /media/uzip
+
+kldload /media/uzip/boot/kernel/nullfs.ko
+mount -t nullfs /media/uzip/System /System
+mount -t nullfs /media/uzip/Applications /Applications
+mount -t nullfs /media/uzip/bin /bin
+mount -t nullfs /media/uzip/lib /lib
+mount -t nullfs /media/uzip/libexec /libexec
+# mount -t nullfs /media/uzip/nvidia /nvidia # Not in uzip
+mount -t nullfs /media/uzip/sbin /sbin
+mount -t nullfs /media/uzip/usr /usr
+# mount -t nullfs /media/uzip/etc /etc
+mount -t nullfs /media/uzip/boot /boot
+
+kldload /media/uzip/boot/kernel/unionfs.ko
+
+mount -t tmpfs tmpfs /root # does slim need this?
+
+mount -t tmpfs tmpfs /var
+cp -R /media/uzip/var/ /var
+mkdir -p /var/run # Needed for slim?
+# mount -t unionfs -o below /media/uzip/var /var # TODO: Check: Crashes later on when slim starts? 
+
+# The following does not instantly crash but since I get a crash later on, 
+# I suspect this causes it?
+# mount -t unionfs -o below /media/uzip/var /var
+# mkdir -p /var/run || echo "XXXXXXXXXXXXXXXX FAIL YYYYYYYYYYYYY"
+
+mount -t tmpfs tmpfs /usr/local
+mount -t unionfs -o below /media/uzip/usr/local /usr/local
 
 # /etc, needed for networking
-cp -R /etc /tmp
+cp -R /media/uzip/etc /tmp
 mount -t tmpfs tmpfs /etc
-mv /tmp/etc/* /etc/
-rm -r /tmp/etc
+mount -t nullfs /tmp/etc /etc
+# cp -R /tmp/etc /etc
+# mv /tmp/etc/* /etc/
+# rm -r /tmp/etc # TODO later
+
 # FIXME: The following also gives instant reboot. Why?
 # mkdir -p /tmp/unionfs/etc
 # mount -o noatime -t unionfs /tmp/unionfs/etc /etc
 
-mount -t tmpfs tmpfs /usr/local/var # FIXME: localize
-mkdir -p /usr/local/var/db /usr/local/var/lib
-
 # Add liveuser, this also creates a writeable $HOME from skel
-mount -t tmpfs tmpfs /usr/home
-rmuser -y liveuser # TODO: Remove the need for this by not creating the user in build.sh
+mount -t tmpfs tmpfs /home
+rmuser -y liveuser || true # TODO: Remove the need for this by not creating the user in build.sh
 mkdir -p /usr/home/liveuser/Desktop
 pw useradd liveuser -u 1000 \
 -c "Live User" -d "/home/liveuser" \
 -g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
 sudo pw groupdel liveuser # TODO: Don't create in build.sh in the first place
-chown -R 1000:1000 /usr/home/liveuser
+chown -R 1000:1000 /home/liveuser
 pw groupmod wheel -m liveuser
 pw groupmod video -m liveuser
 pw groupmod webcamd -m liveuser
@@ -86,10 +88,6 @@ chown -R 1000:1000 /usr/home/liveuser/.config
 # Make initgfx run earlier
 sed -i '' -e 's|REQUIRE: LOGIN|REQUIRE: ldconfig|g' /etc/rc.d/initgfx
 
-# Make /usr/local/bin writeable - using unionfs here seems not to deteriorate stability
-mkdir -p /tmp/unionfs/usr/local
-mount -o noatime -t unionfs /tmp/unionfs/usr/local /usr/local
-
 # Run ldconfig earlier because dbus and the python in localize needs it
 sed -i '' -e 's|REQUIRE: FILESYSTEMS|REQUIRE: live|g' /etc/rc.d/ldconfig
 sed -i '' -e 's|BEFORE:  DAEMON|BEFORE: hostid|g' /etc/rc.d/ldconfig
@@ -100,11 +98,10 @@ sed -i '' -e 's|REQUIRE: LOGIN dbus|REQUIRE: initgfx dbus\n# BEFORE:  hostid|g' 
 # Run dbus earlier because slim and helloDesktop need it
 sed -i '' -e 's|REQUIRE: DAEMON ldconfig|REQUIRE: ldconfig|g' /usr/local/etc/rc.d/dbus
 
+# TODO: Check whether boot_mute is set and if it is not, then do this?
 # Log the WHOLE verbose output of the helloDesktop session to a logfile
 # Only use this selectively during development
-# mkdir -p /tmp/unionfs/usr/local/bin
-# mount -o noatime -t unionfs /tmp/unionfs/usr/local/bin /usr/local/bin
-# sed -i '' -e 's|# This script is intended to be invoked by a desktop file|exec 1>>/tmp/start-hello.log 2>\&1\nset -x|g' /usr/local/bin/start-hello
+sed -i '' -e 's|# This script is intended to be invoked by a desktop file|exec 1>>/tmp/start-hello.log 2>\&1\nset -x|g' /usr/local/bin/start-hello
 
 # Prevent /tmp and /var from being overwritten later in the boot process
 # FIXME: Disabling these fails because 'service ... disable' does not find them. Side effect of chrooting?
@@ -125,6 +122,10 @@ EOF
 cat > /etc/rc.d/cleanvar << \EOF
 # PROVIDE: cleanvar
 # REQUIRE: var
+EOF
+cat > /etc/rc.d/var << \EOF
+# PROVIDE: var
+# REQUIRE: mountcritlocal
 EOF
 
 # Log to boot.log; FIXME: does not work yet. Why?
