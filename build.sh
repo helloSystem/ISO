@@ -110,8 +110,7 @@ if [ "${desktop}" = "hello" ] ; then
     # based on environment variable set e.g., by Cirrus CI
     if [ ! -z $BUILDNUMBER ] ; then
       echo "Injecting $BUILDNUMBER" into manifest
-      sed -i -e 's|\(^version:       .*_\).*$|\1'$BUILDNUMBER'|g' "${cwd}/overlays/uzip/hello/manifest"
-      rm "${cwd}/overlays/uzip/hello/manifest-e"
+      sed -i '' -e 's|\(^version:       .*_\).*$|\1'$BUILDNUMBER'|g' "${cwd}/overlays/uzip/hello/manifest"
       cat "${cwd}/overlays/uzip/hello/manifest"
       isopath="${iso}/${desktop}-${HELLO_VERSION}_${BUILDNUMBER}-FreeBSD-${VER}-${arch}.iso"
     else
@@ -193,8 +192,7 @@ packages()
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
   if [ $MAJOR -eq 12 ] ; then
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
-    # sed -i -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
-    # rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
+    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
     echo "Major version 13, using quarterly packages"
@@ -320,7 +318,6 @@ pkg()
 initgfx()
 {
   if [ "${arch}" != "i386" ] ; then
-    MAJOR=$(uname -r | cut -d "." -f 1)
     if [ $MAJOR -lt 14 ] ; then
       PKGS="quarterly"
       # PKGS="latest" # This must match what we specify in packages()
@@ -363,7 +360,13 @@ uzip()
   install -o root -g wheel -m 755 -d "${cdroot}"
   makefs "${cdroot}/rootfs.ufs" "${uzip}"
   mkdir -p "${cdroot}/boot/"
-  mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  if [ $MAJOR -lt 13 ] ; then
+    mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  else
+    # Use zstd when possible, which is available in FreeBSD beginning with 13
+    mkuzip -A zstd -C 15 -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  fi
+
   rm -f "${cdroot}/rootfs.ufs"
   
 }
