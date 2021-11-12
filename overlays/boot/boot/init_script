@@ -27,7 +27,7 @@ mount -t nullfs /media/uzip/Applications /Applications
 mount -t nullfs /media/uzip/bin /bin
 mount -t nullfs /media/uzip/lib /lib
 mount -t nullfs /media/uzip/libexec /libexec
-# mount -t nullfs /media/uzip/nvidia /nvidia # Not in uzip
+mount -t tmpfs tmpfs /nvidia # Must be writable for initgfx
 mount -t nullfs /media/uzip/sbin /sbin
 mount -t nullfs /media/uzip/usr /usr
 # mount -t nullfs /media/uzip/etc /etc

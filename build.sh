@@ -381,13 +381,16 @@ boot()
     -not -name 'xz.ko' \
     -delete
   # Compress the kernel
-  gzip "${cdroot}"/boot/kernel/kernel
-  # Compress the remaining modules
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
-  # sync ### Needed?
+  gzip -f "${cdroot}"/boot/kernel/kernel || true
+  rm "${cdroot}"/boot/kernel/kernel || true
+  # Install Ventoy module # FIXME: Why do we need this when other ISOs apparently don't?
   if [ "${arch}" = "amd64" ] ; then
     fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
+    unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
   fi
+  # Compress the remaining modules
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
   mkdir -p "${cdroot}"/dev "${cdroot}"/chroot "${cdroot}"/etc
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
