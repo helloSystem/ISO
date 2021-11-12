@@ -367,6 +367,7 @@ uzip()
 
 boot() 
 {
+  cp -R "${uzip}/COPYRIGHT" "${cdroot}"
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
   # Remove all modules from the ISO that is not required before the root filesystem is mounted
