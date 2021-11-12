@@ -355,6 +355,7 @@ uzip()
 
 boot() 
 {
+
   # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
   mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
   # /COPYRIGHT is used by Ventoy to inject code
