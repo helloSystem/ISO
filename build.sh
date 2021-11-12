@@ -28,8 +28,6 @@ if [ "${VERSIONSUFFIX#RC}"x != "${VERSIONSUFFIX}x" ]  ; then
   FTPDIRECTORY="releases"
 fi
 
-echo "${FTPDIRECTORY}"
-
 # pkgset="branches/2020Q1" # TODO: Use it
 desktop=$1
 tag=$2
@@ -259,18 +257,8 @@ repos()
 
 user()
 {
-  mkdir -p ${uzip}/usr/home/liveuser/Desktop
-  # chroot ${uzip} echo furybsd | chroot ${uzip} pw mod user root -h 0
-  chroot ${uzip} pw useradd liveuser -u 1000 \
-  -c "Live User" -d "/home/liveuser" \
-  -g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
-  # chroot ${uzip} pw groupadd liveuser -g 1000
-  # chroot ${uzip} echo furybsd | chroot ${uzip} pw mod user liveuser -h 0
-  chroot ${uzip} chown -R 1000:1000 /usr/home/liveuser
-  chroot ${uzip} pw groupmod wheel -m liveuser
-  chroot ${uzip} pw groupmod video -m liveuser
-  chroot ${uzip} pw groupmod webcamd -m liveuser
-  chroot ${uzip} pw groupmod cups -m liveuser
+  # This is now done ad-hoc at boot time because we would
+  # need to constuct $HOME from skel anyway
 }
 
 dm()
@@ -320,8 +308,8 @@ initgfx()
     fi
 
     # 390 needed for Nvidia Quadro 2000, https://github.com/helloSystem/hello/discussions/241#discussioncomment-1599131
-    for ver in '' 390; do # Only use NVIDIA version 440 and 390 for now to reduce ISO image size
-    # for ver in '' 390 340 304; do
+    # 340 needed for Nvidia 320M
+    for ver in '' 390 340 304; do
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
         fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-440}/"
@@ -367,6 +355,10 @@ uzip()
 
 boot() 
 {
+  # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
+  mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
+  # /COPYRIGHT is used by Ventoy to inject code
+  cp "${uzip}"/COPYRIGHT "${cdroot}"/
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
   # Remove all modules from the ISO that is not required before the root filesystem is mounted
@@ -383,15 +375,10 @@ boot()
   # Compress the kernel
   gzip -f "${cdroot}"/boot/kernel/kernel || true
   rm "${cdroot}"/boot/kernel/kernel || true
-  # Install Ventoy module # FIXME: Why do we need this when other ISOs apparently don't?
-  if [ "${arch}" = "amd64" ] ; then
-    fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
-    unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
-  fi
   # Compress the remaining modules
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
-  mkdir -p "${cdroot}"/dev "${cdroot}"/chroot "${cdroot}"/etc
+  mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
   if [ $MAJOR -gt 12 ] ; then
@@ -419,6 +406,7 @@ tag()
 
 image()
 {
+  # For Ventoy, does it make a difference? TODO: Remove next line
   sh "${cwd}/scripts/mkisoimages-${arch}.sh" -b "${label}" "${isopath}" "${cdroot}"
   sync ### Needed?
   md5 "${isopath}" > "${isopath}.md5"

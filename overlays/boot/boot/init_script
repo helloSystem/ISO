@@ -62,41 +62,26 @@ mount -t nullfs /tmp/etc /etc
 # mkdir -p /tmp/unionfs/etc
 # mount -o noatime -t unionfs /tmp/unionfs/etc /etc
 
-# Add liveuser, this also creates a writeable $HOME from skel
+# Add liveuser, this also creates a writable $HOME from skel
 mount -t tmpfs tmpfs /home
-rmuser -y liveuser || true # TODO: Remove the need for this by not creating the user in build.sh
-mkdir -p /usr/home/liveuser/Desktop
+mkdir -p /home/liveuser/Desktop
 pw useradd liveuser -u 1000 \
 -c "Live User" -d "/home/liveuser" \
 -g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
-sudo pw groupdel liveuser # TODO: Don't create in build.sh in the first place
-chown -R 1000:1000 /home/liveuser
+chown -R liveuser /home/liveuser
 pw groupmod wheel -m liveuser
 pw groupmod video -m liveuser
 pw groupmod webcamd -m liveuser
 pw groupmod cups -m liveuser
 
-# Do not launch Welcome in Live mode
-mkdir -p /home/liveuser/.config/hello/
-touch /home/liveuser/.config/hello/.helloSetupDone
-chown -R 1000:1000 /usr/home/liveuser/.config
-
 ######################################################################
 # From here on optional, helloSystem specific optimizations
 ######################################################################
 
-# Make initgfx run earlier
-sed -i '' -e 's|REQUIRE: LOGIN|REQUIRE: ldconfig|g' /etc/rc.d/initgfx
-
-# Run ldconfig earlier because dbus and the python in localize needs it
-sed -i '' -e 's|REQUIRE: FILESYSTEMS|REQUIRE: live|g' /etc/rc.d/ldconfig
-sed -i '' -e 's|BEFORE:  DAEMON|BEFORE: hostid|g' /etc/rc.d/ldconfig
-
-# Run slim and helloDesktop earlier
-sed -i '' -e 's|REQUIRE: LOGIN dbus|REQUIRE: initgfx dbus\n# BEFORE:  hostid|g' /usr/local/etc/rc.d/slim
-
-# Run dbus earlier because slim and helloDesktop need it
-sed -i '' -e 's|REQUIRE: DAEMON ldconfig|REQUIRE: ldconfig|g' /usr/local/etc/rc.d/dbus
+# Do not launch Welcome in Live mode
+mkdir -p /home/liveuser/.config/hello/
+touch /home/liveuser/.config/hello/.helloSetupDone
+chown -R liveuser /usr/home/liveuser/.config
 
 # TODO: Check whether boot_mute is set and if it is not, then do this?
 # Log the WHOLE verbose output of the helloDesktop session to a logfile
@@ -128,6 +113,15 @@ cat > /etc/rc.d/var << \EOF
 # REQUIRE: mountcritlocal
 EOF
 
+# Set hostname other than the default based on SMBIOS information
+hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
+# Prevent hostname from being overwritten later in the boot process
+cat > /etc/rc.d/hostname << \EOF
+# PROVIDE: hostname
+# REQUIRE: FILESYSTEMS
+# BEFORE:  netif
+EOF
+
 # Log to boot.log; FIXME: does not work yet. Why?
 # sed -i '' -e 's|1>>/dev/null|1>>/var/log/boot.log|g' /etc/rc
 
@@ -141,6 +135,29 @@ EOF
 /usr/sbin/sysrc -f /etc/rc.conf kld_list+="cuse ig4 iicbus iichid utouch asmc" >/dev/null 2>/dev/null
 /usr/sbin/sysrc -f /etc/rc.conf allscreens_kbdflags="-b quiet.off" >/dev/null 2>/dev/null
 
-# Set hostname other than the default based on SMBIOS information
-# TODO: Consider moving this into a rc script that runs after /etc/rc.d/hostname
-hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
+# Change rcorder so that the desktop gets loaded as fast as possible
+# The intended order is:
+# live -> ldconfig -> dbus -> initgfx -> localize -> slim -> everything else
+
+# Allow ldconfig to run immediately after live
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: live|g' /etc/rc.d/ldconfig
+
+# Allow dbus to run immediately after ldconfig
+sed -i '' -e 's|# REQUIRE: .*|REQUIRE: ldconfig|g' /usr/local/etc/rc.d/dbus
+
+# Allow initgfx to run immediately after dbus
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: dbus|g' /etc/rc.d/initgfx
+
+# Allow localize to run immediately after initgfx
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx|g' /usr/local/etc/rc.d/localize
+
+# Allow slim to run immediately after initgfx
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx|g' /usr/local/etc/rc.d/slim
+
+# Force slim to run before var # TODO: See if it can work even earlier than that
+sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
+
+# For debugging: After applying the above patches, show resulting rcorder with
+# rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+
+exit 0
