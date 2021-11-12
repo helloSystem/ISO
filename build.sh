@@ -388,6 +388,12 @@ boot()
   mkdir -p "${cdroot}"/dev "${cdroot}"/chroot "${cdroot}"/etc
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
+  if [ $MAJOR -gt 12 ] ; then
+    # Must not try to load tmpfs module in FreeBSD 13 and later, 
+    # because it will prevent the one in the kernel from working
+    sed -i '' -e 's|^tmpfs_load|# load_tmpfs_load|g' "${cdroot}"/boot/loader.conf
+    rm "${cdroot}"/boot/kernel/tmpfs.ko*
+  fi
 }
 
 tag()
