@@ -399,9 +399,9 @@ tag()
     echo "${URL}" > "${cdroot}/.url"
     echo "${URL}" > "${uzip}/.url"
     echo "Setting extended attributes 'url' and 'sha' on '/.url'"
-    setextattr user sha "${SHA}" "${uzip}/.url"
-    setextattr user url "${URL}" "${uzip}/.url"
-    setextattr user build "${BUILDNUMBER}" "${uzip}/.url"
+    # setextattr user sha "${SHA}" "${uzip}/.url" # Does not work on tmpfs
+    # setextattr user url "${URL}" "${uzip}/.url"
+    # setextattr user build "${BUILDNUMBER}" "${uzip}/.url"
   fi
 }
 
