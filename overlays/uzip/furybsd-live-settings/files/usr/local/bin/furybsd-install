@@ -251,9 +251,15 @@ EOF
 # A leftover initgfx_config.id file can result in the installed system failing to start Xorg
 sudo rm "${FSMNT}/var/initgfx_config.id" || true
 
+# Fix unbootable FreeBSD 13
+# https://github.com/helloSystem/hello/issues/242#issuecomment-965617810
+if [ -n "${INSTALLER_DEVICE}" ] ; then
+  mount -t msdosfs "${INSTALLER_DEVICE}" "${FSMNT}"/boot/efi
+  bsdinstall -D /tmp/bootconfig.log bootconfig
+  umount "${FSMNT}"/boot/efi
+fi
+
 # Cleanup
-# umount -f "${FSMNT}/dev" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
-# zpool export -f "${DESTPOOL}" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
 echo "Installation finished!"
 
 # Reboot
