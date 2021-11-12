@@ -385,6 +385,9 @@ boot()
   # Compress the remaining modules
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
   # sync ### Needed?
+  if [ "${arch}" = "amd64" ] ; then
+    fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
+  fi
   mkdir -p "${cdroot}"/dev "${cdroot}"/chroot "${cdroot}"/etc
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
