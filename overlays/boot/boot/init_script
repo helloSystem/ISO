@@ -5,6 +5,12 @@ if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
         sh
 fi
 
+# /var/log/console.log will contain a log of this
+# Silence messages if boot_mute="YES" is set
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+      exec 1>>/dev/null 2>&1
+fi
+
 set -x 
 
 # kldload /boot/kernel/tmpfs.ko # TODO: must not be gzipped so that this works here?
@@ -121,9 +127,6 @@ cat > /etc/rc.d/hostname << \EOF
 # REQUIRE: FILESYSTEMS
 # BEFORE:  netif
 EOF
-
-# Log to boot.log; FIXME: does not work yet. Why?
-# sed -i '' -e 's|1>>/dev/null|1>>/var/log/boot.log|g' /etc/rc
 
 # TODO: Consider moving this elsewhere. Could be done later in the boot process
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_enable="NO" >/dev/null 2>/dev/null
