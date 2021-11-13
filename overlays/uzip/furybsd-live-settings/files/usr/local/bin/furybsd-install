@@ -254,7 +254,7 @@ sudo rm "${FSMNT}/var/initgfx_config.id" || true
 # Fix unbootable FreeBSD 13
 # https://github.com/helloSystem/hello/issues/242#issuecomment-965617810
 if [ -n "${INSTALLER_DEVICE}" ] ; then
-  mount -t msdosfs "${INSTALLER_DEVICE}" "${FSMNT}"/boot/efi
+  mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi
   bsdinstall -D /tmp/bootconfig.log bootconfig
   umount "${FSMNT}"/boot/efi
 fi
