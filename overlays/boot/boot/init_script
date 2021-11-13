@@ -128,7 +128,8 @@ cat > /etc/rc.d/hostname << \EOF
 # BEFORE:  netif
 EOF
 
-# TODO: Consider moving this elsewhere. Could be done later in the boot process
+# TODO: Consider moving this to the ISO generation stage
+# This writes entries to /etc/rc.conf
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_enable="NO" >/dev/null 2>/dev/null
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_submit_enable="NO" >/dev/null 2>/dev/null
 /usr/sbin/sysrc -f /etc/rc.conf sendmail_outbound_enable="NO" >/dev/null 2>/dev/null
