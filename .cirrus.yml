@@ -4,7 +4,7 @@ task:
     memory: 16G
     matrix:
       - image: freebsd-13-0-release-amd64
-      - image: freebsd-12-2-release-amd64
+      # image: freebsd-12-2-release-amd64
       # image: freebsd-14-0-current-amd64-v20211111
       # image: freebsd-12-1-release-amd64 # EOL
 
