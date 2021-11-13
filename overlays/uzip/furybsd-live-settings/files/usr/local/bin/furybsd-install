@@ -235,17 +235,17 @@ sed -i '' -e 's/^default_user/#default_user/' "${FSMNT}/usr/local/etc/slim.conf"
 echo "default_user       ${INSTALLER_USERNAME}" >> "${FSMNT}/usr/local/etc/slim.conf"
 # chroot ${FSMNT} sed -i '' -e 's/^auto_login/#auto_login/' /usr/local/etc/slim.conf
 
-# Until we have a better solution, hardcode it here too...
+# TODO: Use the /boot/loader.conf from the live system or from the uzip inside it
+# but unset any live-specific things, e.g., by making use of loader.conf.local or loader.conf.d/live.conf
+# for the live system (which would then get removed from the installed system here)
 cat >> "${FSMNT}/boot/loader.conf" <<\EOF
 # TODO: Transfer settings from Live ISO /boot/loader.conf to installed one
 # https://github.com/furybsd/furybsd-livecd/issues/190
-boot_mute="YES"
+# boot_mute="YES"
 beastie_disable="YES"
-autoboot_delay="3"
+autoboot_delay="1"
 hw.psm.elantech_support="1"
 hw.psm.synaptics_support="1"
-# Unclear whether the next line is needed, https://github.com/helloSystem/ISO/issues/203
-vfs.root.mountfrom.options="rw"
 EOF
 
 # A leftover initgfx_config.id file can result in the installed system failing to start Xorg
