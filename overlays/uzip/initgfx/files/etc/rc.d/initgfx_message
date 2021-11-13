@@ -28,11 +28,22 @@ initgfx_debug()
 
 do_initgfx_message()
 {
+
+export COLOR_NC='\e[0m' # No Color
+export COLOR_RED='\e[0;31m'
+
+# Wait for 10 seconds; if Xorg is not running then, display the error message
+sleep 10
+
 # Exit if Xorg is running
 pgrep -f Xorg && exit 0
 
 # If we don't have Xorg running by then, output a message and offer to log into the machine
 clear
+
+# Switch color for the text that follows
+echo -e $COLOR_RED > /dev/console
+
 cat > /dev/console <<EOF
 Failed to start the desktop.
 Possibly the graphics hardware
@@ -55,8 +66,35 @@ sysctl dev.vgapci | grep pnpinfo > /dev/console
 echo "" > /dev/console
 echo "https://git.io/JXs1V" > /dev/console
 
-# TODO: Output QR code for https://bsd-hardware.info/?id=pci:1002-67df-1682-c570
-# qrencode -m 2 -t utf8 <<< "https://superuser.com/questions/1492624/how-do-you-output-a-qr-code-to-the-linux-cli-terminal-for-scanning/1492625"
+echo "" > /dev/console
+
+# Print device information in a format that is suitable for https://bsd-hardware.info/
+for LINE in "$(sysctl dev.vgapci | grep pnpinfo)" ; do
+  VENDOR=$(echo ${LINE} | cut -d " " -f 2 | cut -d "x" -f 2)
+  echo Vendor: ${VENDOR} > /dev/console
+  DEVICE=$(echo ${LINE} | cut -d " " -f 3 | cut -d "x" -f 2)
+  echo Device: ${DEVICE} > /dev/console
+  SUBVENDOR=$(echo ${LINE} | cut -d " " -f 4 | cut -d "x" -f 2)
+  echo Subvendor: ${SUBVENDOR} > /dev/console
+  SUBDEVICE=$(echo ${LINE} | cut -d " " -f 5 | cut -d "x" -f 2)
+  echo Subdevice: ${SUBDEVICE} > /dev/console
+  CLASS=$(echo ${LINE} | cut -d " " -f 6 | cut -d "x" -f 2)
+  echo Class: ${CLASS} > /dev/console
+done
+
+echo "" > /dev/console
+
+URL="ttps://bsd-hardware.info/?d=helloSystem&id=pci:${VENDOR}-${DEVICE}-${SUBVENDOR}-${SUBDEVICE}"
+echo "${URL}" > /dev/console
+
+echo "" > /dev/console
+
+# Output QR code
+echo -e  "\e[30;47m" > /dev/console # Black letters on white background according to https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+qrencode -m 5 -t utf8i <<< "${URL}" > /dev/console
+
+# Reset color for the text that follows
+echo -e $COLOR_NC > /dev/console
 
 # exec login
 
