@@ -84,7 +84,7 @@ done
 
 echo "" > /dev/console
 
-URL="ttps://bsd-hardware.info/?d=helloSystem&id=pci:${VENDOR}-${DEVICE}-${SUBVENDOR}-${SUBDEVICE}"
+URL="https://bsd-hardware.info/?d=helloSystem&id=pci:${VENDOR}-${DEVICE}-${SUBVENDOR}-${SUBDEVICE}"
 echo "${URL}" > /dev/console
 
 echo "" > /dev/console
