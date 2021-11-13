@@ -8,7 +8,12 @@
 set +e
 
 # Export our variables
-LIVEFS="/"
+if [ -e /media/uzip/libexec ] ; then
+  # We are running on a 0.7.0+ style Live system
+  LIVEFS="/media/uzip"
+else
+  LIVEFS="/"
+fi
 FSMNT="/mnt"
 DESTPOOL=$(zpool list -H | grep /mnt | awk -F '\t' '{print $1;}')
 
@@ -18,10 +23,14 @@ DESTPOOL=$(zpool list -H | grep /mnt | awk -F '\t' '{print $1;}')
 # then immediately exit
 # if INSTALLER_PRINT_MIB_NEEDED is set. This is needed for the graphical installer frontend
 if [ -n "${INSTALLER_PRINT_MIB_NEEDED}" ] ; then
-  # echo INSTALLER_MIB_NEEDED=$(df -m / | awk '{print $2}' | tail -n 1)
-  bytes=$(zpool get -Hpo value allocated livecd)
-  mib=$(echo "${bytes}/1024/1024" | bc) # Convert bytes to MiB
-  echo "INSTALLER_MIB_NEEDED=${mib}"
+  if [ -e /media/uzip/libexec ] ; then
+    # We are running on a 0.7.0+ style Live system
+    echo INSTALLER_MIB_NEEDED=$(df -m /dev/md0.uzip | awk '{print $2}' | tail -n 1)
+  else
+    bytes=$(zpool get -Hpo value allocated livecd)
+    mib=$(echo "${bytes}/1024/1024" | bc) # Convert bytes to MiB
+    echo "INSTALLER_MIB_NEEDED=${mib}"
+  fi
   sudo dmidecode --type 0,1,2,3 > /tmp/dmi.txt
   exit 0
 fi
@@ -34,12 +43,15 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-# Cleanup memory devices created before reroot if they exist
-if [ -e "/dev/md0" ] ; then
-  /sbin/mdconfig -du md0
-fi
-if [ -e "/dev/md1" ] ; then
-  /sbin/mdconfig -du md1
+if [ "${LIVEFS}" == "/" ] ; then
+  # On Live systems before 0.7.0:
+  # Cleanup memory devices created before reroot if they exist
+  if [ -e "/dev/md0" ] ; then
+    /sbin/mdconfig -du md0
+  fi
+  if [ -e "/dev/md1" ] ; then
+    /sbin/mdconfig -du md1
+  fi
 fi
 
 # Clean up any previous runs
@@ -239,9 +251,15 @@ EOF
 # A leftover initgfx_config.id file can result in the installed system failing to start Xorg
 sudo rm "${FSMNT}/var/initgfx_config.id" || true
 
+# Fix unbootable FreeBSD 13
+# https://github.com/helloSystem/hello/issues/242#issuecomment-965617810
+if [ -n "${INSTALLER_DEVICE}" ] ; then
+  mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi
+  bsdinstall -D /tmp/bootconfig.log bootconfig
+  umount "${FSMNT}"/boot/efi
+fi
+
 # Cleanup
-# umount -f "${FSMNT}/dev" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
-# zpool export -f "${DESTPOOL}" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
 echo "Installation finished!"
 
 # Reboot

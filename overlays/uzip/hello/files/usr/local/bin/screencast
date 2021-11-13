@@ -12,7 +12,7 @@ echo $DSP
 if [ -e /tmp/screencast.mp4 ] ; then
   pkill -f ffmpeg
   pkill -f screenkey
-  notify-send  "Stopped because /tmp/screencast.mp4 exists"
+  notify-send  "Playing /tmp/screencast.mp4"
   sleep 1
   xdg-open /tmp/screencast.mp4
 else

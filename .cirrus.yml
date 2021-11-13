@@ -1,11 +1,12 @@
 task:
   freebsd_instance:
-    cpu: 2
-    memory: 8G
+    cpu: 8
+    memory: 16G
     matrix:
-      # image: freebsd-12-1-release-amd64 # EOL
+      - image: freebsd-13-0-release-amd64
       - image: freebsd-12-2-release-amd64
-      # image: freebsd-13-0-release-amd64 # ISO way too large, HIDPI broken, BIOS boot broken, boot installed system broken?
+      # image: freebsd-14-0-current-amd64-v20211111
+      # image: freebsd-12-1-release-amd64 # EOL
 
   env:
     CIRRUS_CLONE_DEPTH: 1
@@ -33,8 +34,9 @@ task:
     - kldload nullfs.ko || true
     - kldload geom_uzip.ko || true
     - pkg install -y pkg git-lite zsync wget sha bash zip devel/py-xdg librsvg2 ca_root_nss # qemu-devel uefi-edk2-qemu-x86_64
-    - mkdir -p /usr/local/furybsd
-    # mount -t tmpfs tmpfs /usr/local/furybsd
+    - mkdir -p /usr/local/furybsd/uzip /usr/local/furybsd/cdroot/
+    - mount -t tmpfs tmpfs /usr/local/furybsd/uzip
+    - mount -t tmpfs tmpfs /usr/local/furybsd/cdroot/
     
   Build_script:
     - export VER=$(uname -r | cut -d "-" -f 1)
@@ -45,14 +47,10 @@ task:
     - export BUILDNUMBER=$(RELEASE_ID_FOR_STORAGE=33980128 ./buildnumbers)
     - /bin/sh -x ./build.sh "${DESKTOP}" || true # FIXME: Why does this return an error even though the ISO succeeded?
     - df -h
-    - ls -lh "${CIRRUS_WORKING_DIR}"/artifacts/*.iso || false # Error out if ISO was not produced to mitigate the above
-    # ( cd "${CIRRUS_WORKING_DIR}"/artifacts ; zsyncmake *.iso )
+    - ls -lh /usr/local/furybsd/iso/*.iso || false # Error out if ISO was not produced to mitigate the above
+    # ( cd /usr/local/furybsd/ ; zsyncmake *.iso )
     
   Upload_script:
     - export VER=$(uname -r | cut -d "-" -f 1) # No way to pass on from Build_script to Upload_script?
-    - ls -lh "${CIRRUS_WORKING_DIR}"/artifacts/
-    - case "$CIRRUS_BRANCH" in *pull/*) echo skipping since PR ;; * ) wget -c -q https://github.com/tcnksm/ghr/files/5247714/ghr.zip ; unzip ghr.zip ; ./ghr -prerelease -delete -t "${GITHUB_TOKEN}" -u "${CIRRUS_REPO_OWNER}" -r "${CIRRUS_REPO_NAME}" -b "This is an experimental __UNTESTED__ build for developers, it may not even boot." -c "${CIRRUS_CHANGE_IN_REPO}" "${CIRRUS_BRANCH}"-"${VER}" "${CIRRUS_WORKING_DIR}"/artifacts ; esac
-
-  FreeNode_script:
-    - echo "TODO: Fix IRC bot script"
-    # case "$CIRRUS_BRANCH" in *pull/*) echo skipping since PR ;; * ) echo -e 'USER helloSystemBot guest tolmoon tolsun\nNICK helloSystemBot\nJOIN #helloSystem\nPRIVMSG #helloSystem :A new build is now available in the Create Live Media tool, happy testing!\nQUIT\n' | nc irc.freenode.net 6667 >/dev/null ; esac
+    - ls -lh /usr/local/furybsd/iso/
+    - case "$CIRRUS_BRANCH" in *pull/*) echo skipping since PR ;; * ) wget -c -q https://github.com/tcnksm/ghr/files/5247714/ghr.zip ; unzip ghr.zip ; ./ghr -prerelease -delete -t "${GITHUB_TOKEN}" -u "${CIRRUS_REPO_OWNER}" -r "${CIRRUS_REPO_NAME}" -b "This is an experimental __UNTESTED__ build for developers, it may not even boot." -c "${CIRRUS_CHANGE_IN_REPO}" "${CIRRUS_BRANCH}"-"${VER}" /usr/local/furybsd/iso/ ; esac

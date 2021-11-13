@@ -28,8 +28,6 @@ if [ "${VERSIONSUFFIX#RC}"x != "${VERSIONSUFFIX}x" ]  ; then
   FTPDIRECTORY="releases"
 fi
 
-echo "${FTPDIRECTORY}"
-
 # pkgset="branches/2020Q1" # TODO: Use it
 desktop=$1
 tag=$2
@@ -43,15 +41,8 @@ cache="${livecd}/${arch}/cache"
 base="${cache}/${version}/base"
 export packages="${cache}/packages"
 iso="${livecd}/iso"
-  if [ -n "$CIRRUS_CI" ] ; then
-    # On Cirrus CI ${livecd} is in tmpfs for speed reasons
-    # and tends to run out of space. Writing the final ISO
-    # to non-tmpfs should be an acceptable compromise
-    iso="${CIRRUS_WORKING_DIR}/artifacts"
-  fi
 export uzip="${livecd}/uzip"
 export cdroot="${livecd}/cdroot"
-ramdisk_root="${cdroot}/data/ramdisk"
 vol="furybsd"
 label="LIVE"
 export DISTRIBUTIONS="kernel.txz base.txz"
@@ -111,8 +102,7 @@ if [ "${desktop}" = "hello" ] ; then
     # based on environment variable set e.g., by Cirrus CI
     if [ ! -z $BUILDNUMBER ] ; then
       echo "Injecting $BUILDNUMBER" into manifest
-      sed -i -e 's|\(^version:       .*_\).*$|\1'$BUILDNUMBER'|g' "${cwd}/overlays/uzip/hello/manifest"
-      rm "${cwd}/overlays/uzip/hello/manifest-e"
+      sed -i '' -e 's|\(^version:       .*_\).*$|\1'$BUILDNUMBER'|g' "${cwd}/overlays/uzip/hello/manifest"
       cat "${cwd}/overlays/uzip/hello/manifest"
       isopath="${iso}/${desktop}-${HELLO_VERSION}_${BUILDNUMBER}-FreeBSD-${VER}-${arch}.iso"
     else
@@ -129,8 +119,10 @@ cleanup()
   else
     umount ${uzip}/var/cache/pkg >/dev/null 2>/dev/null || true
     umount ${uzip}/dev >/dev/null 2>/dev/null || true
-    zpool destroy -f furybsd >/dev/null 2>/dev/null || true
-    mdconfig -d -u 0 >/dev/null 2>/dev/null || true
+    if [ -d "${livecd}" ] ;then
+      chflags -R noschg ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+      rm -rf ${uzip} ${cdroot} >/dev/null 2>/dev/null || true
+    fi
     rm ${livecd}/pool.img >/dev/null 2>/dev/null || true
     rm -rf ${cdroot} >/dev/null 2>/dev/null || true
   fi
@@ -138,24 +130,17 @@ cleanup()
 
 workspace()
 {
-  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${ramdisk_root}/dev" "${ramdisk_root}/etc" >/dev/null 2>/dev/null
-  truncate -s 3g "${livecd}/pool.img"
-  mdconfig -f "${livecd}/pool.img" -u 0
-  gpart create -s GPT md0
-  gpart add -t freebsd-zfs md0
+
+  # Mount a  temporary filesystem image at "${uzip}" so that we can clean up afterwards more easily
+  # dd if=/dev/zero of=test.img bs=1M count=512
+  # mdconfig -a -t vnode -f test.img -u 9
+  # newfs /dev/md9
+  # mount /dev/md9 "${uzip}"
+
+  mkdir -p "${livecd}" "${base}" "${iso}" "${packages}" "${uzip}" "${cdroot}" >/dev/null 2>/dev/null
+  #truncate -s 3g "${livecd}/pool.img"
+  #mdconfig -f "${livecd}/pool.img" -u 0
   sync ### Needed?
-  zpool create furybsd /dev/md0p1
-  sync ### Needed?
-  zfs set mountpoint="${uzip}" furybsd
-  # From FreeBSD 13 on, zstd can be used with zfs in base
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 14 ] ; then
-    zfs set compression=gzip-6 furybsd 
-  else
-    # zstd conflicts uzip for good compression ratio?
-    zfs set recordsize=1M furybsd # This may influence the compression ratio
-    zfs set compression=zstd-15 furybsd # Since we do not write to it, 15 may be ok (but may need more RAM?)
-  fi
 }
 
 base()
@@ -199,8 +184,7 @@ packages()
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
   if [ $MAJOR -eq 12 ] ; then
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
-    # sed -i -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
-    # rm -f "${uzip}/etc/pkg/FreeBSD.conf-e"
+    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
     echo "Major version 13, using quarterly packages"
@@ -239,10 +223,8 @@ packages()
     /usr/local/sbin/pkg-static -r ${uzip} add "${packages}/transient/${p}" # pkg-static add has no -y
   done <"${packages}/transient/transient-packages-list"
   
-  # /usr/local/sbin/pkg-static -c ${uzip} info > "${cdroot}/data/system.uzip.manifest"
   # Manifest of installed packages ordered by size in bytes
-  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${cdroot}/data/system.uzip.manifest"
-  cp "${cdroot}/data/system.uzip.manifest" "${isopath}.manifest"
+  /usr/local/sbin/pkg-static -c ${uzip} query "%sb\t%n\t%v\t%c" | sort -r -s -n -k 1,1 > "${isopath}.manifest"
   # zip local.sqlite and put in output directory next to the ISO
   zip pkg.zip ${uzip}/var/db/pkg/local.sqlite
   mv pkg.zip "${isopath}.pkg.zip"
@@ -275,18 +257,8 @@ repos()
 
 user()
 {
-  mkdir -p ${uzip}/usr/home/liveuser/Desktop
-  # chroot ${uzip} echo furybsd | chroot ${uzip} pw mod user root -h 0
-  chroot ${uzip} pw useradd liveuser -u 1000 \
-  -c "Live User" -d "/home/liveuser" \
-  -g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
-  chroot ${uzip} pw groupadd liveuser -g 1000
-  # chroot ${uzip} echo furybsd | chroot ${uzip} pw mod user liveuser -h 0
-  chroot ${uzip} chown -R 1000:1000 /usr/home/liveuser
-  chroot ${uzip} pw groupmod wheel -m liveuser
-  chroot ${uzip} pw groupmod video -m liveuser
-  chroot ${uzip} pw groupmod webcamd -m liveuser
-  chroot ${uzip} pw groupmod cups -m liveuser
+  # This is now done ad-hoc at boot time because we would
+  # need to constuct $HOME from skel anyway
 }
 
 dm()
@@ -328,7 +300,6 @@ pkg()
 initgfx()
 {
   if [ "${arch}" != "i386" ] ; then
-    MAJOR=$(uname -r | cut -d "." -f 1)
     if [ $MAJOR -lt 14 ] ; then
       PKGS="quarterly"
       # PKGS="latest" # This must match what we specify in packages()
@@ -337,8 +308,8 @@ initgfx()
     fi
 
     # 390 needed for Nvidia Quadro 2000, https://github.com/helloSystem/hello/discussions/241#discussioncomment-1599131
-    for ver in '390'; do # Only use NVIDIA version 440 and 390 for now to reduce ISO image size
-    # for ver in '' 390 340 304; do
+    # 340 needed for Nvidia 320M
+    for ver in '' 390 340 304; do
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
         fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-440}/"
@@ -367,29 +338,28 @@ script()
 
 uzip() 
 {
+  ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && while zpool status furybsd >/dev/null; do :; done 2>/dev/null
-  sync ### Needed?
-  mkuzip -S -d -o "${cdroot}/data/system.uzip" "${livecd}/pool.img"
-}
+  makefs "${cdroot}/rootfs.ufs" "${uzip}"
+  mkdir -p "${cdroot}/boot/"
+  if [ $MAJOR -lt 13 ] ; then
+    mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  else
+    # Use zstd when possible, which is available in FreeBSD beginning with 13
+    mkuzip -A zstd -C 15 -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+  fi
 
-ramdisk() 
-{
-  cp -R "${cwd}/overlays/ramdisk/" "${ramdisk_root}"
-  sync ### Needed?
-  cd ${cwd} && zpool import furybsd && zfs set mountpoint=/usr/local/furybsd/uzip furybsd
-  sync ### Needed?
-  cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${ramdisk_root}"
-  touch "${ramdisk_root}/etc/fstab"
-  cp ${uzip}/etc/login.conf ${ramdisk_root}/etc/login.conf
-  makefs -b '10%' "${cdroot}/data/ramdisk.ufs" "${ramdisk_root}"
-  gzip -f "${cdroot}/data/ramdisk.ufs"
-  rm -rf "${ramdisk_root}"
+  rm -f "${cdroot}/rootfs.ufs"
+  
 }
 
 boot() 
 {
+
+  # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
+  mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
+  # /COPYRIGHT is used by Ventoy to inject code
+  cp "${uzip}"/COPYRIGHT "${cdroot}"/
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
   # Remove all modules from the ISO that is not required before the root filesystem is mounted
@@ -400,40 +370,24 @@ boot()
     -not -name 'cryptodev.ko' \
     -not -name 'firewire.ko' \
     -not -name 'geom_uzip.ko' \
-    -not -name 'opensolaris.ko' \
     -not -name 'tmpfs.ko' \
     -not -name 'xz.ko' \
-    -not -name 'zfs.ko' \
     -delete
   # Compress the kernel
-  gzip "${cdroot}"/boot/kernel/kernel
+  gzip -f "${cdroot}"/boot/kernel/kernel || true
+  rm "${cdroot}"/boot/kernel/kernel || true
   # Compress the remaining modules
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip {} \;
-  sync ### Needed?
-  cd ${cwd} && zpool export furybsd && mdconfig -d -u 0
-  sync ### Needed?
-  # The name of a dependency for zfs.ko changed, violating POLA
-  # If we are loading both modules, then at least 13 cannot boot, hence only load one based on the FreeBSD major version
-  MAJOR=$(uname -r | cut -d "." -f 1)
-  if [ $MAJOR -lt 13 ] ; then
-    echo "Major version < 13, hence using opensolaris.ko"
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-  else
-    echo "Major version >= 13, hence using cryptodev.ko"
-    sed -i -e 's|cryptodev_load=".*"|cryptodev_load="YES"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|opensolaris_load=".*"|opensolaris_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
-    sed -i -e 's|tmpfs_load=".*"|tmpfs_load="NO"|g' "${cdroot}"/boot/loader.conf
-    rm -f "${cdroot}"/boot/loader.conf-e
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
+  mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
+  cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
+  cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
+  if [ $MAJOR -gt 12 ] ; then
+    # Must not try to load tmpfs module in FreeBSD 13 and later, 
+    # because it will prevent the one in the kernel from working
+    sed -i '' -e 's|^tmpfs_load|# load_tmpfs_load|g' "${cdroot}"/boot/loader.conf
+    rm "${cdroot}"/boot/kernel/tmpfs.ko*
   fi
-  echo 'exec="mode 0"' >> "${cdroot}"/boot/loader.conf # Prevent the FreeBSD 13 bootloader from changing the screen resolution, https://github.com/helloSystem/ISO/issues/198#issuecomment-901919172
-  sync ### Needed?
 }
 
 tag()
@@ -445,14 +399,15 @@ tag()
     echo "${URL}" > "${cdroot}/.url"
     echo "${URL}" > "${uzip}/.url"
     echo "Setting extended attributes 'url' and 'sha' on '/.url'"
-    setextattr user sha "${SHA}" "${uzip}/.url"
-    setextattr user url "${URL}" "${uzip}/.url"
-    setextattr user build "${BUILDNUMBER}" "${uzip}/.url"
+    # setextattr user sha "${SHA}" "${uzip}/.url" # Does not work on tmpfs
+    # setextattr user url "${URL}" "${uzip}/.url"
+    # setextattr user build "${BUILDNUMBER}" "${uzip}/.url"
   fi
 }
 
 image()
 {
+  # For Ventoy, does it make a difference? TODO: Remove next line
   sh "${cwd}/scripts/mkisoimages-${arch}.sh" -b "${label}" "${isopath}" "${cdroot}"
   sync ### Needed?
   md5 "${isopath}" > "${isopath}.md5"
@@ -487,7 +442,6 @@ dm
 script
 tag
 uzip
-ramdisk
 boot
 image
 
