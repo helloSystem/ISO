@@ -112,8 +112,8 @@ lsblk
 pciutils
 usbutils
 # Filesystems for https://github.com/vermaden/automount
-# exfat-utils # TODO: Enable once available in quarterly packages
-# fusefs-exfat # TODO: Enable once available in quarterly packages
+exfat-utils
+fusefs-exfat
 fusefs-ntfs
 fusefs-hfsfuse
 # fusefs-lkl # This is way too large and draws in gcc, and fusefs-ext2 can also do the job
