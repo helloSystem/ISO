@@ -376,7 +376,15 @@ boot()
   # Compress the kernel
   gzip -f "${cdroot}"/boot/kernel/kernel || true
   rm "${cdroot}"/boot/kernel/kernel || true
-  # Compress the remaining modules
+  # Install Ventoy module
+  # It is not yet available for FreeBSD 14. TODO: Re-check later
+  if [ "${MAJOR}" -lt 14 ] ; then
+    if [ "${arch}" = "amd64" ] ; then
+      fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
+      unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
+    fi
+  fi
+  # Compress the modules in a way the kernel understands
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
   mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
