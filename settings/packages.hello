@@ -183,3 +183,5 @@ mtools
 devel/py-pip
 # Needed to encode URL as QR message if Xorg cannot be started
 graphics/libqrencode
+# Needed to play mp3 without hassle
+audio/mpg321
