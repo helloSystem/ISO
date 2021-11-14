@@ -29,9 +29,6 @@ initgfx_debug()
 do_initgfx_message()
 {
 
-export COLOR_NC='\e[0m' # No Color
-export COLOR_RED='\e[0;31m'
-
 # Wait for 10 seconds; if Xorg is not running then, display the error message
 sleep 10
 
@@ -41,8 +38,11 @@ pgrep -f Xorg && exit 0
 # If we don't have Xorg running by then, output a message and offer to log into the machine
 clear
 
-# Switch color for the text that follows
-echo -e $COLOR_RED > /dev/console
+# Change colors, https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+export COLOR_NC='\e[0m' # No Color
+echo -e $COLOR_NC > /dev/console # Reset to defaults
+echo -e '\e[1;43m' > /dev/console # Yellow bg because it is bright; TODO: Find a way to get white (we have redefined it in loader.conf) or very bright grey here
+echo -e  '\e[1;37m' > /dev/console # Bold black letters
 
 cat > /dev/console <<EOF
 Failed to start the desktop. Possibly the graphics hardware 
@@ -84,8 +84,7 @@ echo "${URL}" > /dev/console
 echo "" > /dev/console
 
 # Output QR code
-echo -e  "\e[30;47m" > /dev/console # Black letters on white background according to https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
-echo "${URL}" | qrencode -m 5 -t utf8i > dev/console
+echo $URL | qrencode -m 5 -t utf8i >/dev/console
 
 # Reset color for the text that follows
 echo -e $COLOR_NC > /dev/console
