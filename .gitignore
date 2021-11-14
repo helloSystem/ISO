@@ -4,3 +4,4 @@ overlays/uzip/furybsd-wallpapers/files/*
 *~
 *.idea*
 __pycache__
+.DirInfo
