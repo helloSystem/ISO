@@ -1,3 +1,28 @@
+# Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
 	echo "==> Running in single-user mode"
 	SINGLE_USER="true"
@@ -163,5 +188,30 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+
+# Check which key has last been pressed
+old_tty_settings=$(stty -g) && stty -icanon && last_key_pressed=$(tail -c1) && stty "$old_tty_settings"
+
+# Monkey patch
+# TODO: Make this way more configurable
+if [ "${last_key_pressed}" == "M" ] ; then
+  echo ""
+  echo ""
+  echo "Monkey patch requested."
+  echo "Looking for a file named monkeypatch.sh on a msdosfs geom with the label MONKEYPATCH"
+  echo ""
+  echo "Waiting for /dev/msdosfs/MONKEYPATCH to appear..."
+  while : ; do
+    [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
+    sleep 2
+  done
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /mnt # TODO: Can we use automount <geom> attach?
+  if [ -e "/mnt/monkeypatch.sh" ] ; then
+    echo "Applying monkey patch..." > /dev/console
+    sh -ex /mnt/monkeypatch.sh > /dev/console
+  else
+    echo "/monkeypatch.sh missing" > /dev/console
+  fi
+fi
 
 exit 0
