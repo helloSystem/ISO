@@ -189,13 +189,13 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
 
-# Check which key has last been pressed
-old_tty_settings=$(stty -g) && stty -icanon && last_key_pressed=$(tail -c1) && stty "$old_tty_settings"
-
 # Monkey patch
 # TODO: Make this way more configurable
-if [ "${last_key_pressed}" == "M" ] ; then
-  echo ""
+case $(kenv kernel_args) in
+  *monkeypatch*) MONKEYPATCH=TRUE;;
+  *) MONKEYPATCH=FALSE;;
+esac
+if [ "${MONKEYPATCH}" == "TRUE" ] ; then
   echo ""
   echo "Monkey patch requested."
   echo "Looking for a file named monkeypatch.sh on a msdosfs geom with the label MONKEYPATCH"
