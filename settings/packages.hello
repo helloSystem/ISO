@@ -26,7 +26,8 @@ dsbmixer
 # Adjust the color temperature of your screen
 redshift
 # FreeBSD's devd(8) based automount solution, https://github.com/vermaden/automount
-automount
+# automount # TODO: Re-enable here once the packaged one has the REMOVEDIRS and NICENAMES options
+# In the meantime, we ship our private copy
 # Small, fast, standards compliant, extensible window manager
 # FIXME: Find Qt replacement without too many Kf5 dependencies
 # openbox
