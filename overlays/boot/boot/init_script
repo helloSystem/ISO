@@ -189,13 +189,9 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
 
-# Monkey patch
+# Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader (this may change)
 # TODO: Make this way more configurable
-case $(kenv kernel_args) in
-  *monkeypatch*) MONKEYPATCH=TRUE;;
-  *) MONKEYPATCH=FALSE;;
-esac
-if [ "${MONKEYPATCH}" == "TRUE" ] ; then
+if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
   echo ""
   echo "Monkey patch requested."
   echo "Looking for a file named monkeypatch.sh on a msdosfs geom with the label MONKEYPATCH"
