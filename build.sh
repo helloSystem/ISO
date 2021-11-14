@@ -299,6 +299,7 @@ pkg()
 # Put Nvidia driver at location in which initgfx expects it
 initgfx()
 {
+  /usr/local/sbin/pkg-static -c ${uzip} update # Needed if we are shipping additional repos 
   if [ "${arch}" != "i386" ] ; then
     if [ $MAJOR -lt 14 ] ; then
       PKGS="quarterly"
