@@ -2,35 +2,25 @@
 #
 # Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
 #
-# PROVIDE: initgfx_message
-# REQUIRE: initgfx
+# PROVIDE: missing_desktop_message
+# REQUIRE: slim
 
 . /etc/rc.subr
 
-name=initgfx_message
-start_cmd="do_initgfx_message"
+name=missing_desktop_message
+start_cmd="do_missing_desktop_message"
 
-rcvar=initgfx_enable
+rcvar=missing_desktop_message_enable
 
 load_rc_config ${name}
 
-: ${initgfx_enable:="YES"}
+: ${missing_desktop_message_enable:="YES"}
 
-initgfx_warn()
-{
-	echo "${name}:" $* >&2
-}
-
-initgfx_debug()
-{
-	echo "${name}:" $* >&2
-}
-
-do_initgfx_message()
+do_missing_desktop_message()
 {
 
-# Wait for 60 seconds; if Xorg is not running then, display the error message
-sleep 60
+# Wait for 15 seconds; if Xorg is not running then, display the error message
+sleep 15
 
 # Exit if Xorg is running
 pgrep -f Xorg && exit 0
