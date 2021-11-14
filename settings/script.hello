@@ -337,17 +337,17 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list liberation-fonts-ttf) ; do rm $FILE
 chroot "${uzip}" update-desktop-database # Needed for mountarchive to be associated with the MIME types it can handle; TODO: Get rid of XDG
 
 # Temporary workaround for https://github.com/helloSystem/ISO/issues/14
-mv "${uzip}/usr/sbin/pkg" "${uzip}/usr/sbin/pkg.real"
-cat > "${uzip}/usr/sbin/pkg" <<\EOF
-#!/bin/sh
-# Temporary workaround for https://github.com/helloSystem/ISO/issues/14
-case "$@" in
-  *update*) echo "pkg update is not yet supported in helloSystem" ;;
-  *upgrade*) echo "pkg update is not yet supported in helloSystem" ;;
-  *)         pkg.real "$@" ;;
-esac
-EOF
-chmod +x "${uzip}/usr/sbin/pkg"
+# mv "${uzip}/usr/sbin/pkg" "${uzip}/usr/sbin/pkg.real"
+# cat > "${uzip}/usr/sbin/pkg" <<\EOF
+# #!/bin/sh
+# # Temporary workaround for https://github.com/helloSystem/ISO/issues/14
+# case "$@" in
+#   *update*) echo "pkg update is not yet supported in helloSystem" ;;
+#   *upgrade*) echo "pkg update is not yet supported in helloSystem" ;;
+#   *)         pkg.real "$@" ;;
+# esac
+# EOF
+# chmod +x "${uzip}/usr/sbin/pkg"
 
 # Get newer version of automount than is packaged for FreeBSD as of 10/2021; https://github.com/vermaden/automount/issues/30
 # FIXME: Remove this once a suitable version is packaged for FreeBSD
