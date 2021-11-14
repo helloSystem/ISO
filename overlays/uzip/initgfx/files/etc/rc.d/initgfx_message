@@ -45,20 +45,14 @@ clear
 echo -e $COLOR_RED > /dev/console
 
 cat > /dev/console <<EOF
-Failed to start the desktop.
-Possibly the graphics hardware
-in this device is not supported yet.
-Please let us know.
+Failed to start the desktop. Possibly the graphics hardware 
+in this device is not supported yet. Please let us know.
 
-Der Desktop konnte nicht gestartet werden.
-Möglicherweise wird die Grafikhardware
-in diesem Gerät noch nicht unterstützt.
-Bitte geben Sie uns Bescheid.
+Der Desktop konnte nicht gestartet werden. Möglicherweise wird die Grafikhardware
+in diesem Gerät noch nicht unterstützt. Bitte geben Sie uns Bescheid.
 
-Impossible de démarrer le bureau.
-Il est possible que le matériel graphique
-de cet appareil ne soit pas encore pris en charge.
-Veuillez nous le faire savoir.
+Impossible de démarrer le bureau. Il est possible que le matériel graphique
+de cet appareil ne soit pas encore pris en charge. Veuillez nous le faire savoir.
 EOF
 
 echo "" > /dev/console
@@ -71,15 +65,15 @@ echo "" > /dev/console
 # Print device information in a format that is suitable for https://bsd-hardware.info/
 for LINE in "$(sysctl dev.vgapci | grep pnpinfo)" ; do
   VENDOR=$(echo ${LINE} | cut -d " " -f 2 | cut -d "x" -f 2)
-  echo Vendor: ${VENDOR} > /dev/console
+  # echo Vendor: ${VENDOR} > /dev/console
   DEVICE=$(echo ${LINE} | cut -d " " -f 3 | cut -d "x" -f 2)
-  echo Device: ${DEVICE} > /dev/console
+  # echo Device: ${DEVICE} > /dev/console
   SUBVENDOR=$(echo ${LINE} | cut -d " " -f 4 | cut -d "x" -f 2)
-  echo Subvendor: ${SUBVENDOR} > /dev/console
+  # echo Subvendor: ${SUBVENDOR} > /dev/console
   SUBDEVICE=$(echo ${LINE} | cut -d " " -f 5 | cut -d "x" -f 2)
-  echo Subdevice: ${SUBDEVICE} > /dev/console
+  # echo Subdevice: ${SUBDEVICE} > /dev/console
   CLASS=$(echo ${LINE} | cut -d " " -f 6 | cut -d "x" -f 2)
-  echo Class: ${CLASS} > /dev/console
+  # echo Class: ${CLASS} > /dev/console
 done
 
 echo "" > /dev/console
@@ -91,7 +85,7 @@ echo "" > /dev/console
 
 # Output QR code
 echo -e  "\e[30;47m" > /dev/console # Black letters on white background according to https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
-qrencode -m 5 -t utf8i <<< "${URL}" > /dev/console
+echo "${URL}" | qrencode -m 5 -t utf8i > dev/console
 
 # Reset color for the text that follows
 echo -e $COLOR_NC > /dev/console
