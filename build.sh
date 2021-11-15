@@ -346,7 +346,10 @@ slim()
   # TODO: Instead of deleting those, move to a separate tree
   # and generate a Developer ISO from that tree (as a separate download)
   # that can then be combined (using unionfs or otherwise) at runtime
-  # TODO: Find more of them
+  # TODO: Find more files to be removed; the largest files
+  # in a directory can be listed with
+  # ls -lhS /usr/lib | head
+  # Tools like filelight and sysutils/k4dirstat might also be helpful
   find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name docs -type d -exec rm -rf {} \; 2>/dev/null || true
@@ -365,6 +368,17 @@ slim()
   find "${uzip}"/ -name devhelp -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name '*-doc' -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name examples -type d -exec rm -rf {} \; 2>/dev/null || true
+  rm -rf "${uzip}"/usr/bin/svn* || true
+  rm -rf "${uzip}"/usr/bin/clang* || true
+  rm -rf "${uzip}"/usr/bin/c++ || true
+  rm -rf "${uzip}"/usr/bin/cpp || true
+  rm -rf "${uzip}"/usr/bin/cc || true
+  rm -rf "${uzip}"/usr//bin/lldb* || true
+  rm -rf "${uzip}"/usr/local/bin/ccxxmake || true
+  rm -rf "${uzip}"/usr/bin/llvm* || true
+  rm -rf "${uzip}"/usr/bin/ld.lld || true
+  rm -rf "${uzip}"/usr/bin/ex /usr/bin/nex /usr/bin/nvi /usr/bin/vi /usr/bin/view || true
+  rm -rf "${uzip}"/usr/local/llvm12 || true
 }
 
 uzip() 
