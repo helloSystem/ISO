@@ -75,10 +75,10 @@ cp -R /media/uzip/var/ /var
 mkdir -p /var/run # Needed for slim?
 # mount -t unionfs -o below /media/uzip/var /var # TODO: Check: Crashes later on when slim starts? 
 
-# The following does not instantly crash but since I get a crash later on, 
-# I suspect this causes it?
+# The following does not instantly crash but later in the boot we get a crash
+# TODO: Retest
 # mount -t unionfs -o below /media/uzip/var /var
-# mkdir -p /var/run || echo "XXXXXXXXXXXXXXXX FAIL YYYYYYYYYYYYY"
+# mkdir -p /var/run
 
 mount -t tmpfs tmpfs /usr/local
 mount -t unionfs -o below /media/uzip/usr/local /usr/local
@@ -110,6 +110,10 @@ pw groupmod cups -m liveuser
 ######################################################################
 # From here on optional, helloSystem specific optimizations
 ######################################################################
+
+# Allow /Applications to be modified
+mkdir -p /tmp/unionfs/Applications
+mount -t unionfs /tmp/unionfs/Applications /Applications
 
 # Do not launch Welcome in Live mode
 mkdir -p /home/liveuser/.config/hello/
