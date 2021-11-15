@@ -211,6 +211,9 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 # https://github.com/nomadbsd/NomadBSD/commit/a346f134aaca1cdc164346f63808abdb4d8919e3
 sed -i '' -e 's|\&\& __wait 3|\&\& sync|g' /etc/rc.d/initgfx
 
+# Disable console beeps without the need for /etc/rc.conf editing
+kbdcontrol -b quiet.off
+
 # Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader
 # or by setting an EFI variable called "MonkeyPatch" (this may change)
 
