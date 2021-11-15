@@ -381,7 +381,8 @@ slim()
   rm -rf "${uzip}"/usr/bin/llvm* || true
   rm -rf "${uzip}"/usr/bin/ld.lld || true
   rm -rf "${uzip}"/usr/bin/ex /usr/bin/nex /usr/bin/nvi /usr/bin/vi /usr/bin/view || true
-  rm -rf "${uzip}"/usr/local/llvm12 || true
+  # Must not delete libLLVM-12.so which is needed for swrast_dri.so
+  find "${uzip}"/usr/local/llvm* -type f -not -name "libLLVM-*.so*" -exec rm -f {} \; 2>/dev/null || true
 }
 
 uzip() 
