@@ -355,7 +355,10 @@ slim()
   find "${uzip}"/ -name docs -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name '*.la' -type f -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name man -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name include -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/usr/include || true
+  find "${uzip}"/usr/local/include || true
+  # Note: Must not delete, e.g., include directories in /usr/libexec or else
+  # the system will become uninstallable
   find "${uzip}"/ -name '*.h' -type f -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name .cache -type d -exec rm -rf {} \; 2>/dev/null || true
   find "${uzip}"/ -name debug -type d -exec rm -rf {} \; 2>/dev/null || true
