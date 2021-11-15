@@ -111,6 +111,16 @@ pw groupmod cups -m liveuser
 # From here on optional, helloSystem specific optimizations
 ######################################################################
 
+# Xorg on Ctrl-Alt-F1
+# TODO: Move to a rc script that also runs in installed mode
+sed -i '' -e 's|vt09|vt01|g' /usr/local/etc/slim.conf
+
+# No text consoles on Ctrl-Alt-F2... if booted with boot_mute (default)
+# TODO: Move to a rc script that also runs in installed mode
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+  echo "" > /etc/ttys
+fi
+
 # Allow /Applications to be modified
 mkdir -p /tmp/unionfs/Applications
 mount -t unionfs /tmp/unionfs/Applications /Applications
