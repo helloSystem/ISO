@@ -425,6 +425,9 @@ boot()
   # Compress the kernel
   gzip -f "${cdroot}"/boot/kernel/kernel || true
   rm "${cdroot}"/boot/kernel/kernel || true
+  # Compress the modules in a way the kernel understands
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
   # Install Ventoy module
   # It is not yet available for FreeBSD 14. TODO: Re-check later
   if [ "${MAJOR}" -lt 14 ] ; then
@@ -433,9 +436,6 @@ boot()
       unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
     fi
   fi
-  # Compress the modules in a way the kernel understands
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
   mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
