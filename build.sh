@@ -337,6 +337,36 @@ script()
   fi
 }
 
+slim()
+{
+  # Remove files that are non-essential to the working of
+  # the system, especially files only needed by developers
+  # and non-localized documentation not understandable to
+  # non-English speakers
+  # TODO: Instead of deleting those, move to a separate tree
+  # and generate a Developer ISO from that tree (as a separate download)
+  # that can then be combined (using unionfs or otherwise) at runtime
+  # TODO: Find more of them
+  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name docs -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.la' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name man -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name include -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.h' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name .cache -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name debug -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.a' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.o' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name src -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git-core -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name devhelp -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*-doc' -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name examples -type d -exec rm -rf {} \; 2>/dev/null || true
+}
+
 uzip() 
 {
   ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
@@ -450,6 +480,7 @@ user
 dm
 script
 tag
+slim
 uzip
 boot
 image
