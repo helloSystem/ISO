@@ -191,6 +191,12 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
 
+# Remove initgfx 3 second sleep between Xorg runs
+# Tested on 13.0-CURRENT on Nvidia and Intel GPU machines
+# The sleep was originally introduced in
+# https://github.com/nomadbsd/NomadBSD/commit/a346f134aaca1cdc164346f63808abdb4d8919e3
+sed -i '' -e 's|\&\& __wait 3|\&\& sync|g' /etc/rc.d/initgfx
+
 # Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader
 # or by setting an EFI variable called "MonkeyPatch" (this may change)
 
