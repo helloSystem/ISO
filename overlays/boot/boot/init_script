@@ -24,16 +24,18 @@
 
 
 if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
-	echo "==> Running in single-user mode"
-	SINGLE_USER="true"
-	kenv boot_mute="NO"
-        sh
+  echo "==> Running in single-user mode"
+  SINGLE_USER="true"
+  kenv boot_mute="NO"
+  sh
 fi
 
+# Silence messages if boot_mute="YES" is set;
 # /var/log/console.log will contain a log of this
-# Silence messages if boot_mute="YES" is set
 if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
-      exec 1>>/dev/null 2>&1
+  exec 1>>/dev/null 2>&1
+else
+  echo -e  '\e[1;37m' > /dev/console # Bold black letters to increase readability
 fi
 
 set -x 
@@ -201,10 +203,11 @@ if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
     [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
     sleep 2
   done
-  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /mnt # TODO: Can we use automount <geom> attach?
+  mkdir -p /media/MONKEYPATCH
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media/MONKEYPATCH # TODO: Should we use /usr/local/sbin/automount <geom> attach?
   if [ -e "/mnt/monkeypatch.sh" ] ; then
     echo "Applying monkey patch..." > /dev/console
-    sh -ex /mnt/monkeypatch.sh > /dev/console
+    sh -ex /media/MONKEYPATCH/monkeypatch.sh > /dev/console
   else
     echo "/monkeypatch.sh missing" > /dev/console
   fi
