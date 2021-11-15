@@ -205,10 +205,11 @@ if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
   done
   mkdir -p /media/MONKEYPATCH
   mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media/MONKEYPATCH # TODO: Should we use /usr/local/sbin/automount <geom> attach?
-  if [ -e "/mnt/monkeypatch.sh" ] ; then
+  if [ -e "/media/MONKEYPATCH/monkeypatch.sh" ] ; then
     echo "Applying monkey patch..." > /dev/console
-    sh -ex /media/MONKEYPATCH/monkeypatch.sh > /dev/console
+    sh /media/MONKEYPATCH/monkeypatch.sh > /dev/console
   else
+    # This text is known to show up also when boot_mute is set
     echo "/monkeypatch.sh missing" > /dev/console
   fi
 fi
