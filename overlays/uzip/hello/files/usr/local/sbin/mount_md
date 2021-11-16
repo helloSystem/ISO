@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e 
+
+# Create md device to be picked up by /usr/local/sbin/automount,
+# wait while it is mounted, and remove it again once it is unmounted
+
+# TODO: Try without readonly, and only if that fails retry with readonly
+md=$(mdconfig -a -t vnode -o readonly -f '${1}')
+
+# TODO: Increase sleep time; no hurry to clean md devices
+# sleep 5 # Give /usr/local/sbin/automount time to kick in
+
+while true; do 
+  mount | grep -e "^$md on" || break
+  sleep 5
+done
+
+mdconfig -d -u ${md}
