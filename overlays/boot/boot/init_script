@@ -196,20 +196,17 @@ sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: dbus|g' /etc/rc.d/initgfx
 # Allow localize to run immediately after initgfx
 sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx|g' /usr/local/etc/rc.d/localize
 
-# Allow slim to run immediately after initgfx
-sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx|g' /usr/local/etc/rc.d/slim
-
-# Force slim to run before var # TODO: See if it can work even earlier than that
-sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
+# Allow slim to run immediately after initgfx and force it to run before var
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx\# BEFORE: var|g' /usr/local/etc/rc.d/slim
 
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
 
-# Remove initgfx 3 second sleep between Xorg runs
+# Lower initgfx 3 second sleep between Xorg runs
 # Tested on 13.0-CURRENT on Nvidia and Intel GPU machines
 # The sleep was originally introduced in
 # https://github.com/nomadbsd/NomadBSD/commit/a346f134aaca1cdc164346f63808abdb4d8919e3
-sed -i '' -e 's|\&\& __wait 3|\&\& sync|g' /etc/rc.d/initgfx
+sed -i '' -e 's|\&\& __wait 3|\&\& __wait 1|g' /etc/rc.d/initgfx
 
 # Disable console beeps without the need for /etc/rc.conf editing
 kbdcontrol -b quiet.off
