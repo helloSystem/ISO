@@ -423,5 +423,5 @@ if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
 fi
 
 # Make sure members of group wheel can manipulate /Applications
-find "${uzip}/Applications -type d -exec chmod g+rwx {} \;
-find "${uzip}/Applications -type f -exec chmod g+rw {} \; 
+find "${uzip}"/Applications -type d -exec chmod g+rwx {} \;
+find "${uzip}"/Applications -type f -exec chmod g+rw {} \; 
