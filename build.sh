@@ -407,7 +407,6 @@ boot()
 
   # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
   mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
-  # /COPYRIGHT is used by Ventoy to inject code
   cp "${uzip}"/COPYRIGHT "${cdroot}"/
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
@@ -428,7 +427,7 @@ boot()
   # Compress the modules in a way the kernel understands
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
-  # Install Ventoy module
+  # Install Ventoy module; note this MUST NOT be gzip compressed or else it will not work
   # It is not yet available for FreeBSD 14. TODO: Re-check later
   if [ "${MAJOR}" -lt 14 ] ; then
     if [ "${arch}" = "amd64" ] ; then
