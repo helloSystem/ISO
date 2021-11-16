@@ -75,10 +75,10 @@ cp -R /media/uzip/var/ /var
 mkdir -p /var/run # Needed for slim?
 # mount -t unionfs -o below /media/uzip/var /var # TODO: Check: Crashes later on when slim starts? 
 
-# The following does not instantly crash but since I get a crash later on, 
-# I suspect this causes it?
+# The following does not instantly crash but later in the boot we get a crash
+# TODO: Retest
 # mount -t unionfs -o below /media/uzip/var /var
-# mkdir -p /var/run || echo "XXXXXXXXXXXXXXXX FAIL YYYYYYYYYYYYY"
+# mkdir -p /var/run
 
 mount -t tmpfs tmpfs /usr/local
 mount -t unionfs -o below /media/uzip/usr/local /usr/local
@@ -110,6 +110,20 @@ pw groupmod cups -m liveuser
 ######################################################################
 # From here on optional, helloSystem specific optimizations
 ######################################################################
+
+# Xorg on Ctrl-Alt-F1
+# TODO: Move to a rc script that also runs in installed mode
+sed -i '' -e 's|vt09|vt01|g' /usr/local/etc/slim.conf
+
+# No text consoles on Ctrl-Alt-F2... if booted with boot_mute (default)
+# TODO: Move to a rc script that also runs in installed mode
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+  echo "" > /etc/ttys
+fi
+
+# Allow /Applications to be modified
+mkdir -p /tmp/unionfs/Applications
+mount -t unionfs /tmp/unionfs/Applications /Applications
 
 # Do not launch Welcome in Live mode
 mkdir -p /home/liveuser/.config/hello/
@@ -191,9 +205,31 @@ sed -i '' -e 's|# REQUIRE: .*|# BEFORE: var|g' /usr/local/etc/rc.d/slim
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
 
-# Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader (this may change)
+# Remove initgfx 3 second sleep between Xorg runs
+# Tested on 13.0-CURRENT on Nvidia and Intel GPU machines
+# The sleep was originally introduced in
+# https://github.com/nomadbsd/NomadBSD/commit/a346f134aaca1cdc164346f63808abdb4d8919e3
+sed -i '' -e 's|\&\& __wait 3|\&\& sync|g' /etc/rc.d/initgfx
+
+# Disable console beeps without the need for /etc/rc.conf editing
+kbdcontrol -b quiet.off
+
+# Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader
+# or by setting an EFI variable called "MonkeyPatch" (this may change)
+
+EFIVAR=$(efivar -Al | grep -e "[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-MonkeyPatch$")
+if [ -n "${EFIVAR}" ] ; then
+  echo "Monkey patch requested by EFI variable"
+  MONKEY_PATCH=YES
+fi
+
 # TODO: Make this way more configurable
 if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
+  echo "Monkey patch requested by EFI variable"
+  MONKEY_PATCH=YES
+fi
+
+if [ "$MONKEY_PATCH" == "YES" ] ; then
   echo ""
   echo "Monkey patch requested."
   echo "Looking for a file named monkeypatch.sh on a msdosfs geom with the label MONKEYPATCH"
@@ -205,10 +241,11 @@ if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
   done
   mkdir -p /media/MONKEYPATCH
   mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media/MONKEYPATCH # TODO: Should we use /usr/local/sbin/automount <geom> attach?
-  if [ -e "/mnt/monkeypatch.sh" ] ; then
+  if [ -e "/media/MONKEYPATCH/monkeypatch.sh" ] ; then
     echo "Applying monkey patch..." > /dev/console
-    sh -ex /media/MONKEYPATCH/monkeypatch.sh > /dev/console
+    sh /media/MONKEYPATCH/monkeypatch.sh > /dev/console
   else
+    # This text is known to show up also when boot_mute is set
     echo "/monkeypatch.sh missing" > /dev/console
   fi
 fi

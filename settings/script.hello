@@ -98,6 +98,7 @@ chroot "${uzip}" ln -s /System/Menu.AppDir/usr/bin/menubar /usr/local/bin
 # Add applications from the helloSystem/Utilities repository
 mkdir -p "${uzip}/Applications/"
 mkdir -p "${uzip}/System/"
+
 wget -q https://github.com/helloSystem/Utilities/archive/master.zip
 unzip master.zip
 mv 'Utilities-master/Internet' "${uzip}/Applications/"
@@ -261,7 +262,7 @@ cat > /tmp/rc <<\EOF
 # The following block was added by helloSystem
 # FIXME: Let us know how to do this properly
 # Silence messages if boot_mute="YES" is set
-if [ "$(kenv boot_mute)" = "YES" ] ; then
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
         conscontrol delete ttyv0 >/dev/null 2>&1
         exec 1>>/dev/null 2>&1
 fi
@@ -277,7 +278,7 @@ cat > /tmp/rc.shutdown <<\EOF
 # The following block was added by helloSystem
 # FIXME: Let us know how to do this properly
 # Silence messages if boot_mute="YES" is set
-if [ "$(kenv boot_mute)" = "YES" ] ; then
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
         exec 1>>/dev/null 2>&1
 fi
 #
@@ -420,3 +421,7 @@ if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
   IMAGE_VERSION="\${BUILDNUMBER}_"${SHA}\"
   eof
 fi
+
+# Make sure members of group wheel can manipulate /Applications
+find "${uzip}"/Applications -type d -exec chmod g+rwx {} \;
+find "${uzip}"/Applications -type f -exec chmod g+rw {} \; 

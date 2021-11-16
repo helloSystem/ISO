@@ -156,6 +156,10 @@ get_vgapci_devices() {
 	[ -z "${default_unit}" -o "${default_unit}" =  "-1" ] && default_unit=0
 	__device_list=$(pciconf -lv | awk -v default_unit=${default_unit} '{
 		if (/^vgapci/) {
+			if (in_vgapci_entry) {
+				recs[++nrecs] = sprintf("%s\t%s\t%s\t%s\t%s",
+				    unit, bus, vendor, device, descr);
+			}
 			in_vgapci_entry = 1;
 			n = split($0, a, "[ \t]+");
 			split(a[1], b, "^vgapci|[@:]+");

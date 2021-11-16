@@ -337,6 +337,54 @@ script()
   fi
 }
 
+slim()
+{
+  # Remove files that are non-essential to the working of
+  # the system, especially files only needed by developers
+  # and non-localized documentation not understandable to
+  # non-English speakers
+  # TODO: Instead of deleting those, move to a separate tree
+  # and generate a Developer ISO from that tree (as a separate download)
+  # that can then be combined (using unionfs or otherwise) at runtime
+  # TODO: Find more files to be removed; the largest files
+  # in a directory can be listed with
+  # ls -lhS /usr/lib | head
+  # Tools like filelight and sysutils/k4dirstat might also be helpful
+  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name docs -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.la' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name man -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/usr/include || true
+  find "${uzip}"/usr/local/include || true
+  # Note: Must not delete, e.g., include directories in /usr/libexec or else
+  # the system will become uninstallable
+  find "${uzip}"/ -name '*.h' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name .cache -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name debug -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.a' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*.o' -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name src -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git-core -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name git -type f -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name devhelp -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name '*-doc' -type d -exec rm -rf {} \; 2>/dev/null || true
+  find "${uzip}"/ -name examples -type d -exec rm -rf {} \; 2>/dev/null || true
+  rm -rf "${uzip}"/usr/bin/svn* || true
+  rm -rf "${uzip}"/usr/bin/clang* || true
+  rm -rf "${uzip}"/usr/bin/c++ || true
+  rm -rf "${uzip}"/usr/bin/cpp || true
+  rm -rf "${uzip}"/usr/bin/cc || true
+  rm -rf "${uzip}"/usr//bin/lldb* || true
+  rm -rf "${uzip}"/usr/local/bin/ccxxmake || true
+  rm -rf "${uzip}"/usr/bin/llvm* || true
+  rm -rf "${uzip}"/usr/bin/ld.lld || true
+  rm -rf "${uzip}"/usr/bin/ex /usr/bin/nex /usr/bin/nvi /usr/bin/vi /usr/bin/view || true
+  # Must not delete libLLVM-12.so which is needed for swrast_dri.so
+  find "${uzip}"/usr/local/llvm* -type f -not -name "libLLVM-*.so*" -exec rm -f {} \; 2>/dev/null || true
+}
+
 uzip() 
 {
   ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
@@ -359,7 +407,6 @@ boot()
 
   # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
   mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
-  # /COPYRIGHT is used by Ventoy to inject code
   cp "${uzip}"/COPYRIGHT "${cdroot}"/
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
   cd "${uzip}" && tar -cf - boot | tar -xf - -C "${cdroot}"
@@ -377,7 +424,10 @@ boot()
   # Compress the kernel
   gzip -f "${cdroot}"/boot/kernel/kernel || true
   rm "${cdroot}"/boot/kernel/kernel || true
-  # Install Ventoy module
+  # Compress the modules in a way the kernel understands
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
+  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
+  # Install Ventoy module; note this MUST NOT be gzip compressed or else it will not work
   # It is not yet available for FreeBSD 14. TODO: Re-check later
   if [ "${MAJOR}" -lt 14 ] ; then
     if [ "${arch}" = "amd64" ] ; then
@@ -385,9 +435,6 @@ boot()
       unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
     fi
   fi
-  # Compress the modules in a way the kernel understands
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
-  find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
   mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
@@ -450,6 +497,7 @@ user
 dm
 script
 tag
+slim
 uzip
 boot
 image
