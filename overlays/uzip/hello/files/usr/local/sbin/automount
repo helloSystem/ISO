@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2012-2020 Slawomir Wojciech Wojtczak <vermaden@interia.pl>
+# Copyright (c) 2012-2021 Slawomir Wojciech Wojtczak <vermaden@interia.pl>
 # Copyright (c) 2019      Rozhuk Ivan                <rozhuk.im@gmail.com>
 # All rights reserved.
 #
@@ -162,7 +162,7 @@ then
   echo "  /  /  //  /  //  //  /  //        \\\  \  \  \\\  \  \\\  \  \\\  \  \\\  \_   "
   echo "  \_____\\\____/ \__\\\____//__________\\\__\__\__\\\____/ \_____\\\__\__\\\___\ "
   echo
-  echo "automount 1.7.5 2021/10/01"
+  echo "automount 1.7.6 2021/11/15"
   exit 0
 fi
 
@@ -417,7 +417,7 @@ case ${2} in
     # check if device still exists
     if [ ! -e "${DEV}" ]
     then
-      __log "${DEV}: device does not exists"
+      __log "${DEV}: device does not exist"
       exit 1
     fi
     __log "${DEV}: attach"
@@ -444,7 +444,7 @@ case ${2} in
           MNT="${MNT_PREFIX}/${MNT_CANDIDATE}"
         fi
       else
-        # dir does not exists
+        # dir does not exist
         MNT="${MNT_PREFIX}/${MNT_CANDIDATE}"
       fi
     else
@@ -468,6 +468,10 @@ case ${2} in
     __check_already_mounted "${DEV}" "${MNT}"
     # make sure that data can be read from device
     __wait_for_device "${DEV}"
+    # load needed kernel modules
+    kldload fusefs    1> /dev/null 2> /dev/null
+    kldload fuse      1> /dev/null 2> /dev/null
+    kldload geom_uzip 1> /dev/null 2> /dev/null
     # detect filesysytem type
     case ${1} in
       (iso9660*)
@@ -480,7 +484,7 @@ case ${2} in
         __guess_fs_type "${DEV}"
         FS_TYPE=${?}
         ;;
-      (da*|mmcsd*)
+      (md*.uzip|md*|ada*|da*|mmcsd*)
         __check_block_device "${DEV}"
         __guess_fs_type "${DEV}"
         FS_TYPE=${?}
@@ -647,6 +651,18 @@ case ${2} in
       COUNT=$(( ${COUNT} + 1 ))
       if [ ${COUNT} -gt ${RETRY_COUNT} ]
       then
+
+        # BEGIN | try to mount read only
+        FS_MOUNT_ARGS="-o ro ${FS_MOUNT_ARGS}"
+        ${FS_MOUNT_CMD} ${FS_MOUNT_ARGS}
+
+        if [ ${?} -eq 0 ]
+        then
+          __log "${DEV}: mount OK: '${FS_MOUNT_CMD} ${FS_MOUNT_ARGS}'"
+          break
+        fi
+        # END | try to mount read only
+
         __log "${DEV}: mount FAIL: '${FS_MOUNT_CMD} ${FS_MOUNT_ARGS}'"
         exit 1
       fi
