@@ -66,7 +66,7 @@ fi
 LABEL=`echo "$1" | tr '[:lower:]' '[:upper:]'`; shift
 NAME="$1"; shift
 
-publisher="VENTOY COMPATIBLE"
+publisher=" "
 ### echo "/dev/iso9660/$LABEL / cd9660 ro 0 0" > "$BASEBITSDIR/etc/fstab"
 $MAKEFS -t cd9660 $bootable -o rockridge -o label="$LABEL" -o publisher="$publisher" "$NAME" "$@"
 rm -f "$BASEBITSDIR/etc/fstab"
