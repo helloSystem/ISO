@@ -1,0 +1,15 @@
+cat << EOF
+name:          automount
+version:       0
+origin:        local
+comment:       Preconfigured version of automount by vermaden
+arch:          freebsd:12:x86:64
+www:           n/a
+maintainer:    n/a
+prefix:        /
+licenselogic:  single
+licenses:      [BSD]
+flatsize:      ${DIR_SIZE}
+desc:          Preconfigured version of automount by vermaden
+categories:    [local]
+EOF

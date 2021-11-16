@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mount Disk Image
+Exec=sudo -A -E mount_md %f
+# Hidden=true
+MimeType=application/x-iso9660-image;application/x-cd-image;application/x-raw-disk-image;
+# TODO: Define .uzip, .ufs, .img,... mime types and add them here
+# /usr/local/share/applications/mimeapps.list
