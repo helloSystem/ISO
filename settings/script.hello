@@ -99,10 +99,6 @@ chroot "${uzip}" ln -s /System/Menu.AppDir/usr/bin/menubar /usr/local/bin
 mkdir -p "${uzip}/Applications/"
 mkdir -p "${uzip}/System/"
 
-# Allow members of group wheel to manipulate /Applications
-find /Applications -type d -exec chmod g+rwx {} \;
-find /Applications -type f -exec chmod g+rw {} \; 
-
 wget -q https://github.com/helloSystem/Utilities/archive/master.zip
 unzip master.zip
 mv 'Utilities-master/Internet' "${uzip}/Applications/"
@@ -425,3 +421,7 @@ if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
   IMAGE_VERSION="\${BUILDNUMBER}_"${SHA}\"
   eof
 fi
+
+# Make sure members of group wheel can manipulate /Applications
+find "${uzip}/Applications -type d -exec chmod g+rwx {} \;
+find "${uzip}/Applications -type f -exec chmod g+rw {} \; 
