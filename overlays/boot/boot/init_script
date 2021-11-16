@@ -196,8 +196,8 @@ sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: dbus|g' /etc/rc.d/initgfx
 # Allow localize to run immediately after initgfx
 sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx|g' /usr/local/etc/rc.d/localize
 
-# Allow slim to run immediately after initgfx and force it to run before var
-sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: initgfx\# BEFORE: var|g' /usr/local/etc/rc.d/slim
+# Allow slim to run immediately after localize and force it to run before var
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: localize\n# BEFORE: var|g' /usr/local/etc/rc.d/slim
 
 # For debugging: After applying the above patches, show resulting rcorder with
 # rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
