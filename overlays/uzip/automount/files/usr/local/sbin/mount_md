@@ -1,22 +1,42 @@
 #!/bin/sh
 
-set -x
-set -e
+# Copyright (c) 2021 Simon Peter <probono@puredarwin.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that following conditions are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS 'AS IS' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Create md device to be picked up by /usr/local/sbin/automount,
 # wait while it is mounted, and remove it again once it is unmounted
 
-# TODO: Try without readonly, and only if that fails retry with readonly
 md=$(mdconfig -a -t vnode -o readonly -f "${1}")
 
-# TODO: Increase sleep time; no hurry to clean md devices
-sleep 5 # Give /usr/local/sbin/automount time to kick in
+echo "Attached disk image to /dev/${md}"
+echo "Waiting until it is not mounted anymore..."
+
+sleep 30 # Give /usr/local/sbin/automount time to kick in
 
 while true; do 
-  # FIXME: Find a regex that matches not only /dev/mdX but also /dev/mdXp1, /dev/mdYp1, /dev/md.uzip etc
-  # So essentially all /dev/mdX that are not immediately followed by another number, such as /dev/XY
-  mount | grep -e "^$md on" || break
+  mount | grep "^\/dev\/$md[s|p|\.|\ ].*on" >/dev/null 2>&1 || break
   sleep 60
 done
 
 mdconfig -d -u ${md}
+
+echo "Removed /dev/${md}"
