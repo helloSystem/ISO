@@ -13,6 +13,8 @@ md=$(mdconfig -a -t vnode -o readonly -f "${1}")
 sleep 5 # Give /usr/local/sbin/automount time to kick in
 
 while true; do 
+  # FIXME: Find a regex that matches not only /dev/mdX but also /dev/mdXp1, /dev/mdYp1, /dev/md.uzip etc
+  # So essentially all /dev/mdX that are not immediately followed by another number, such as /dev/XY
   mount | grep -e "^$md on" || break
   sleep 60
 done
