@@ -4,6 +4,11 @@
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
+# Normally $PATH gets changed by slim anyway so it's probably ok to change it here again
+# The closer to the user, the more upfront so that users can override what the system provides
+# and helloSystem can override what FreeBSD provides
+export PATH=~/bin:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/games:/usr/sbin:/usr/bin:/sbin:/bin
+
 # Use library to display symbols for keyboard shortcuts
 # https://github.com/helloSystem/hello/issues/46
 export LD_PRELOAD=/usr/local/lib/libQKeySequenceOverride.so.1.0.0
