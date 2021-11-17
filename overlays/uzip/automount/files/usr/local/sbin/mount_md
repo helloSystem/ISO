@@ -25,18 +25,25 @@
 # Create md device to be picked up by /usr/local/sbin/automount,
 # wait while it is mounted, and remove it again once it is unmounted
 
+# Exit on errors
+set -e
+
+# Attach device node
 md=$(mdconfig -a -t vnode -o readonly -f "${1}")
 
 echo "Attached disk image to /dev/${md}"
 echo "Waiting until it is not mounted anymore..."
 
-sleep 30 # Give /usr/local/sbin/automount time to kick in
+# Give /usr/local/sbin/automount time to kick in
+sleep 30
 
+# Periodically check whether anything from that image is still mounted
 while true; do 
   mount | grep "^\/dev\/$md[s|p|\.|\ ].*on" >/dev/null 2>&1 || break
   sleep 60
 done
 
+# Clean up device node when no longer needed
 mdconfig -d -u ${md}
 
 echo "Removed /dev/${md}"
