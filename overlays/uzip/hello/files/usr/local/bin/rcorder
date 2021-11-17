@@ -1,0 +1,7 @@
+#!/bin/sh
+
+if [ "$#" == 0 ] ; then
+  /sbin/rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+else
+  /sbin/rcorder "$@"
+fi
