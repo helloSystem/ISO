@@ -186,3 +186,5 @@ devel/py-pip
 graphics/libqrencode
 # Needed to play mp3 without hassle
 audio/mpg321
+# Needed so that the clipboard works when applications are closed
+deskutils/qlipper
