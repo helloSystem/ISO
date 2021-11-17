@@ -254,6 +254,7 @@ mkdir -p "${uzip}/Applications/Autostart/"
 chmod g+w "${uzip}/Applications/Autostart/"
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/BuildNotify.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Volume.app . )
+( cd "${uzip}/Applications/Autostart/" ; ln -s /usr/local/bin/qlipper . )
 
 # Silence late boot messages
 cat > /tmp/rc <<\EOF
