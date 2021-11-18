@@ -188,3 +188,5 @@ graphics/libqrencode
 audio/mpg321
 # Needed so that the clipboard works when applications are closed
 deskutils/qlipper
+# Needed to set Xorg cursor and root window background
+x11/xsetroot
