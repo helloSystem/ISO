@@ -31,6 +31,14 @@ rm "${uzip}"/usr/local/share/icons/elementary-xfce/copyright-e
 cd -
 rm -r $icons_temp
 
+# Give disk images the CD image icon as long as we don't have a proper one
+# application/x-raw-disk-image
+# application-x-cd-image.png
+for j in 16 22 24 32 48 64 96 128; do
+  ln -s "${uzip}/usr/local/share/icons/elementary-xfce/mimes/${j}/application-x-cd-image.png" "${uzip}/usr/local/share/icons/elementary-xfce/mimes/${j}/application-x-raw-disk-image.png"
+done
+sudo update-desktop-database # Needed?
+
 # Cursor theme with HiDPi Support, sizes: 22 24 28 32 40 48 56 64 72 80 88 96
 wget -c -q https://github.com/ful1e5/apple_cursor/releases/download/v1.0.6/macOSBigSur.tar.gz
 tar xfv macOSBigSur.tar.gz
