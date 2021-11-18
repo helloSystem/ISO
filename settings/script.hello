@@ -268,9 +268,6 @@ chmod g+w "${uzip}/Applications/Autostart/"
 # Silence late boot messages
 cat > /tmp/rc <<\EOF
 #!/bin/sh
-
-TODO: Remove this block once no longer needed
-Possibly running 'conscontrol mute on' as the first rc script can do the job
 # The following block was added by helloSystem
 # FIXME: Let us know how to do this properly
 # Silence messages if boot_mute="YES" is set
@@ -283,12 +280,9 @@ EOF
 cat "${uzip}/etc/rc" >> /tmp/rc
 mv /tmp/rc "${uzip}/etc/rc"
 
-TODO: Remove this block once no longer needed
-Possibly running 'conscontrol mute on' as the first rc script can do the job
 # Silence shutdown messages
 cat > /tmp/rc.shutdown <<\EOF
 #!/bin/sh
-
 # The following block was added by helloSystem
 # FIXME: Let us know how to do this properly
 # Silence messages if boot_mute="YES" is set
