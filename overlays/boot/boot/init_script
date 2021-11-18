@@ -254,4 +254,9 @@ fi
 export TERM=xterm
 clear > /dev/console
 
+# All console output is suppressed when console muting is on
+# https://www.freebsd.org/cgi/man.cgi?conscontrol
+# NOTE: Whenever we DO want to print to the console, we have to unmute first
+conscontrol mute on >/dev/null 2>&1
+
 exit 0
