@@ -555,7 +555,7 @@ case ${2} in
         FS_CHECK_CMD='fsck_msdosfs'
         FS_CHECK_ARGS="-C -y"
         FS_MOUNT_CMD='mount_msdosfs'
-        FS_MOUNT_ARGS="-o longnames -m 755 -M ${MNT_MODE} -D ${FAT_CODEPAGE} -L ${FAT_ENCODING} -u ${UID} -g ${GID} ${OPTS} ${LARGE} ${DEV} ${MNT}"
+        FS_MOUNT_ARGS="-o longnames -m ${MNT_MODE} -M ${MNT_MODE} -D ${FAT_CODEPAGE} -L ${FAT_ENCODING} -u ${UID} -g ${GID} ${OPTS} ${LARGE} ${DEV} ${MNT}"
         ;;
       (${FS_TYPE_EXFAT})
         FS_CHECK_PORT='sysutils/exfat-utils'
