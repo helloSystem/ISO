@@ -261,7 +261,7 @@ dunst &
 # but then the color would be wrong for the Welcome Wizard
 # Do not run this if we are running inside a virtual machine
 if [ -z "$VIRTUAL_MACHINE" ] ; then
-  redshift -l$(getlalo) &
+  redshift -t 6500:5500 -l$(getlalo) &
 fi
 
 # Menubar
