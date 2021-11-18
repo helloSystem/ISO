@@ -245,6 +245,8 @@ if [ "$MONKEY_PATCH" == "YES" ] ; then
     # This text is known to show up also when boot_mute is set
     echo "/monkeypatch.sh missing" > /dev/console
   fi
+  # Unmount the monkey patch volume because /usr/local/sbin/automount will mount it again
+  umount -f /media/MONKEYPATCH
 fi
 
 exit 0
