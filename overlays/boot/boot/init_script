@@ -247,6 +247,11 @@ if [ "$MONKEY_PATCH" == "YES" ] ; then
   fi
   # Unmount the monkey patch volume because /usr/local/sbin/automount will mount it again
   umount -f /media/MONKEYPATCH
+  echo "Done" > /dev/console
 fi
+
+# Without this, boot messages are shown at shutdown, which is irritating
+export TERM=xterm
+clear > /dev/console
 
 exit 0
