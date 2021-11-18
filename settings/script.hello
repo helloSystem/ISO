@@ -287,13 +287,14 @@ EOF
 cat "${uzip}/etc/rc.shutdown" >> /tmp/rc.shutdown
 mv /tmp/rc.shutdown "${uzip}/etc/rc.shutdown"
 
-# Prevent boot from being visually interrupted by vidcontrol related errors
-mv "${uzip}/usr/sbin/vidcontrol" "${uzip}/usr/sbin/vidcontrol.original"
-cat > "${uzip}/usr/sbin/vidcontrol" <<\EOF
-#!/bin/sh
-exit 0
-EOF
-chmod +x "${uzip}/usr/sbin/vidcontrol"
+## TODO: Remove this block once no longer needed
+## # Prevent boot from being visually interrupted by vidcontrol related errors
+## mv "${uzip}/usr/sbin/vidcontrol" "${uzip}/usr/sbin/vidcontrol.original"
+## cat > "${uzip}/usr/sbin/vidcontrol" <<\EOF
+## #!/bin/sh
+## exit 0
+## EOF
+## chmod +x "${uzip}/usr/sbin/vidcontrol"
 
 # Disable most text-based consoles, especially ttyv0,
 # to prevent boot from being visually interrupted by login prompts
