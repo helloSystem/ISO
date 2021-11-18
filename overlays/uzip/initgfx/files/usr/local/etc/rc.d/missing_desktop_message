@@ -30,7 +30,7 @@ pgrep -f Xorg && exit 0
 # Change colors, https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
 export COLOR_NC='\e[0m' # No Color
 echo -e $COLOR_NC > /dev/console # Reset to defaults
-echo -e '\e[1;43m' > /dev/console # Yellow bg because it is bright; TODO: Find a way to get white (we have redefined it in loader.conf) or very bright grey here
+echo -e '\e[1;43m' > /dev/console # Yellow bg because it is bright; TODO: Find a way to get white (we have redefined it in loader.conf) or very bright gray here
 echo -e  '\e[1;37m' > /dev/console # Bold black letters
 clear # Apply the new background to the entire screen
 
