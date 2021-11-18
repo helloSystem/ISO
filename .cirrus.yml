@@ -54,3 +54,4 @@ task:
     - export VER=$(uname -r | cut -d "-" -f 1) # No way to pass on from Build_script to Upload_script?
     - ls -lh /usr/local/furybsd/iso/
     - case "$CIRRUS_BRANCH" in *pull/*) echo skipping since PR ;; * ) wget -c -q https://github.com/tcnksm/ghr/files/5247714/ghr.zip ; unzip ghr.zip ; ./ghr -prerelease -delete -t "${GITHUB_TOKEN}" -u "${CIRRUS_REPO_OWNER}" -r "${CIRRUS_REPO_NAME}" -b "This is an experimental __UNTESTED__ build for developers, it may not even boot." -c "${CIRRUS_CHANGE_IN_REPO}" "${CIRRUS_BRANCH}"-"${VER}" /usr/local/furybsd/iso/ ; esac
+
