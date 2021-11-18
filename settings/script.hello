@@ -32,6 +32,7 @@ cd -
 rm -r $icons_temp
 
 # Give disk images the CD image icon as long as we don't have a proper one
+# FIXME: https://github.com/shimmerproject/elementary-xfce/issues/234
 # application/x-raw-disk-image
 # application-x-cd-image.png
 for j in 16 22 24 32 48 64 96 128; do
