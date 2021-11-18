@@ -28,6 +28,9 @@
 # Exit on errors
 set -e
 
+# Exit if already attached
+mdconfig -v -l | grep $(readlink -f "${1}") >/dev/null 2>&1 && exit 0
+
 # Attach device node
 md=$(mdconfig -a -t vnode -o readonly -f "${1}")
 
