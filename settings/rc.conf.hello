@@ -1,8 +1,6 @@
 slim_enable="YES"
 autofs_enable="YES"
 load_acpi_enable="YES"
-
-# Firewall
 firewall_enable="YES"
 firewall_quiet="YES"
 firewall_type="workstation"
