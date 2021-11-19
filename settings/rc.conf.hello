@@ -1,3 +1,11 @@
 slim_enable="YES"
 autofs_enable="YES"
 load_acpi_enable="YES"
+
+# Firewall
+sysrc firewall_enable="YES"
+sysrc firewall_quiet="YES"
+sysrc firewall_type="workstation"
+sysrc firewall_logdeny="YES"
+sysrc firewall_myservices="80/tcp 443/tcp 22/tcp"
+sysrc firewall_allowservices="any"
