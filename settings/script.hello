@@ -51,7 +51,11 @@ rm macOSBigSur.tar.gz
 wget "https://raw.githubusercontent.com/helloSystem/hello/master/branding/computer-hello.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer-hello.png
 
 # KWin
-wget -q "https://github.com/helloSystem/KWin/releases/download/latest/KWin.app.zip"
+if [ "${MAJOR}" == "12" ] ; then
+  wget -q "https://github.com/helloSystem/KWin/releases/download/main-12.2/KWin.app.zip"
+else
+  wget -q "https://github.com/helloSystem/KWin/releases/download/main-13.0/KWin.app.zip"
+fi
 unzip KWin.app.zip
 rm KWin.app.zip
 
