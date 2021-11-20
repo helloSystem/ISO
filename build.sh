@@ -425,7 +425,7 @@ developer()
     mkuzip -A zstd -C 15 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   fi
   rm "${iso}/developer.ufs"
-  md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}".md5"
+  md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}.md5"
 
   cd -
 
