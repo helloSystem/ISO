@@ -337,59 +337,104 @@ script()
   fi
 }
 
-slim()
+developer()
 {
   # Remove files that are non-essential to the working of
   # the system, especially files only needed by developers
   # and non-localized documentation not understandable to
-  # non-English speakers
-  # TODO: Instead of deleting those, move to a separate tree
-  # and generate a Developer ISO from that tree (as a separate download)
-  # that can then be combined (using unionfs or otherwise) at runtime
+  # non-English speakers and put them into developer.img
   # TODO: Find more files to be removed; the largest files
   # in a directory can be listed with
   # ls -lhS /usr/lib | head
   # Tools like filelight and sysutils/k4dirstat might also be helpful
-  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name doc -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name docs -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name '*.la' -type f -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name man -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/usr/include || true
-  find "${uzip}"/usr/local/include || true
-  # Note: Must not delete, e.g., include directories in /usr/libexec or else
-  # the system will become uninstallable
-  find "${uzip}"/ -name '*.h' -type f -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name .cache -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name debug -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name '*.a' -type f -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name '*.o' -type f -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name src -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name git-core -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name git -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name git -type f -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name devhelp -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name '*-doc' -type d -exec rm -rf {} \; 2>/dev/null || true
-  find "${uzip}"/ -name examples -type d -exec rm -rf {} \; 2>/dev/null || true
-  rm -rf "${uzip}"/usr/bin/svn* || true
-  rm -rf "${uzip}"/usr/bin/clang* || true
-  rm -rf "${uzip}"/usr/bin/c++ || true
-  rm -rf "${uzip}"/usr/bin/cpp || true
-  rm -rf "${uzip}"/usr/bin/cc || true
-  rm -rf "${uzip}"/usr//bin/lldb* || true
-  rm -rf "${uzip}"/usr/local/bin/ccxxmake || true
-  rm -rf "${uzip}"/usr/bin/llvm* || true
-  rm -rf "${uzip}"/usr/bin/ld.lld || true
-  rm -rf "${uzip}"/usr/bin/ex /usr/bin/nex /usr/bin/nvi /usr/bin/vi /usr/bin/view || true
-  # Must not delete libLLVM-12.so which is needed for swrast_dri.so
-  find "${uzip}"/usr/local/llvm* -type f -not -name "libLLVM-*.so*" -exec rm -f {} \; 2>/dev/null || true
+
+  # Clean up locally in this function in case the user did not run cleanup()
+  if [ -d "${livecd}" ] ;then
+    chflags -R noschg ${cdroot} >/dev/null 2>/dev/null || true
+    rm -rf ${cdroot} >/dev/null 2>/dev/null || true
+  fi
+
+  cd  "${uzip}"
+  rm -rf /root/.cache 2>/dev/null 2>&1 | true
+  
+  # Create a spec file that describes the whole filesystem
+  mtree -p  . -c > "${livecd}"/spec
+
+  # Create a spec file with one line for each file, directory, and symlink
+  mtree -C -R nlink,time,size -f "${livecd}"/spec > "${livecd}"/spec.annotated
+
+  # Annotate all developer-oriented files with '# developery<rule_id>'
+  # The annotations are numbered with <rule_id> so that we can see which rule
+  # was responsible for flagging something as a developer-oriented file
+  sed -i '' -e 's|.*/doc/.*|& # developer1|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/docs/.*|& # developer2|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*\.la.*|& # developer3|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/man/.*|& # develope4r|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/include/.*|& # developer5|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/include/.*|& # developer6|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*\.h\ .*|& # developer7|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*\.a\ .*|& # developer8|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*\.o\ .*|& # developer9|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*-doc/.*|& # developer10|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*\.cache.*|& # developer11|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/debug/.*|& # developer12|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/src/.*|& # developer13|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/git-core/.*|& # developer14|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/git/.*|& # developer15|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/devhelp/.*|& # developer16|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/examples/.*|& # developer17|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/svn.*|& # developer18|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/clang.*|& # developer19|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/c++.*|& # developer20|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/cpp.*|& # developer21|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/cc.*|& # developer22|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/lldb.*|& # developer23|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/bin/ccxx.*|& # developer24|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/llvm.*|& # developer25|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/ld.lld.*|& # developer26|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/ex\ .*|& # developer27|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/nex\ .*|& # developer28|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/nvi\ .*|& # developer29|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/vi\ .*|& # developer30|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/bin/view\ .*|& # developer31|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/bin/.*|& # developer32|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/include/.*|& # developer33|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/libexec/.*|& # developer34|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/share/.*|& # developer35|' "${livecd}"/spec.annotated
+  # TODO: Delete /usr/local/llvm* EXCEPT for 'libLLVM-*.so*'; how?
+  sed -i '' -e 's|^\./usr/lib/clang/.*/include/.*|& # developer36|' "${livecd}"/spec.annotated
+
+  cp "${livecd}"/spec.annotated "${livecd}"/spec.user
+  cp "${livecd}"/spec.annotated "${livecd}"/spec.developer
+
+  # Delete the annotated lines from spec.developer and spec.user, respectively
+  sed -i '' -e '/# developer/!d' "${livecd}"/spec.developer
+  sed -i '' '/^$/d' "${livecd}"/spec.developer # Remove empty lines
+  sed -i '' -e '/# developer/d' "${livecd}"/spec.user
+  sed -i '' '/^$/d' "${livecd}"/spec.user # Remove empty lines
+  echo "$(cat "${livecd}"/spec.developer | wc -l) items for developer image"
+  echo "$(cat "${livecd}"/spec.user | wc -l) items for user image"
+
+  # Create the developer image
+  makefs -o label="Developer" "${iso}/developer.ufs" "${livecd}"/spec.developer
+  developerimagename=$(basename $(echo ${isopath} | sed -e 's|.iso$|.developer.img|g'))
+  if [ $MAJOR -lt 13 ] ; then
+    mkuzip -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
+  else
+    # Use zstd when possible, which is available in FreeBSD beginning with 13
+    mkuzip -A zstd -C 15 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
+  fi
+  rm "${iso}/developer.ufs"
+  md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}".md5"
+
+  cd -
+
 }
 
 uzip() 
 {
-  ( cd "${uzip}" ; ln -s . ./sysroot ) # Workaround for low-level tools trying to load things from /sysroot; https://github.com/helloSystem/ISO/issues/4#issuecomment-787062758
   install -o root -g wheel -m 755 -d "${cdroot}"
-  makefs "${cdroot}/rootfs.ufs" "${uzip}"
+  ( cd "${uzip}" ; makefs "${cdroot}/rootfs.ufs" ../spec.user )
   mkdir -p "${cdroot}/boot/"
   if [ $MAJOR -lt 13 ] ; then
     mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
@@ -404,8 +449,6 @@ uzip()
 
 boot() 
 {
-
-  # /bin/freebsd-version is used by Ventoy to detect FreeBSD ISOs
   mkdir -p "${cdroot}"/bin/ ; cp "${uzip}"/bin/freebsd-version "${cdroot}"/bin/
   cp "${uzip}"/COPYRIGHT "${cdroot}"/
   cp -R "${cwd}/overlays/boot/" "${cdroot}"
@@ -463,7 +506,6 @@ tag()
 
 image()
 {
-  # For Ventoy, does it make a difference? TODO: Remove next line
   sh "${cwd}/scripts/mkisoimages-${arch}.sh" -b "${label}" "${isopath}" "${cdroot}"
   sync ### Needed?
   md5 "${isopath}" > "${isopath}.md5"
@@ -497,7 +539,7 @@ user
 dm
 script
 tag
-slim
+developer
 uzip
 boot
 image
