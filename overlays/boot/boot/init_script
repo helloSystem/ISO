@@ -33,15 +33,15 @@ if [ "$(kenv monkey_patch_init_script 2>/dev/null)" != "" ] ; then
     [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
     sleep 2
   done
-  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media
-  if [ -e "/media/init_script" ] ; then
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /mnt
+  if [ -e "/mnt/init_script" ] ; then
     echo "Applying monkey patch..." > /dev/console
-    sh /media/init_script > /dev/console
+    sh /mnt/init_script > /dev/console
   else
     # This text is known to show up also when boot_mute is set
     echo "/init_script missing" > /dev/console
   fi
-  umount -f /media
+  umount -f /mnt
   exit 0
 fi
 
