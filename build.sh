@@ -401,6 +401,10 @@ developer()
   sed -i '' -e 's|^\./usr/local/llvm.*/include/.*|& # developer33|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/llvm.*/libexec/.*|& # developer34|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/llvm.*/share/.*|& # developer35|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/lib/clang/.*|& # developer36|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/lib/cmake/.*|& # developer37|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/lib/python.*|& # developer38|' "${livecd}"/spec.annotated
+  
   # TODO: Delete /usr/local/llvm* EXCEPT for 'libLLVM-*.so*'; how?
   sed -i '' -e 's|^\./usr/lib/clang/.*/include/.*|& # developer36|' "${livecd}"/spec.annotated
 
