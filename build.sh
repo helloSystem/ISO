@@ -335,7 +335,6 @@ script()
     # rm "${uzip}"/tmp/script
     "${cwd}/settings/script.${desktop}"
   fi
-  chroot ${uzip} update-desktop-database # Make sure that additional desktop files are registered with the system
 }
 
 developer()
