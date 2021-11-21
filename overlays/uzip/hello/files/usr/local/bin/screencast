@@ -16,6 +16,7 @@ if [ -e /tmp/screencast.mp4 ] ; then
   sleep 1
   xdg-open /tmp/screencast.mp4
 else
+  pkill -f redshift
   screenkey &
 #  ffmpeg -y -thread_queue_size 1024 -f oss -i "${DSP}" -framerate 30 -video_size 1920x1080 -f x11grab -i :0 -c:v libx264 -b:v 2000k -maxrate 2000k -bufsize 5000k -g 50 -flags +global_header -vf format=yuv420p  -filter:a "volume=10" -c:a aac -b:a 128k /tmp/screencast.mp4
 #  ffmpeg -y -thread_queue_size 1024 -f oss -i "${DSP}" -framerate 25 -f x11grab -i :0 -c:v libx264 -preset ultrafast -crf 18 -tune fastdecode -b:v 2000k -maxrate 2000k -bufsize 5000k -g 50 -flags +global_header -vf format=yuv420p -vf scale=-1:720 -af highpass-frequency=300 -af lowpass-frequency=4000 -af "bass=frequency=100:gain=-50" -af "bandreject=frequency=200:width_type=h:width=200" -af "compand=attacks=.05:decays=.05:points=-90/-90 -70/-90 -15/-15 0/-10:soft-knee=6:volume=-70:gain=10" -c:a mp3 -b:a 128k /tmp/screencast.mp4
