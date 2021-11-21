@@ -32,6 +32,7 @@ set -e
 mdconfig -v -l | grep $(readlink -f "${1}") >/dev/null 2>&1 && exit 0
 
 # Attach device node
+echo "Attaching disk image to /dev/${md}"...
 md=$(mdconfig -a -t vnode -o readonly -f "${1}")
 
 echo "Attached disk image to /dev/${md}"
