@@ -28,26 +28,20 @@ if [ "$(kenv monkey_patch_init_script 2>/dev/null)" != "" ] ; then
   echo "Looking for a file named init_script on a msdosfs geom with the label MONKEYPATCH"
   echo ""
   
-  # kldload /boot/kernel/tmpfs.ko # TODO: must not be gzipped so that this works here?
-  mount -t tmpfs tmpfs /tmp
-  chmod 1777 /tmp # TODO: Check if really needed by FreeBSD 13
-
   echo "Waiting for /dev/msdosfs/MONKEYPATCH to appear..."
   while : ; do
     [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
     sleep 2
   done
-  mkdir -p /media/MONKEYPATCH
-  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media/MONKEYPATCH # TODO: Should we use /usr/local/sbin/automount <geom> attach?
-  if [ -e "/media/MONKEYPATCH/init_script" ] ; then
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media
+  if [ -e "/media/init_script" ] ; then
     echo "Applying monkey patch..." > /dev/console
-    sh /media/MONKEYPATCH/init_script > /dev/console
+    sh /media/init_script > /dev/console
   else
     # This text is known to show up also when boot_mute is set
     echo "/init_script missing" > /dev/console
   fi
-  # Unmount the monkey patch volume because /usr/local/sbin/automount will mount it again
-  umount -f /media/MONKEYPATCH
+  umount -f /media
   exit 0
 fi
 
