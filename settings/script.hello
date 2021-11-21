@@ -380,7 +380,7 @@ chmod +x elfsize
 mv elfsize "${uzip}/usr/local/bin/"
 
 # Add /Users symkink
-( cd "${uzip}" ; ln -s usr/home Users )
+( cd "${uzip}" ; ln -s home Users )
 
 # Improve compatibility with many scripts from the Linux world,
 # including those in many AppImages
@@ -438,3 +438,5 @@ fi
 # Make sure members of group wheel can manipulate /Applications
 find "${uzip}"/Applications -type d -exec chmod g+rwx {} \;
 find "${uzip}"/Applications -type f -exec chmod g+rw {} \; 
+
+update-desktop-database
