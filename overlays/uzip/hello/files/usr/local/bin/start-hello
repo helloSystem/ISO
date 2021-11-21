@@ -282,8 +282,6 @@ launch Menu &
 ### "${HERE}"/dde-globalmenu-service & # gmenudbusmenuproxy without Plasma deps
 gmenudbusmenuproxy &
 
-update-desktop-database # Make sure we get all file associations (e.g., for .img files); TODO: Remove once no longer needed
-
 # Desktop
 launch Filer &
 
