@@ -61,6 +61,13 @@ zpool export -f "${DESTPOOL}" >/dev/null 2>/dev/null || true
 # Install contents of read only uzip to destination pool
 
 if [ -n "${INSTALLER_DEVICE}" ] ; then
+
+  mounted_partitions=$(mount | grep "^\/dev\/${INSTALLER_DEVICE}[s|p|\.|\ ].*on" | cut -d " " -f 1)
+  for mounted_partition in ${mounted_partitions}; do
+    umount -f ${mounted_partition}
+  done
+  /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || exit 1
+
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
   export ZFSBOOT_PARTITION_SCHEME="GPT"
   export ZFSBOOT_POOL_NAME="zroot"
@@ -254,7 +261,11 @@ sudo rm "${FSMNT}/var/initgfx_config.id" || true
 # Fix unbootable FreeBSD 13
 # https://github.com/helloSystem/hello/issues/242#issuecomment-965617810
 if [ -n "${INSTALLER_DEVICE}" ] ; then
-  mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi
+  mounted_partitions=$(mount | grep "^\/dev\/${INSTALLER_DEVICE}[s|p|\.|\ ].*on" | cut -d " " -f 1)
+  for mounted_partition in ${mounted_partitions}; do
+    umount -f ${mounted_partition}
+  done
+  mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi || exit 1
   bsdinstall -D /tmp/bootconfig.log bootconfig
   umount "${FSMNT}"/boot/efi
 fi
