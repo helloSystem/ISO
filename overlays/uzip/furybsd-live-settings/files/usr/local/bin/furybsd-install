@@ -8,9 +8,9 @@
 set +e
 
 # Export our variables
-if [ -e /media/uzip/libexec ] ; then
+if [ -e /media/.uzip/libexec ] ; then
   # We are running on a 0.7.0+ style Live system
-  LIVEFS="/media/uzip"
+  LIVEFS="/media/.uzip"
 else
   LIVEFS="/"
 fi
@@ -23,7 +23,7 @@ DESTPOOL=$(zpool list -H | grep /mnt | awk -F '\t' '{print $1;}')
 # then immediately exit
 # if INSTALLER_PRINT_MIB_NEEDED is set. This is needed for the graphical installer frontend
 if [ -n "${INSTALLER_PRINT_MIB_NEEDED}" ] ; then
-  if [ -e /media/uzip/libexec ] ; then
+  if [ -e /media/.uzip/libexec ] ; then
     # We are running on a 0.7.0+ style Live system
     echo INSTALLER_MIB_NEEDED=$(df -m /dev/md0.uzip | awk '{print $2}' | tail -n 1)
   else
