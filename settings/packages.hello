@@ -190,3 +190,5 @@ audio/mpg321
 deskutils/qlipper
 # Needed to set Xorg cursor and root window background
 x11/xsetroot
+# Neeed by Burn Optical Disc.app
+dvd+rw-tools
