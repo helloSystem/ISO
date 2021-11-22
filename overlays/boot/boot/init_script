@@ -22,7 +22,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if [ "$(kenv monkey_patch_init_script 2>/dev/null)" != "" ] ; then
+if [ "$(kenv -q monkey_patch_init_script)" != "" ] ; then
+  kenv -q -u monkey_patch_init_script # Prevent infinite loop
   echo ""
   echo "Monkey patch init_script requested."
   echo "Looking for a file named init_script on a msdosfs geom with the label MONKEYPATCH"
