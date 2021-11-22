@@ -244,11 +244,11 @@ fi
 
 # TODO: Remove once confirmed no longer needed
 # Temporary workaround for https://github.com/helloSystem/ISO/issues/316
-export KWIN_COMPOSE=02
-if [ ! -z  $(sysctl hw.nvidia.version 2>/dev/null) ] ; then
-  export KWIN_OPENGL_INTERFACE="egl"
-  export KWIN_TRIPLE_BUFFER=1
-fi
+# export KWIN_COMPOSE=02
+# if [ ! -z  $(sysctl hw.nvidia.version 2>/dev/null) ] ; then
+#   export KWIN_OPENGL_INTERFACE="egl"
+#   export KWIN_TRIPLE_BUFFER=1
+# fi
 
 launch /System/KWin.app &
 
