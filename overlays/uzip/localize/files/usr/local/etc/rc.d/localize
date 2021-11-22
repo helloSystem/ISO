@@ -2,7 +2,6 @@
 
 # PROVIDE: localize
 # REQUIRE: ldconfig
-# BEFORE:  hostid
 # KEYWORD: nojail shutdown
 
 PATH=$PATH:/usr/local/sbin
