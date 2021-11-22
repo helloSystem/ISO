@@ -72,42 +72,42 @@ mdconfig -a -t vnode -o readonly -f /boot/rootfs.uzip
 mount -t tmpfs tmpfs /media
 chmod 1777 /media # TODO: Check if really needed by FreeBSD 13
 
-mkdir -p /media/uzip
+mkdir -p /media/.uzip
 
 # kldload /boot/kernel/geom_uzip.ko # TODO: must not be gzipped so that this works here?
-mount -t ufs -o ro /dev/md0.uzip /media/uzip
+mount -t ufs -o ro /dev/md0.uzip /media/.uzip
 
-kldload /media/uzip/boot/kernel/nullfs.ko
-mount -t nullfs /media/uzip/System /System
-mount -t nullfs /media/uzip/Applications /Applications
-mount -t nullfs /media/uzip/bin /bin
-mount -t nullfs /media/uzip/lib /lib
-mount -t nullfs /media/uzip/libexec /libexec
+kldload /media/.uzip/boot/kernel/nullfs.ko
+mount -t nullfs /media/.uzip/System /System
+mount -t nullfs /media/.uzip/Applications /Applications
+mount -t nullfs /media/.uzip/bin /bin
+mount -t nullfs /media/.uzip/lib /lib
+mount -t nullfs /media/.uzip/libexec /libexec
 mount -t tmpfs tmpfs /nvidia # Must be writable for initgfx
-mount -t nullfs /media/uzip/sbin /sbin
-mount -t nullfs /media/uzip/usr /usr
-# mount -t nullfs /media/uzip/etc /etc
-mount -t nullfs /media/uzip/boot /boot
+mount -t nullfs /media/.uzip/sbin /sbin
+mount -t nullfs /media/.uzip/usr /usr
+# mount -t nullfs /media/.uzip/etc /etc
+mount -t nullfs /media/.uzip/boot /boot
 
-kldload /media/uzip/boot/kernel/unionfs.ko
+kldload /media/.uzip/boot/kernel/unionfs.ko
 
 mount -t tmpfs tmpfs /root # does slim need this?
 
 mount -t tmpfs tmpfs /var
-cp -R /media/uzip/var/ /var
+cp -R /media/.uzip/var/ /var
 mkdir -p /var/run # Needed for slim?
-# mount -t unionfs -o below /media/uzip/var /var # TODO: Check: Crashes later on when slim starts? 
+# mount -t unionfs -o below /media/.uzip/var /var # TODO: Check: Crashes later on when slim starts? 
 
 # The following does not instantly crash but later in the boot we get a crash
 # TODO: Retest
-# mount -t unionfs -o below /media/uzip/var /var
+# mount -t unionfs -o below /media/.uzip/var /var
 # mkdir -p /var/run
 
 mount -t tmpfs tmpfs /usr/local
-mount -t unionfs -o below /media/uzip/usr/local /usr/local
+mount -t unionfs -o below /media/.uzip/usr/local /usr/local
 
 # /etc, needed for networking
-cp -R /media/uzip/etc /tmp
+cp -R /media/.uzip/etc /tmp
 mount -t tmpfs tmpfs /etc
 mount -t nullfs /tmp/etc /etc
 # cp -R /tmp/etc /etc
