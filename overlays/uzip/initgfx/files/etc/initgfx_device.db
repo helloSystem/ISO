@@ -32,9 +32,9 @@
 #
 # Nvidia
 #
-nvidia_440_ids()
+nvidia_latest_ids()
 {
-cat << nvidia_440_ids_END
+cat << nvidia_latest_ids_END
 GeForce 830M
 GeForce 840M
 GeForce 845M
@@ -173,7 +173,7 @@ Quadro RTX 6000
 Quadro RTX 8000
 Quadro T1000
 Quadro T2000
-nvidia_440_ids_END
+nvidia_latest_ids_END
 }
 
 nvidia_390_ids()
