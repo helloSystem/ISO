@@ -5,7 +5,9 @@
 # 2020-2021, Simon Peter <probono@puredarwin.org>
 
 # Exit on errors, this is important for the graphical installer frontend
-set +e
+set -e
+
+set -x
 
 # Export our variables
 if [ -e /media/.uzip/libexec ] ; then
@@ -66,8 +68,8 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   for mounted_partition in ${mounted_partitions}; do
     umount -f ${mounted_partition}
   done
-  /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || exit 1
-
+  /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || true # This can give 'gpart: arg0 'adaX': Invalid argument'. FIXME: Why?
+  sync
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
   export ZFSBOOT_PARTITION_SCHEME="GPT"
   export ZFSBOOT_POOL_NAME="zroot"
@@ -260,7 +262,7 @@ fi
 echo "Applying bootloader configuration from the Live system to the installed system..."
 
 # Bootloader configuration from the Live system is outside of the uzip
-if [ $(mount | grep "^/media/.uzip/boot on /boot" 2>/dev/null) != "" ] ; then
+if [ "$(mount | grep '^/media/.uzip/boot on /boot' 2>/dev/null)" != "" ] ; then
   umount /media/.uzip/boot
 fi
 
