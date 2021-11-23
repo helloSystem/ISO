@@ -257,13 +257,22 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   umount "${FSMNT}"/boot/efi
 fi
 
-echo "Applying bootloader configuration from the running system to the installed system..."
+echo "Applying bootloader configuration from the Live system to the installed system..."
+
+# Bootloader configuration from the Live system is outside of the uzip
+if [ $(mount | grep "^/media/.uzip/boot on /boot" 2>/dev/null) != "" ] ; then
+  umount /media/.uzip/boot
+fi
+
+# Use bootloader configuration from the live system but comment out live system specific aspects
+# and add ZFS specific ones
 cat /boot/loader.conf > "${FSMNT}/boot/loader.conf"
 echo 'cryptodev_load="YES"' >> "${FSMNT}/boot/loader.conf" # FIXME: On FreeBSD before 13, need opensolaris_load
 echo 'zfs_load="YES"' >> "${FSMNT}/boot/loader.conf"
 sed -i '' -e 's|^vfs.root.mountfrom|# vfs.root.mountfrom|g' "${FSMNT}/boot/loader.conf"
-if [ -e "/boot/boot/loader.mute.d" ] ; then
-  cp -r "/boot/boot/loader.mute.d" "${FSMNT}"/boot/
+sed -i '' -e 's|^init_script|# init_script|g' "${FSMNT}/boot/loader.conf"
+if [ -e "/boot/loader.mute.d" ] ; then
+  cp -r "/boot/loader.mute.d" "${FSMNT}"/boot/
 fi
 
 # Cleanup
