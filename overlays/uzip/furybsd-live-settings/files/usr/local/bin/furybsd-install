@@ -264,6 +264,8 @@ fi
 # Use bootloader configuration from the live system but comment out live system specific aspects
 # and add ZFS specific ones
 cat /boot/loader.conf > "${FSMNT}/boot/loader.conf"
+echo '' >> "${FSMNT}/boot/loader.conf" 
+echo '# Load modules required for ZFS' >> "${FSMNT}/boot/loader.conf" 
 echo 'cryptodev_load="YES"' >> "${FSMNT}/boot/loader.conf" # FIXME: On FreeBSD before 13, need opensolaris_load
 echo 'zfs_load="YES"' >> "${FSMNT}/boot/loader.conf"
 sed -i '' -e 's|^vfs.root.mountfrom|# vfs.root.mountfrom|g' "${FSMNT}/boot/loader.conf"
