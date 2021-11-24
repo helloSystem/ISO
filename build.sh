@@ -370,7 +370,7 @@ developer()
   sed -i '' -e 's|.*/doc/.*|& # developer1|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/docs/.*|& # developer2|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*\.la.*|& # developer3|' "${livecd}"/spec.annotated
-  sed -i '' -e 's|.*/man/.*|& # develope4r|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|.*/man/.*|& # developer4|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/include/.*|& # developer5|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/include/.*|& # developer6|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*\.h\ .*|& # developer7|' "${livecd}"/spec.annotated
@@ -405,9 +405,11 @@ developer()
   sed -i '' -e 's|^\./usr/local/llvm.*/lib/clang/.*|& # developer36|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/llvm.*/lib/cmake/.*|& # developer37|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/llvm.*/lib/python.*|& # developer38|' "${livecd}"/spec.annotated
-  
-  # TODO: Delete /usr/local/llvm* EXCEPT for 'libLLVM-*.so*'; how?
-  sed -i '' -e 's|^\./usr/lib/clang/.*/include/.*|& # developer36|' "${livecd}"/spec.annotated
+  # 'libLLVM-*.so*' must NOT be deleted as it is needed for graphics drivers
+  sed -i '' -e 's|^\./usr/lib/clang/.*/include/.*|& # developer39|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/lib/libclang.*|& # developer40|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/llvm.*/lib/liblldb.*|& # developer41|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/lib/python.*/test/.*|& # developer42|' "${livecd}"/spec.annotated
 
   cp "${livecd}"/spec.annotated "${livecd}"/spec.user
   cp "${livecd}"/spec.annotated "${livecd}"/spec.developer
