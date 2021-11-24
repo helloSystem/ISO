@@ -335,6 +335,8 @@ script()
     # rm "${uzip}"/tmp/script
     "${cwd}/settings/script.${desktop}"
   fi
+  rm "${uzip}"/var/db/pkg/repo-FreeBSD.sqlite || true
+  find "${uzip}" -type d -name '__pycache__' -delete || true
 }
 
 developer()
