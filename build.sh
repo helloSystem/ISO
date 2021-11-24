@@ -376,7 +376,7 @@ developer()
   sed -i '' -e 's|.*\.a\ .*|& # developer8|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*\.o\ .*|& # developer9|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*-doc/.*|& # developer10|' "${livecd}"/spec.annotated
-  sed -i '' -e 's|.*\.cache.*|& # developer11|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./Applications/Developer/.*|& # developer11|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/debug/.*|& # developer12|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/src/.*|& # developer13|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/git-core/.*|& # developer14|' "${livecd}"/spec.annotated
