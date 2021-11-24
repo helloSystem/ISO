@@ -415,7 +415,7 @@ developer()
   sed -i '' -e '/# developer/!d' "${livecd}"/spec.developer
   # Add back all directories, otherwise we get permissions issues
   grep " type=dir " "${livecd}"/spec.annotated >> "${livecd}"/spec.developer
-  cat "${livecd}"/spec.developer | sort  > "${livecd}"/spec.developer.sorted
+  cat "${livecd}"/spec.developer | sort | uniq > "${livecd}"/spec.developer.sorted
   sed -i '' '/^$/d' "${livecd}"/spec.developer.sorted # Remove empty lines
   sed -i '' -e '/# developer/d' "${livecd}"/spec.user
   sed -i '' '/^$/d' "${livecd}"/spec.user # Remove empty lines
