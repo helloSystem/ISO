@@ -366,6 +366,7 @@ developer()
   # Annotate all developer-oriented files with '# developery<rule_id>'
   # The annotations are numbered with <rule_id> so that we can see which rule
   # was responsible for flagging something as a developer-oriented file
+  sed -i '' -e 's|^\./Install.*|& # developer|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/doc/.*|& # developer1|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*/docs/.*|& # developer2|' "${livecd}"/spec.annotated
   sed -i '' -e 's|.*\.la.*|& # developer3|' "${livecd}"/spec.annotated
@@ -415,6 +416,7 @@ developer()
   sed -i '' -e '/# developer/!d' "${livecd}"/spec.developer
   # Add back all directories, otherwise we get permissions issues
   grep " type=dir " "${livecd}"/spec.annotated >> "${livecd}"/spec.developer
+  grep "^\./\.hidden" "${livecd}"/spec.annotated >> "${livecd}"/spec.developer
   cat "${livecd}"/spec.developer | sort | uniq > "${livecd}"/spec.developer.sorted
   sed -i '' '/^$/d' "${livecd}"/spec.developer.sorted # Remove empty lines
   sed -i '' -e '/# developer/d' "${livecd}"/spec.user
