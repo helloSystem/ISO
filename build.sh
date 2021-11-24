@@ -413,14 +413,17 @@ developer()
 
   # Delete the annotated lines from spec.developer and spec.user, respectively
   sed -i '' -e '/# developer/!d' "${livecd}"/spec.developer
-  sed -i '' '/^$/d' "${livecd}"/spec.developer # Remove empty lines
+  # Add back all directories, otherwise we get permissions issues
+  grep " type=dir " "${livecd}"/spec.annotated >> "${livecd}"/spec.developer
+  cat "${livecd}"/spec.developer | sort  > "${livecd}"/spec.developer.sorted
+  sed -i '' '/^$/d' "${livecd}"/spec.developer.sorted # Remove empty lines
   sed -i '' -e '/# developer/d' "${livecd}"/spec.user
   sed -i '' '/^$/d' "${livecd}"/spec.user # Remove empty lines
-  echo "$(cat "${livecd}"/spec.developer | wc -l) items for developer image"
+  echo "$(cat "${livecd}"/spec.developer.sorted | wc -l) items for developer image"
   echo "$(cat "${livecd}"/spec.user | wc -l) items for user image"
 
   # Create the developer image
-  makefs -o label="Developer" "${iso}/developer.ufs" "${livecd}"/spec.developer
+  makefs -o label="Developer" "${iso}/developer.ufs" "${livecd}"/spec.developer.sorted
   developerimagename=$(basename $(echo ${isopath} | sed -e 's|.iso$|.developer.img|g'))
   if [ $MAJOR -lt 13 ] ; then
     mkuzip -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
