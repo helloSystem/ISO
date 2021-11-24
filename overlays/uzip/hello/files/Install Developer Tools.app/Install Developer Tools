@@ -1,3 +1,0 @@
-#!/bin/sh
-HERE="$(dirname "$(readlink -f "${0}")")"
-exec sudo -A -E "${HERE}/Resources/developer-install.py" "$@"

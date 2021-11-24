@@ -113,6 +113,7 @@ mkdir -p "${uzip}/System/"
 
 wget -q https://github.com/helloSystem/Utilities/archive/master.zip
 unzip master.zip
+mv "Utilities-master/Root/*" "${uzip}"/
 mv 'Utilities-master/Internet' "${uzip}/Applications/"
 mv 'Utilities-master/3D Printing' "${uzip}/Applications/"
 mv 'Utilities-master/Audio' "${uzip}/Applications/"
