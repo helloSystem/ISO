@@ -437,7 +437,7 @@ developer()
     mkuzip -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   else
     # Use zstd when possible, which is available in FreeBSD beginning with 13
-    mkuzip -A zstd -C 15 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
+    mkuzip -A zstd -C 15 -d -s 262144 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   fi
   rm "${iso}/developer.ufs"
   md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}.md5"
@@ -455,7 +455,7 @@ uzip()
     mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
   else
     # Use zstd when possible, which is available in FreeBSD beginning with 13
-    mkuzip -A zstd -C 15 -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+    mkuzip -A zstd -C 15 -d -s 262144 -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
   fi
 
   rm -f "${cdroot}/rootfs.ufs"
