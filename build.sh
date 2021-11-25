@@ -413,6 +413,7 @@ developer()
   sed -i '' -e 's|^\./usr/local/llvm.*/lib/liblldb.*|& # developer41|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/lib/python.*/test/.*|& # developer42|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/share/info/.*|& # developer43|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./usr/local/share/gir-.*|& # developer44|' "${livecd}"/spec.annotated
   
   cp "${livecd}"/spec.annotated "${livecd}"/spec.user
   cp "${livecd}"/spec.annotated "${livecd}"/spec.developer
