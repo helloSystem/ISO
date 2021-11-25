@@ -316,7 +316,7 @@ EOF
 
 # Prevent boot from being visually interrupted by syslog messages
 # by commenting out the line that ends in '/dev/console'
-sed -i -e 's|^\(.*/dev/console\)|# \1|g' "${uzip}/etc/syslog.conf"
+sed -i -e 's|^\(.*/dev/console\)|# \1|g' "${uzip}"/etc/syslog.conf
 rm "${uzip}/etc/syslog.conf-e"
 
 # Workaround to get rounded corners as long as picom in FreeBSD ports
@@ -325,6 +325,24 @@ rm "${uzip}/etc/syslog.conf-e"
 # tar xf picom.tar.bz2
 # mv picom "${uzip}/usr/local/bin/picom"
 # rm -f picom.tar.bz2
+
+cat >> "${uzip}"/etc/devfs.conf <<\EOF
+
+# Allow users to write optical media
+# https://github.com/helloSystem/ISO/issues/327
+
+own     acd0    root:wheel
+perm    acd0    0660
+
+own     cd0     root:wheel
+perm    cd0     0660
+
+own     pass1   root:wheel
+perm    pass1   0660
+
+own     pass0   root:wheel
+perm    pass0   0660
+EOF
 
 # https://github.com/helloSystem/hello/issues/50#issuecomment-753237990
 # Workaround to allow unmounting as normal user
