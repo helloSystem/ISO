@@ -81,6 +81,10 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   export ZFSBOOT_SWAP_SIZE="0"
   export ZFSBOOT_CONFIRM_LAYOUT="1"
   export nonInteractive="YES"
+  # The following two lines are required so that the system is
+  # bootable not only on EFI based but also on BIOS based machines
+  export ZFSBOOT_BOOT_TYPE"=BIOS+UEFI"
+  export ZFSBOOT_PARTITION_SCHEME="GPT + Active"
   env
   bsdinstall zfsboot
 else
@@ -252,6 +256,12 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi || exit 1
   bsdinstall -D /tmp/bootconfig.log bootconfig
   umount "${FSMNT}"/boot/efi
+
+  # Clear out fstab because otherwise /dev/adaX gets hardcoded,
+  # resulting in an unbootable machine in the event that other
+  # adaX disks are added or removed to the system,
+  # which can change the adaX numbering
+  sed -i '' -e '/\/boot\/efi/d' "${FSMNT}"/etc/fstab || true
 fi
 
 echo "Applying bootloader configuration from the Live system to the installed system..."
