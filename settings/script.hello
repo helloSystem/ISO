@@ -157,7 +157,7 @@ mv Lector.app "${uzip}"/Applications
 
 # Sticky Notes.app
 # Requires: py37-qt5-dbus
-git clone https://gitlab.com/william.belanger/qtpad --depth 1
+git clone https://gitlab.com/william.belanger/primenote -o affc2e05 --depth 1
 rm -rf qtpad/screenshots
 mv qtpad/qtpad qtpad/Resources
 mv qtpad/* qtpad/Resources 2>/dev/null || true
