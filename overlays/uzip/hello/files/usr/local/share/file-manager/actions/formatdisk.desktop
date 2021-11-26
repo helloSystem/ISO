@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Action
+Name=Format
+Name[de]=Formatieren
+Profiles=profile-format;
+
+[X-Action-Profile profile-format]
+MimeTypes=inode/mount-point;
+Exec=launch "Format Disk" /media/%w
