@@ -60,5 +60,3 @@ b43-fwcutter
 # bwn-firmware-kmod # Exists only in ports, not in packages; need a workaround
 # daemon that loads suitable drivers for PCI and USB hardware based on a txt db of USB and PCI IDs
 dsbdriverd
-# Realtek card readers
-# rtsx-kmod # No packages available to install matching 'rtsx-kmod' have been found in the repositories
