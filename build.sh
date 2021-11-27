@@ -415,6 +415,7 @@ developer()
   sed -i '' -e 's|^\./usr/local/share/info/.*|& # developer43|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/local/share/gir-.*|& # developer44|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./Applications/Utilities/BuildNotify.app.*|& # developer45|' "${livecd}"/spec.annotated
+  sed -i '' -e 's|^\./Applications/Autostart/BuildNotify.app.*|& # developer46|' "${livecd}"/spec.annotated
   
   cp "${livecd}"/spec.annotated "${livecd}"/spec.user
   cp "${livecd}"/spec.annotated "${livecd}"/spec.developer
