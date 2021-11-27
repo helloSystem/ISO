@@ -158,7 +158,7 @@ mv Lector.app "${uzip}"/Applications
 # Sticky Notes.app
 # Requires: py37-qt5-dbus
 git clone https://gitlab.com/william.belanger/qtpad
-( cd qtpad ; git checkout d37c84e4 ) # Thereafter renaming and reshuffling began, TODO: Adjust accordingly
+( cd qtpad ; git checkout b7a7764d )
 rm -rf qtpad/screenshots
 mv qtpad/qtpad qtpad/Resources
 mv qtpad/* qtpad/Resources 2>/dev/null || true
