@@ -212,6 +212,20 @@ chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/system
 echo "GenericName=Sound" >> "${uzip}"/usr/local/share/applications/dsbmixer.desktop
 chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/dsbmixer.desktop /Applications/Preferences/ -g
 
+# https://github.com/PreyK/HelloDisplay
+git clone https://github.com/PreyK/HelloDisplay
+mkdir -p Display.app/
+mv HelloDisplay Display.app/Resources
+mv Display.app/Resources/graphics/disp.png Display.app/Resources/Display.png
+cat > Display.app/Display <<\EOF
+#!/bin/sh
+HERE="$(dirname "$(readlink -f "${0}")")"
+cd "${HERE}/Resources/"
+exec python3 "${HERE}/Resources/Display.py"
+EOF
+chmod +x Display.app/Display
+mv Display.app "${uzip}/Applications/Under Construction/"
+
 # More Utilities
 mkdir -p "${uzip}/Applications/Utilities"
 chmod g+w "${uzip}/Applications/Utilities"
