@@ -213,7 +213,6 @@ echo "GenericName=Sound" >> "${uzip}"/usr/local/share/applications/dsbmixer.desk
 chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/dsbmixer.desktop /Applications/Preferences/ -g
 
 # https://github.com/PreyK/HelloDisplay
-chroot "${uzip}" python3 -m pip install pyedid
 git clone https://github.com/PreyK/HelloDisplay
 mkdir -p Display.app/
 mv HelloDisplay Display.app/Resources
@@ -254,6 +253,9 @@ mount -t devfs devfs ${uzip}/dev
 
 # Needed for translations in the helloSystem/Utilities repository
 chroot "${uzip}" python3 -m pip install translate-toolkit
+
+# Needed for Display.app
+chroot "${uzip}" python3 -m pip install pyedid
 
 # Workaround for: appmenu-gtk-module is not yet in quarterly packages; FIXME: install it from the packages once it is there
 # https://github.com/helloSystem/ISO/issues/20
