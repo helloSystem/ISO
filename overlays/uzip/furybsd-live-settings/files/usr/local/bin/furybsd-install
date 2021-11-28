@@ -84,7 +84,7 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   # The following two lines are required so that the system is
   # bootable not only on EFI based but also on BIOS based machines
   export ZFSBOOT_BOOT_TYPE"=BIOS+UEFI"
-  export ZFSBOOT_PARTITION_SCHEME="GPT + Active"
+  # export ZFSBOOT_PARTITION_SCHEME="GPT + Active" # Makes disk unbootable on EFI systems?
   env
   bsdinstall zfsboot
 else
