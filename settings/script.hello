@@ -213,6 +213,7 @@ echo "GenericName=Sound" >> "${uzip}"/usr/local/share/applications/dsbmixer.desk
 chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/dsbmixer.desktop /Applications/Preferences/ -g
 
 # https://github.com/PreyK/HelloDisplay
+chroot "${uzip}" python3 -m pip install pyedid
 git clone https://github.com/PreyK/HelloDisplay
 mkdir -p Display.app/
 mv HelloDisplay Display.app/Resources
