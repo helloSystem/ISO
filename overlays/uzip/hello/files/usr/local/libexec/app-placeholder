@@ -133,10 +133,14 @@ class LiteInstaller(object):
                 self.total_packages_to_be_installed = int(line.split(" ")[2].strip())
                 print("total_packages_to_be_installed:", self.total_packages_to_be_installed)
             if "Fetching" in line:
-                p = (self.already_fetched_packages / self.total_packages_to_be_installed) * self.having_downloaded_means_percent
-                self.progress.setValue(int(round(p*100)))
-                print(p)
-                self.already_fetched_packages = self.already_fetched_packages + 1 # Increment at the end, because the relevant line is printed when the action starts, not when it finishes
+                try:
+                    # Wrap in a 'try' statement to prevent from division by zero errors
+                    p = (self.already_fetched_packages / self.total_packages_to_be_installed) * self.having_downloaded_means_percent
+                    self.progress.setValue(int(round(p*100)))
+                    print(p)
+                    self.already_fetched_packages = self.already_fetched_packages + 1 # Increment at the end, because the relevant line is printed when the action starts, not when it finishes
+                except:
+                    pass
             if "Extracting" in line:
                 if self.already_fetched_packages < self.total_packages_to_be_installed:
                     # Some or all packages had already been downloaded and were re-used from the cache.
