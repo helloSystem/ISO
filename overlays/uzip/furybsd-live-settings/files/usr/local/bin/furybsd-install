@@ -68,6 +68,13 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   for mounted_partition in ${mounted_partitions}; do
     umount -f ${mounted_partition}
   done
+
+  # Unmount all FUSE mounted partitions (it would be sufficient to unmount
+  # those on $INSTALLER_DEVICE but we don't know those)
+  for fuse_mount in $(mount | grep -e '^/dev/fuse' | cut -d " " -f 1); do
+    umount /dev/fuse
+  done
+
   /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || true # This can give 'gpart: arg0 'adaX': Invalid argument'. FIXME: Why?
   sync
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
