@@ -72,6 +72,7 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
     if "Exec" in i.content["Desktop Entry"].keys():
         exec = i.content["Desktop Entry"]["Exec"]
         exec = exec.replace(" %f", "").replace(" %F", "").replace(" %u", "").replace(" %U", "")
+        exec = exec.replace("env UBUNTU_MENUPROXY=0 ", "") # Ugly workaround for Audacity. FIXME: Find a proper way around this class of issues
         print("exec: %s" % exec)
     else:
         print("No Exec=..., hence skipping '%s'" % desktopfile)
