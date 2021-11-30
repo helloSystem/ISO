@@ -329,6 +329,9 @@ mv /tmp/rc.shutdown "${uzip}/etc/rc.shutdown"
 # setuid, setgid so that normal users can attach disk images
 chmod 6755 "${uzip}"/sbin/mdconfig
 
+# setuid, setgid so that normal users can bring up and down (especially wireless) network devices
+chmod 6755 "${uzip}"/sbin/ifconfig
+
 # Disable most text-based consoles, especially ttyv0,
 # to prevent boot from being visually interrupted by login prompts
 mv "${uzip}/etc/ttys" "${uzip}/etc/ttys.original"
