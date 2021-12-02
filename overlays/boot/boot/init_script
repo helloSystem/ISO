@@ -134,14 +134,18 @@ pw groupmod cups -m liveuser
 # From here on optional, helloSystem specific optimizations
 ######################################################################
 
-# Xorg on Ctrl-Alt-F1
+# No text consoles if booted with boot_mute (default)
 # TODO: Move to a rc script that also runs in installed mode
-sed -i '' -e 's|vt09|vt01|g' /usr/local/etc/slim.conf
-
-# No text consoles on Ctrl-Alt-F2... if booted with boot_mute (default)
-# TODO: Move to a rc script that also runs in installed mode
-if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+if [ "$(sysctl -q -n kern.consmute)" = "1" ] ; then
+  # Xorg on Ctrl-Alt-F1
+  sed -i '' -e 's|vt09|vt01|g' /usr/local/etc/slim.conf
+  # No text consoles on Ctrl-Alt-F2
   echo "" > /etc/ttys
+else
+  # Enable application crash dumps to /tmp
+  sysctl savecore_enable="YES" # Crash dumps
+  sysctl kern.coredump=1
+  sysctl kern.corefile="/tmp/%N.core"
 fi
 
 # Allow /Applications to be modified
