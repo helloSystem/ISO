@@ -128,6 +128,12 @@ mv 'Utilities-master/Video' "${uzip}/Applications/"
 ( cd "${uzip}/System/Welcome.app/Resources/" && wget -q "https://github.com/helloSystem/Utilities/releases/download/assets/pamgaea-by-kevin-macleod-from-filmmusic-io.ogg" )
 rm -rf master.zip Utilities-master/
 
+# Tasmota Device Manager
+wget -q https://github.com/helloSystem/ISO/releases/download/assets/Tasmota.Device.Manager.app.zip
+unzip "Tasmota.Device.Manager.app.zip"
+mv "Tasmota Device Manager.app" "${uzip}/Applications/Utilities"
+rm -f "Tasmota.Device.Manager.app.zip"
+
 # Required for Remote Assistance.app
 wget -c -q https://github.com/gjedeer/tuntox/releases/download/0.0.9/tuntox-freebsd-x64 -O tuntox
 chmod +x tuntox
