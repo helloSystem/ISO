@@ -7,4 +7,5 @@ NAME=$(basename "$(readlink -f "$1")")
 makefs -o label="${NAME}" /tmp/"${NAME}.ufs" "$1"
 ls -lh /tmp/"${NAME}.ufs"
 mkuzip -A zstd -C 15 -d -s 262144 -o ~/Desktop/"${NAME}.img" /tmp/"${NAME}.ufs" && rm /tmp/"${NAME}.ufs"
+mkdir -p ~/Desktop/
 ls -lh ~/Desktop/"${NAME}.img"
