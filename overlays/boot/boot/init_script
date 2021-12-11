@@ -91,7 +91,9 @@ mount -t nullfs /media/.uzip/boot /boot
 
 kldload /media/.uzip/boot/kernel/unionfs.ko
 
-mount -t tmpfs tmpfs /root # does slim need this?
+mount -t tmpfs tmpfs /root # Does slim need this?
+
+mount -t tmpfs tmpfs /compat # In case the user wants to install something there in Live mode
 
 mount -t tmpfs tmpfs /var
 cp -R /media/.uzip/var/ /var
