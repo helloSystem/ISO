@@ -44,6 +44,7 @@ wget -c -q https://github.com/ful1e5/apple_cursor/releases/download/v1.0.6/macOS
 tar xfv macOSBigSur.tar.gz
 mv macOSBigSur "${uzip}/usr/local/share/icons/"
 ( cd "${uzip}/usr/local/share/icons/" ; ln -s macOSBigSur default )
+chmod 755 "${uzip}/usr/local/share/icons/macOSBigSur"
 rm macOSBigSur.tar.gz
 
 # Icon
