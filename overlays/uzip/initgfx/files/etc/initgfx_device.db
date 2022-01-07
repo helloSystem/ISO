@@ -1599,6 +1599,7 @@ cat << radeon_ids_END
 0x6778
 0x6779
 0x677B
+0x515e
 radeon_ids_END
 }
 
@@ -1656,4 +1657,26 @@ cat << i915_drm_legacy_ids_END
 0x08CE
 0x08CF
 i915_drm_legacy_ids_END
+}
+
+#
+# VIA GPUs driven by x11-drivers/xf86-video-openchrome
+#
+via_ids()
+{
+cat << via_ids_END
+0x3122
+0x7205
+0x3108
+0x3118
+0x3344
+0x3157
+0x3225
+0x3343
+0x3230
+0x3371
+0x1122
+0x5122
+0x7122
+via_ids_END
 }
