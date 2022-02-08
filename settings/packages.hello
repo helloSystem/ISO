@@ -58,8 +58,12 @@ dbus
 # qterminal
 # But we need /usr/local/share/qtermwidget5 until QTerminal.app is made properly; https://github.com/helloSystem/ISO/issues/190
 qtermwidget
+# light Qt torrent 
+# either qBittorrent, transmission-qt, or open to suggestion
 # Lightweight Qt5 plain-text editor
 featherpad
+# Qt IRC client
+# quassel or open to suggestions
 # GTK module for putting application menubar in a global menubar
 # gtk-app-menu
 # XRandR GUI
@@ -100,6 +104,7 @@ devel/py-qt5-dbus
 wget
 # We need a video player
 mpv
+vlc
 # Required for Remote Assistance
 ssvnc
 # Required for swapping Ctrl and Alt
