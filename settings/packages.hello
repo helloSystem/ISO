@@ -144,8 +144,6 @@ screenkey
 font-awesome
 # Required for some applications (e.g., screenkey) to show icons in the upper right hand corner of the menu (system tray/notification area)
 libappindicator
-# Required for mountarchive tool to mount archives and disk images
-archivemount
 # Needed to load HiDPI cursors [ci skip]
 xrdb
 # Required for Simple Browser
