@@ -246,6 +246,7 @@ rm QTerminal_FreeBSD.zip
 
 # Needed for /usr/local/bin/mountarchive
 wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/fuse-archive.zip"
+mkdir -p "${uzip}/usr/local/bin/"
 sudo mv fuse-archive "${uzip}/usr/local/bin/"
 rm fuse-archive.zip
 
