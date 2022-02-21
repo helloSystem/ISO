@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2012-2021 Slawomir Wojciech Wojtczak <vermaden@interia.pl>
+# Copyright (c) 2012-2022 Slawomir Wojciech Wojtczak <vermaden@interia.pl>
 # Copyright (c) 2019      Rozhuk Ivan                <rozhuk.im@gmail.com>
 # All rights reserved.
 #
@@ -144,6 +144,12 @@ NICENAMES (set to NO by default)
 
   example: NICENAMES=YES
 
+
+IGNORE_SYS_PARTS (set to NO by default)
+  If set to YES automount(8) will ignore system partitions like EFI or MSR.
+
+  example: IGNORE_SYS_PARTS=YES
+
 EOF
   exit 0
 }
@@ -162,7 +168,7 @@ then
   echo "  /  /  //  /  //  //  /  //        \\\  \  \  \\\  \  \\\  \  \\\  \  \\\  \_   "
   echo "  \_____\\\____/ \__\\\____//__________\\\__\__\__\\\____/ \_____\\\__\__\\\___\ "
   echo
-  echo "automount 1.7.6 2021/11/15"
+  echo "automount 1.7.7 2022/02/20"
   exit 0
 fi
 
@@ -202,6 +208,7 @@ fi
 : ${USER="root"}                        # which user to use for popup
 : ${REMOVEDIRS='YES'}                   # remove /media dir after unmount
 : ${NICENAMES='NO'}                     # use device label for /media dir name
+: ${IGNORE_SYS_PARTS='NO'}              # ignore system partitions like EFI or MSR
 
 # init of main variables
 DEV="/dev/${1}"
@@ -329,6 +336,7 @@ __remove_dir() { # 1=TARGET
   then
     if [ -d "${1}" ]
     then
+      sleep 1
       find "${1}" -type d -empty -maxdepth 1 -exec rm -r {} '+' 2> /dev/null
     fi
   fi
@@ -422,6 +430,17 @@ case ${2} in
     fi
     __log "${DEV}: attach"
 
+    # ignore system partitions like EFI or MSR
+    if [ "${IGNORE_SYS_PARTS}" = 'YES' ]
+    then
+      SYS_DEV=$( echo ${1} | grep -E -o '^[a-z]+[0-9]+' )
+      SYS_GPART=$( gpart show -p -r ${SYS_DEV} | sed 's@=>@@g' | grep " ${1} " | awk '{print $4}' )
+      case ${SYS_GPART} in
+        (c12a7328-f81f-11d2-ba4b-00a0c93ec93b) exit 0 ;;
+        (e3c9e316-0b5c-4db8-817d-f92df00215ae) exit 0 ;;
+      esac
+    fi
+
     # code for NICENAMES mounting instead of the /dev/${DEV} default
     MNT_CANDIDATE=$( fstyp -l "/dev/${1}" 2> /dev/null | cut -d " " -f 2-99 | tr ' ' '-' )
     if [ "${NICENAMES}" = "YES" -a -n "${MNT_CANDIDATE}" ]
@@ -464,14 +483,18 @@ case ${2} in
         fi
       done
     fi
+
     # check is device already mounted
     __check_already_mounted "${DEV}" "${MNT}"
+
     # make sure that data can be read from device
     __wait_for_device "${DEV}"
+
     # load needed kernel modules
     kldload fusefs    1> /dev/null 2> /dev/null
     kldload fuse      1> /dev/null 2> /dev/null
     kldload geom_uzip 1> /dev/null 2> /dev/null
+
     # detect filesysytem type
     case ${1} in
       (iso9660*)
@@ -490,10 +513,12 @@ case ${2} in
         FS_TYPE=${?}
         ;;
     esac
+
     # process ATIME option
     case ${ATIME} in
       ([Nn][Oo]) OPTS="-o noatime" ;;
     esac
+
     # filesystem options abstraction layer
     case ${FS_TYPE} in
       (${FS_TYPE_ISO9660})
@@ -546,7 +571,7 @@ case ${2} in
         FS_MOUNT_PORT='sysutils/fusefs-hfsfuse'
         ;;
       (${FS_TYPE_FAT})
-        # FreeBSD 12.x does not support '-o large' option
+        # FreeBSD 12.x and later does not support/need '-o large' option
         case $( sysctl -n kern.osrelease ) in
           (10*) LARGE="-o large" ;;
           (11*) LARGE="-o large" ;;
@@ -640,6 +665,8 @@ case ${2} in
       exit 1
     fi
     __wait_for_device "${DEV}"
+
+    # execute appropriate mount(8) command
     COUNT=0
     while ! ${FS_MOUNT_CMD} ${FS_MOUNT_ARGS} 2> /dev/null
     do
@@ -714,7 +741,7 @@ case ${2} in
             ( # put entire umount/find/rm block into background
               umount -f "${TARGET}" 1> /dev/null 2>&1
               __log "${DEV}: (state) umount '${TARGET}'"
-              __remove_dir "${TARGET}"
+              __remove_dir "${TARGET}" &
               __log "${DEV}: (state) mount point '${TARGET}' removed"
             ) &
             unset TARGET
@@ -725,7 +752,7 @@ case ${2} in
       then
         umount -f "${MNT_PREFIX}/${1}" 1> /dev/null 2>&1
         __log "${DEV}: (direct) umount '${MNT_PREFIX}/${1}'"
-        __remove_dir "${MNT_PREFIX}/${1}"
+        __remove_dir "${MNT_PREFIX}/${1}" &
         __log "${DEV}: (direct) mount point '${MNT_PREFIX}/${1}' removed"
       fi
       __show_message "Device '${DEV}' unmounted from '${MNT}' directory."
