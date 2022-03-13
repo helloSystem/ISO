@@ -1,4 +1,4 @@
-# Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
+# Copyright (c) 2021-22, Simon Peter <probono@puredarwin.org>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -66,6 +66,8 @@ set -x
 # kldload /boot/kernel/tmpfs.ko # TODO: must not be gzipped so that this works here?
 mount -t tmpfs tmpfs /tmp
 chmod 1777 /tmp # TODO: Check if really needed by FreeBSD 13
+mount -t tmpfs tmpfs /compat
+chmod 1777 /compat # TODO: Check if really needed by FreeBSD 13
 
 mdconfig -a -t vnode -o readonly -f /boot/rootfs.uzip
 
