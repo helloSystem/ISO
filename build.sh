@@ -7,8 +7,9 @@ set -e
 # Building ISOs for other major versions than the running host system
 # is not supported and results in broken images anyway
 version=$(uname -r | cut -d "-" -f 1-2) # "12.2-RELEASE" or "13.0-CURRENT"
+echo "Host system version: ${version}"
 
-if [ "${version}" = "13.0-CURRENT" ] ; then
+if [ "${version}" = "13.0-RELEASE" ] ; then
   # version="13.0-RC3"
   # version="13.0-RELEASE"
   version="13.1-BETA1"
