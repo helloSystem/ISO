@@ -193,7 +193,5 @@ dvd+rw-tools
 # Needed for QR code when Xorg cannot be started up
 libqrencode
 zip
-# Thumbnailer for AppImage files
-xapp-thumbnailers
 # Needed for xapp-thumbnailers
 devel/py-pyelftools
