@@ -14,8 +14,8 @@ if [ "${version}" = "13.0-CURRENT" ] ; then
   version="13.1-BETA1"
 fi
 
-VER=$(uname -r | cut -d "-" -f 1) # "12.2" or "13.0"
-MAJOR=$(uname -r | cut -d "." -f 1) # "12" or "13"
+VER=$(echo "${version}" | cut -d "-" -f 1) # "12.2" or "13.0"
+MAJOR=$(echo "${version}" | cut -d "." -f 1) # "12" or "13"
 
 # Download from either https://download.freebsd.org/ftp/releases/
 #                  or https://download.freebsd.org/ftp/snapshots/
