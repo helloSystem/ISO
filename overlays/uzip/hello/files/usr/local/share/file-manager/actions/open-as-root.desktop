@@ -11,8 +11,8 @@ Exec=sudo -E -A launch FeatherPad %f
 
 [X-Action-Profile profile-one]
 MimeTypes=inode/directory;
-Exec=sudo -A launch Filer %f
+Exec=sudo -E -A launch Filer %f
 
 [X-Action-Profile profile-two]
 MimeTypes=inode/mount-point;
-Exec=sudo -A launch Filer /media/%w
+Exec=sudo -E -A launch Filer /media/%w
