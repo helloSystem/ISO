@@ -102,8 +102,8 @@ wget
 mpv
 # Required for Remote Assistance
 # ssvnc was removed from FreeBSD ports only because it is no more updated upstream; https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=260716
-http://pkg.freebsd.org/FreeBSD:13:amd64/release_0/All/ssvnc-1.0.29_4.txz
-# https://github.com/helloSystem/ISO/releases/download/assets/ssvnc-1.0.29_4.pkg
+# http://pkg.freebsd.org/FreeBSD:13:amd64/release_0/All/ssvnc-1.0.29_4.txz mirrored to
+https://github.com/helloSystem/ISO/releases/download/assets/ssvnc-1.0.29_4.txz
 # Required for swapping Ctrl and Alt
 xmodmap
 # Required for Hardware Probe utility and https://bsd-hardware.info/
