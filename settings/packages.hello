@@ -89,13 +89,13 @@ devel/py-pytz
 # qt5-assistant # We are not using it for now
 # Required for Sharing.app
 x11vnc
-net/py-qt5-network
+# net/py-qt5-network was folded into devel/py-qt5-pyqt
 # Required for Lector.app
 devel/py-xmltodict
 www/py-beautifulsoup
 databases/py-sqlite3
 # Required for Sticky Notes.app
-devel/py-qt5-dbus
+# devel/py-qt5-dbus was folded into devel/py-qt5-pyqt
 # For convenience in addition to the curl that comes with FreeBSD base
 wget
 # We need a video player
@@ -134,7 +134,7 @@ wqy-fonts
 # Monospaced fonts
 sourcecodepro-ttf
 # Required for Welcome.app
-lang/py-qt5-qml
+# lang/py-qt5-qml was folded into devel/py-qt5-pyqt
 gstreamer1-plugins-ogg
 gstreamer1-plugins-vorbis
 gstreamer1-plugins-good
@@ -166,7 +166,7 @@ kf5-kconfig
 # Needed by Dock
 qt5-quickcontrols2
 # Needed by Welcome.app
-multimedia/py-qt5-multimedia
+# multimedia/py-qt5-multimedia was folded into devel/py-qt5-pyqt
 # Required for runappimage
 fusefs-squashfuse
 # Needed for Command-Tab in KWin
