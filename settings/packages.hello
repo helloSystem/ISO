@@ -125,7 +125,8 @@ android-file-transfer-qt5
 # Scanning application
 # skanlite # https://github.com/helloSystem/ISO/issues/65
 # Needed by many helloSystem utilities
-x11-toolkits/py-qt5-widgets
+# x11-toolkits/py-qt5-widgets was renamed to:
+devel/py-qt5-pyqt
 # Convenience package to make '#!/usr/bin/env python3' work
 python3
 # Asian fonts

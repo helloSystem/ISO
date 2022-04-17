@@ -40,7 +40,8 @@ iichid
 avahi-app
 nss_mdns
 openntpd
-x11-toolkits/py-qt5-widgets
+# x11-toolkits/py-qt5-widgets was renamed to:
+devel/py-qt5-pyqt
 freedesktop-sound-theme
 # Library to access the Xorg/XFree86 Synaptics TouchPad Driver
 libsynaptics
