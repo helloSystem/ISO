@@ -33,7 +33,8 @@ task:
     - kldload tmpfs.ko || true
     - kldload nullfs.ko || true
     - kldload geom_uzip.ko || true
-    - pkg install -y pkg git-lite zsync wget sha bash zip devel/py-xdg librsvg2 ca_root_nss # qemu-devel uefi-edk2-qemu-x86_64
+    # As of FreeBSD 13.1, sha is in base and the sha package is no longer built
+    - pkg install -y pkg git-lite zsync wget bash zip devel/py-xdg librsvg2 ca_root_nss # qemu-devel uefi-edk2-qemu-x86_64
     - mkdir -p /usr/local/furybsd/uzip /usr/local/furybsd/cdroot/
     - mount -t tmpfs tmpfs /usr/local/furybsd/uzip
     - mount -t tmpfs tmpfs /usr/local/furybsd/cdroot/
