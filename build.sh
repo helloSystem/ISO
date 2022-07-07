@@ -170,11 +170,6 @@ pkg_add_from_url()
       abi=${3+env ABI=$3} # Set $abi to "env ABI=$3" only if a third argument is provided
 
       pkgfile=${url##*/}
-      # Replace .txz with .pkg; workaround for:
-      # fetch: https://pkg.freebsd.org/FreeBSD:13:amd64/quarterly/All/nvidia-driver-510.60.02.txz: Not Found
-      if echo "$pkgfile" | grep -q "nvidia-driver" ; then
-        pkgfile=$(echo $pkgfile | sed -e 's|\.txz|\.pkg|g')
-      fi
       if [ ! -e ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} ]; then
         fetch -o ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/ $url
       fi
@@ -319,6 +314,9 @@ initgfx()
     # 340 needed for Nvidia 320M
     for ver in '' 390 340 304; do
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
+        # Replace .txz with .pkg; workaround for:
+        # fetch: https://pkg.freebsd.org/FreeBSD:13:amd64/quarterly/All/nvidia-driver-510.60.02.txz: Not Found
+        pkgfile=$(echo $pkgfile | sed -e 's|\.txz|\.pkg|g')
         fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-latest}/"
         tar xfC "${cache}"/${pkgfile} "${uzip}/usr/local/nvidia/${ver:-latest}/"
