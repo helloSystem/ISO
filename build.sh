@@ -172,7 +172,7 @@ pkg_add_from_url()
       pkgfile=${url##*/}
       # Replace .txz with .pkg; workaround for:
       # fetch: https://pkg.freebsd.org/FreeBSD:13:amd64/quarterly/All/nvidia-driver-510.60.02.txz: Not Found
-      if echo "$pkgfile" | grep -q "pkg.freebsd.org" ; then
+      if echo "$pkgfile" | grep -q "nvidia-driver" ; then
         pkgfile=$(echo $pkgfile | sed -e 's|\.txz|\.pkg|g')
       fi
       if [ ! -e ${uzip}${pkg_cachedir}/${pkg_cachesubdir}/${pkgfile} ]; then
