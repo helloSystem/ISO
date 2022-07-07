@@ -28,6 +28,7 @@ task:
       arch: 'amd64'
 
   Environment_script:
+    - sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
     - env
     - kldload zfs.ko
     - kldload tmpfs.ko || true
@@ -40,7 +41,6 @@ task:
     - mount -t tmpfs tmpfs /usr/local/furybsd/cdroot/
     
   Build_script:
-    - sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
     - export VER=$(uname -r | cut -d "-" -f 1)
     # if [ "$VER" = "12.1" ] ; then export PERSIST_NEW_BUILDNUMBER="YES" ; fi # Only persist incremented build number for one of the builds in the matrix
     - export PERSIST_NEW_BUILDNUMBER="YES"
