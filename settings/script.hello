@@ -284,8 +284,7 @@ chroot "${uzip}" python3 -m pip install pyedid
 # Workaround for disappeared ssvnc package
 # Mirrored from http://pkg.freebsd.org/FreeBSD:13:amd64/release_0/All/ssvnc-1.0.29_4.txz
 # This works only if all dependency pkgs have been added beforehand
-### IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add "https://github.com/helloSystem/ISO/releases/download/assets/ssvnc-1.0.29_4.txz" || true
-### On FreeBSD 13.1 with release_1 packages we get: pkg-static: Missing dependency 'libXaw'
+IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add "https://github.com/helloSystem/ISO/releases/download/assets/ssvnc-1.0.29_4.txz" || true
 
 # Remove pkg (it will be bootstrapped if needed)
 # chroot "${uzip}" sudo pkg remove -y -f pkg # Breaks furybsd-init-helper
