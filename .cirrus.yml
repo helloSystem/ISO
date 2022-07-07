@@ -3,7 +3,7 @@ task:
     cpu: 4
     memory: 16G
     matrix:
-      - image: freebsd-13-0-release-amd64
+      - image: freebsd-13-1-release-amd64
       # image: freebsd-12-2-release-amd64
       # image: freebsd-14-0-current-amd64-v20211111
       # image: freebsd-12-1-release-amd64 # EOL
@@ -40,6 +40,7 @@ task:
     - mount -t tmpfs tmpfs /usr/local/furybsd/cdroot/
     
   Build_script:
+    - sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
     - export VER=$(uname -r | cut -d "-" -f 1)
     # if [ "$VER" = "12.1" ] ; then export PERSIST_NEW_BUILDNUMBER="YES" ; fi # Only persist incremented build number for one of the builds in the matrix
     - export PERSIST_NEW_BUILDNUMBER="YES"
