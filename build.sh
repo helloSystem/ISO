@@ -189,7 +189,8 @@ packages()
     # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
     echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, using quarterly packages"
+    echo "Major version 13, using release_1 packages"
+    sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
   elif [ $MAJOR -eq 14 ] ; then
     echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
     sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
