@@ -101,9 +101,11 @@ wget
 # We need a video player
 mpv
 # Required for Remote Assistance
-x11-toolkits/libXaw
 # ssvnc was removed from FreeBSD ports only because it is no more updated upstream; https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=260716
 # Hence installing it with pkg add now in script.hello
+# Required for ssvnc
+x11-toolkits/libXaw
+security/stunnel
 # Required for swapping Ctrl and Alt
 xmodmap
 # Required for Hardware Probe utility and https://bsd-hardware.info/
