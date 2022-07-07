@@ -15,7 +15,10 @@ xf86-video-scfb
 xf86-video-vesa
 xf86-video-vmware
 xf86-video-qxl # !i386
-drm-kmod
+# drm-kmod # https://github.com/helloSystem/ISO/issues/388: 
+# We need drm-510-kmod to support the latest Intel GPUs,
+# which at the time of adding the following line had no official FreeBSD package yet
+cirrus:github/helloSystem/drm-510-kmod-FreeBSD-13/main/binaries/drm-510-kmod-5.10.-%%VER%%%%ARCH%%.pkg
 # drm-legacy-kmod # Does not exist in 13. FIXME: What happens to the devices that need it?
 libva-intel-driver
 drm-kmod
