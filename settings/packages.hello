@@ -104,8 +104,22 @@ mpv
 # ssvnc was removed from FreeBSD ports only because it is no more updated upstream; https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=260716
 # Hence installing it with pkg add now in script.hello
 # Required for ssvnc
+graphics/jpeg-turbo
+x11/libICE
+x11/libSM
+x11/libX11
 x11-toolkits/libXaw
+x11/libXext
+x11/libXi
+x11-toolkits/libXmu
+x11/libXpm
+x11-toolkits/libXt
+lang/perl5.32
 security/stunnel
+lang/tcl86
+x11-toolkits/tk-wrapper
+x11-toolkits/tk86
+x11/xterm
 # Required for swapping Ctrl and Alt
 xmodmap
 # Required for Hardware Probe utility and https://bsd-hardware.info/
