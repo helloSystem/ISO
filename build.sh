@@ -314,8 +314,8 @@ initgfx()
     # 390 needed for Nvidia Quadro 2000, https://github.com/helloSystem/hello/discussions/241#discussioncomment-1599131
     # 340 needed for Nvidia 320M
     for ver in '' 390 340 304; do
-        pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
-        # pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.pkg nvidia-driver${ver:+-$ver})
+        # pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
+        pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.pkg nvidia-driver${ver:+-$ver})
         fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-latest}/"
         tar xfC "${cache}"/${pkgfile} "${uzip}/usr/local/nvidia/${ver:-latest}/"
