@@ -482,7 +482,12 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list plasma5-breeze) ; do rm $FILE ; don
 
 # FIXME: Prevent extraneous versions of Python from being installed in the first place
 # https://github.com/helloSystem/ISO/issues/191#issuecomment-861822967
-chroot ${uzip} pkg remove -y python310 python39 python37 python36 python27
+# Do not fail if a certain python version can't be uninstalled
+chroot ${uzip} pkg remove -y python310 || true
+chroot ${uzip} pkg remove -y python39 || true
+chroot ${uzip} pkg remove -y python37 || true
+chroot ${uzip} pkg remove -y python36 || true
+chroot ${uzip} pkg remove -y python27 || true
 
 # Amend /etc/os-release by helloSystem specific entries
 # https://www.freedesktop.org/software/systemd/man/os-release.html
