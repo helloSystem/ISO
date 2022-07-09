@@ -17,7 +17,8 @@ xf86-video-vmware
 xf86-video-qxl # !i386
 # We need drm-510-kmod to support the latest Intel GPUs
 gpu-firmware-kmod
-cirrus:github/helloSystem/drm-510-kmod.pkg/main/binaries/drm-510-kmod-5.10.113_1.pkg
+# cirrus:github/helloSystem/drm-510-kmod.pkg/main/binaries/drm-510-kmod-5.10.113_1.pkg
+drm-510-kmod
 # drm-legacy-kmod # Does not exist in 13. FIXME: What happens to the devices that need it?
 libva-intel-driver
 # nvidia-driver # !i386 # Is now handled in build.sh initgfx()
