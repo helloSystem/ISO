@@ -15,10 +15,11 @@ xf86-video-scfb
 xf86-video-vesa
 xf86-video-vmware
 xf86-video-qxl # !i386
-drm-kmod
+# https://github.com/helloSystem/ISO/issues/388
+drm-510-kmod
+gpu-firmware-kmod
 # drm-legacy-kmod # Does not exist in 13. FIXME: What happens to the devices that need it?
 libva-intel-driver
-drm-kmod
 # nvidia-driver # !i386 # Is now handled in build.sh initgfx()
 mesa-libs
 mesa-dri
