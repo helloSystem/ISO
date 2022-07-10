@@ -212,8 +212,11 @@ packages()
     # Install packages beginning with 'https:'
     mkdir -p ${uzip}${pkg_cachedir}/furybsd-https
     for url in $(grep -e '^https' "${cwd}/settings/packages.$p"); do
+        # First, try installing this using the real major version
+        pkg_add_from_url "$url" furybsd-https "freebsd:$MAJOR:$arch" || true
+        # Second, try installing this using
         # ABI=freebsd:12:$arch in an attempt to use package built on 12 for 13
-        pkg_add_from_url "$url" furybsd-https "freebsd:12:$arch"
+        pkg_add_from_url "$url" furybsd-https "freebsd:12:$arch" || true
     done
   done
   # Install the packages we have generated in pkg() that are listed in transient-packages-list
