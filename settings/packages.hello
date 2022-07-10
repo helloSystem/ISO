@@ -178,7 +178,8 @@ eject
 # linux-c7-alsa-lib
 # linux-c7-cups-libs
 # https URL needed as long as falkon-qtonly is not in releaseX packages
-https://github.com/helloSystem/ISO/releases/download/assets/falkon-qtonly-3.1.0.txz
+# https://github.com/helloSystem/ISO/releases/download/assets/falkon-qtonly-3.1.0.txz
+falkon-qtonly
 # Needed by gmenudbusmenuproxy which is required for the global menu
 kf5-kconfig
 # Needed by Dock
