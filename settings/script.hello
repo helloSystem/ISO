@@ -509,4 +509,4 @@ chroot "${uzip}" update-desktop-database # Needed?
 
 # Add some random data to debug https://github.com/helloSystem/ISO/issues/389
 # TODO: Remove this
-# dd if=/dev/random of="${uzip}"/random.data bs=1M count=2
+dd if=/dev/random of="${uzip}"/random.data bs=1M count=2
