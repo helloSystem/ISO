@@ -48,8 +48,6 @@ libexif
 # and samba
 gvfs
 # Browser
-# falkon # Pulls in way too many Qt dependencies, so we are light-installing it
-# falkon-qtonly, which is not in http://pkg.freebsd.org/FreeBSD:12:amd64/release_2/ packages yet and which we are hence installing from a https URL, needs this
 kf5-ki18n
 # Message bus system for inter-application communication
 dbus
@@ -177,8 +175,6 @@ eject
 # linux-c7-nss
 # linux-c7-alsa-lib
 # linux-c7-cups-libs
-# https URL needed as long as falkon-qtonly is not in releaseX packages
-# https://github.com/helloSystem/ISO/releases/download/assets/falkon-qtonly-3.1.0.txz
 falkon-qtonly
 # Needed by gmenudbusmenuproxy which is required for the global menu
 kf5-kconfig
