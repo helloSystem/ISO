@@ -225,7 +225,7 @@ packages()
     # resolve dependencies from the repositories?
     # The following will just fail in the case of unmet dependencies
     ### /usr/local/sbin/pkg-static -r ${uzip} add "${packages}/transient/${p}" # pkg-static add has no -y
-    /usr/local/sbin/pkg -r ${uzip} add -y "${packages}/transient/${p}"
+    /usr/local/sbin/pkg -r ${uzip} add "${packages}/transient/${p}"
   done <"${packages}/transient/transient-packages-list"
   
   # Manifest of installed packages ordered by size in bytes
