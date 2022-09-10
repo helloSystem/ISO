@@ -31,7 +31,7 @@ task:
   Environment_script:
     # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
     - env
-    - kldload zfs.ko
+    - kldload zfs.ko || true
     - kldload tmpfs.ko || true
     - kldload nullfs.ko || true
     - kldload geom_uzip.ko || true
