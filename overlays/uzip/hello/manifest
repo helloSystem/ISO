@@ -65,6 +65,7 @@ deps:          {
     openntpd: {origin: net/openntpd, version: 0},
     pciutils: {origin: sysutils/pciutils, version: 0},
     pkg: {origin: ports-mgmt/pkg, version: 0},
+    pkg_tree: {origin: ports-mgmt/pkg_tree, version: 0},
     pv: {origin: sysutils/pv, version: 0},
     py37-sqlite3: {origin: databases/py-sqlite3, version: 0},
     python3: {origin: lang/python3, version: 0},
