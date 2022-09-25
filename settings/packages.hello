@@ -213,3 +213,5 @@ zip
 # Needed for xapp-thumbnailers
 devel/py-pyelftools
 squashfs-tools
+# Make it easier for people to visualise dependencies
+ports-mgmt/pkg_tree

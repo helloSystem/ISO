@@ -498,7 +498,9 @@ boot()
   # It is not yet available for FreeBSD 14. TODO: Re-check later
   if [ "${MAJOR}" -lt 14 ] ; then
     if [ "${arch}" = "amd64" ] ; then
-      fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
+      # fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
+      # https://github.com/helloSystem/ISO/issues/385#issuecomment-1227631254 claims that Ventoy v1.0.70 works with FreeBSD 13.1
+      fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/v1.0.70/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
       unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
       # https://github.com/ventoy/Ventoy/discussions/1277
       # wget https://github.com/ventoy/Ventoy/files/7638059/geom_ventoy.zip
