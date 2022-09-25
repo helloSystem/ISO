@@ -40,7 +40,8 @@ iichid
 avahi-app
 nss_mdns
 openntpd
-x11-toolkits/py-qt5-widgets
+# x11-toolkits/py-qt5-widgets was renamed to:
+devel/py-qt5-pyqt
 freedesktop-sound-theme
 # Library to access the Xorg/XFree86 Synaptics TouchPad Driver
 libsynaptics
@@ -57,8 +58,8 @@ b43-fwcutter
 # bwn-firmware-kmod # Exists only in ports, not in packages; need a workaround
 # daemon that loads suitable drivers for PCI and USB hardware based on a txt db of USB and PCI IDs
 dsbdriverd
-# Control screen brightness on some Intel-based machines including MacBook Pro
-intel-backlight
 cirrus:github/helloSystem/drm-kmod-FreeBSD-12/main/binaries/drm-fbsd12.0-kmod-%%VER%%%%ARCH%%.txz
 # Realtek card readers
 # rtsx-kmod # No packages available to install matching 'rtsx-kmod' have been found in the repositories
+# AMD Radeon Xorg Driver, requires amdgpu KMS driver from graphics/drm-kmod
+x11-drivers/xf86-video-amdgpu

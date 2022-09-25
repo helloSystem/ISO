@@ -4,6 +4,11 @@
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
+# Normally $PATH gets changed by slim anyway so it's probably ok to change it here again
+# The closer to the user, the more upfront so that users can override what the system provides
+# and helloSystem can override what FreeBSD provides
+export PATH=~/bin:~/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/games:/usr/sbin:/usr/bin:/sbin:/bin
+
 # Use library to display symbols for keyboard shortcuts
 # https://github.com/helloSystem/hello/issues/46
 export LD_PRELOAD=/usr/local/lib/libQKeySequenceOverride.so.1.0.0
@@ -59,18 +64,19 @@ sudo sysctl vfs.usermount=1 || true
 sudo kldload fuse.ko 2>/dev/null || true # FreeBSD up to 12.x
 sudo kldload fusefs.ko 2>/dev/null || true # FreeBSD 13+, violates POLA
 
-# Reload if_iwm.ko and its firmware modules like
-# iwm7265fw.ko and iwm7265Dfw.ko to get Intel WLAN to work
-# when the system is chrooted
-if [ $(kldstat| grep 'if_iwm.ko' | awk '{print $5}' | xargs) = "if_iwm.ko" ] ; then
-  echo "Reloading if_iwm.ko and its firmware modules"
-  sudo kldunload if_iwm.ko
-  FW_MODULES=$(kldstat| grep 'iwm.*fw.ko' | awk '{print $5}' | xargs)
-  kldunload $FW_MODULES
-  sudo kldunload if_iwm.ko 2>/dev/null || true
-  kldload $FW_MODULES
-  sudo kldload if_iwm.ko
-fi
+# TODO: Remove once confirmed no longer needed. We are no longer using chroot
+# # Reload if_iwm.ko and its firmware modules like
+# # iwm7265fw.ko and iwm7265Dfw.ko to get Intel WLAN to work
+# # when the system is chrooted
+# if [ $(kldstat| grep 'if_iwm.ko' | awk '{print $5}' | xargs) = "if_iwm.ko" ] ; then
+#   echo "Reloading if_iwm.ko and its firmware modules"
+#   sudo kldunload if_iwm.ko
+#   FW_MODULES=$(kldstat| grep 'iwm.*fw.ko' | awk '{print $5}' | xargs)
+#   kldunload $FW_MODULES
+#   sudo kldunload if_iwm.ko 2>/dev/null || true
+#   kldload $FW_MODULES
+#   sudo kldload if_iwm.ko
+# fi
 
 # Prevent Gnome-related processes at-spi-bus-launcher
 # and at-spi2-registryd from bleeding into our system
@@ -153,6 +159,10 @@ export XDG_DATA_HOME=~/.local/share
 export XDG_SESSION_CLASS=user
 export XDG_SESSION_TYPE=x11
 
+if [ -z "${XDG_RUNTIME_DIR}" ] ; then
+  export XDG_RUNTIME_DIR=/var/run/user/$(id -u)
+fi
+
 # When 'sudo -A -E <command>' is executed, use this helper application to get the password
 export SUDO_ASKPASS=/usr/local/bin/askpass
 # Using sudo.conf resulted in a password dialog when X starts
@@ -232,6 +242,14 @@ else
   xrdb -load ~/.Xresources-2x # Also change cursor size
 fi
 
+# TODO: Remove once confirmed no longer needed
+# Temporary workaround for https://github.com/helloSystem/ISO/issues/316
+# export KWIN_COMPOSE=02
+# if [ ! -z  $(sysctl hw.nvidia.version 2>/dev/null) ] ; then
+#   export KWIN_OPENGL_INTERFACE="egl"
+#   export KWIN_TRIPLE_BUFFER=1
+# fi
+
 launch /System/KWin.app &
 
 # Desktop notifications
@@ -252,7 +270,7 @@ dunst &
 # but then the color would be wrong for the Welcome Wizard
 # Do not run this if we are running inside a virtual machine
 if [ -z "$VIRTUAL_MACHINE" ] ; then
-  redshift -l$(getlalo) &
+  redshift -t 6500:5500 -l$(getlalo) &
 fi
 
 # Menubar

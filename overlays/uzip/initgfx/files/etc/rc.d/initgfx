@@ -41,7 +41,7 @@ load_rc_config ${name}
 
 path_config_id="/var/initgfx_config.id"
 path_xorg_cfg_dir="/usr/local/etc/X11/xorg.conf.d"
-path_xorg_cfg="${path_xorg_cfg_dir}/10-video-${name}.conf"
+path_xorg_cfg="${path_xorg_cfg_dir}/00-video-${name}.conf"
 
 path_drm_legacy="/boot/drm_legacy"
 path_nvidia="/usr/local/nvidia"
@@ -73,6 +73,24 @@ del_stale_files()
 	rm -f "/usr/local/etc/libmap.d/nvidia.conf" > /dev/null 2>&1
 	rm -f "${path_xorg_cfg}" > /dev/null 2>&1
 	rm -f "${path_config_id}" > /dev/null 2>&1
+}
+
+restore_symlinks()
+{
+	local extpath=/usr/local/lib/xorg/modules/extensions
+
+	if [ -L "${extpath}/libglx.so" ]; then
+		rm -f "${extpath}/libglx.so"
+	fi
+	if [ ! -e "${extpath}/libglx.so" ]; then
+		ln -s "${extpath}/.xorg/libglx.so" ${extpath}/
+	fi
+}
+
+__reset()
+{
+	del_stale_files
+	restore_symlinks
 }
 
 calc_config_id()
@@ -131,37 +149,86 @@ test_x()
 			"${path_cfg_test_dir}"
 }
 
-get_device_info()
-{
-	unit=$(sysctl -n hw.pci.default_vgapci_unit)
-	[ -z "$unit" -o "$unit" =  "-1" ] && unit=0
-	local info=$(pciconf -lv | grep "^vgapci${unit}" | awk -F'[ \t]+' ' {
-		for (i = 1; i <= NF; i++) {
-			if ($i ~ /^vgapci[0-9]/) {
-				if (split($i, a, ":") < 4)
-					exit(1);
-				busID = sprintf("%d:%d:%d", a[2], a[3], a[4])
-			} else if ($i ~ /^chip=/) {
-				device = substr($i, 8, 4);
-				vendor = substr($i, 12, 4);
-			} else if ($i ~ /^vendor=/) {
-				split($i, a, /=0x/);
-				vendor = a[2];
-			} else if ($i ~ /^device=/) {
-				split($i, a, /=0x/);
-				device = a[2];
+
+get_vgapci_devices() {
+	__devindex=1
+	default_unit=$(sysctl -n hw.pci.default_vgapci_unit)
+	[ -z "${default_unit}" -o "${default_unit}" =  "-1" ] && default_unit=0
+	__device_list=$(pciconf -lv | awk -v default_unit=${default_unit} '{
+		if (/^vgapci/) {
+			if (in_vgapci_entry) {
+				recs[++nrecs] = sprintf("%s\t%s\t%s\t%s\t%s",
+				    unit, bus, vendor, device, descr);
 			}
+			in_vgapci_entry = 1;
+			n = split($0, a, "[ \t]+");
+			split(a[1], b, "^vgapci|[@:]+");
+			unit = b[2];
+			bus = sprintf("%d:%d:%d", b[4], b[5], b[6]);
+			for (i = 2; i <= n; i++) {
+				if (match(a[i], "^chip=0x")) {
+					device = substr(a[i], 8, 4);
+					vendor = substr(a[i], 12, 4);
+					break;
+				} else if (match(a[i], "^vendor=0x")) {
+					vendor = substr(a[i], 10, 4)
+				} else if (match(a[i], "^device=0x")) {
+					device = substr(a[i], 10, 4)
+				}
+			}
+		} else if (/^[^ \t]/) {
+			if (in_vgapci_entry) {
+				recs[++nrecs] = sprintf("%s\t%s\t%s\t%s\t%s",
+				    unit, bus, vendor, device, descr);
+			}
+			in_vgapci_entry = 0;
+		} else if (in_vgapci_entry && /^[ \t]+device[ \t]+=/) {
+			n = split($0, a, "^[ \t]+device[ \t]+=[ \t]+");
+			descr = "";
+			if (n >= 2)
+				descr = a[2];
 		}
 	}
 	END {
-		printf("%s %s %s", busID, vendor, device);
+		if (in_vgapci_entry) {
+			recs[++nrecs] = sprintf("%s\t%s\t%s\t%s\t%s",
+			    unit, bus, vendor, device, descr);
+		}
+		# Make record matching the default unit the first one
+		rx = sprintf("^%d[\t]+", default_unit);
+		for (i = 1; i <= nrecs; i++)
+			if (recs[i] ~ rx) {
+				print(recs[i]);
+				break
+			}
+		for (i = 1; i <= nrecs; i++)
+			if (recs[i] !~ rx)
+				print(recs[i]);
 	}')
-	set -- $info
-	device=$3; vendor=$2; busID=$1
-	if [ -z "${vendor}" -o -z "${device}" -o -z "${busID}" ]; then
-		echo "${name}: Error parsing 'pciconf' output"
-		exit 1
-	fi
+}
+
+next_device()
+{
+	local rec ret IFS
+
+	[ -z "${__device_list}" ] && return 1
+	rec=$(printf "${__device_list}" | awk -v idx=${__devindex} '{
+		if (++n == idx) {
+			printf("%s\n", $0); exit(0)
+		}
+	}
+	END {
+		if (n != idx)
+			exit(1)
+	}')
+	ret=$?
+	__devindex=$((${__devindex} + 1))
+	[ ${ret} -ne 0 ] && return 1
+	IFS="	"
+	set -- ${rec}
+	unit=$1; busID=$2; vendor=$3; device=$4; descr=$5
+
+	return 0
 }
 
 rc_conf_d_ldconfig()
@@ -222,16 +289,15 @@ setup_ati_amd()
 
 setup_nvidia()
 {
-	local d dir driver device srcdir
+	local d dir driver srcdir device_descr
 
 	[ "${vendor}" != "10de" ] && return 1
-	device=$(pciconf -lv | grep -A3 ^vgapci${unit} | grep device | \
-		cut -d"'" -f 2)
+	device_descr=$(echo "${descr}" | cut -d"'" -f 2)
 	driver=""
-	for d in 440 390 340 304; do
-		nvidia_${d}_ids | awk -v device="$device" '
-			match(tolower(device), tolower($0)) > 0 {
-				printf("%s ~ %s\n", device, $0);
+	for d in latest 390 340 304; do
+		nvidia_${d}_ids | awk -v descr="${device_descr}" '
+			match(tolower(descr), tolower($0)) > 0 {
+				printf("%s ~ %s\n", descr, $0);
 				exit(100)
 			}
 		'
@@ -279,7 +345,7 @@ setup_nvidia()
 	tar -C "${srcdir}${dir}" \
 		--exclude '.nvidia' -cf - . | tar -C "/nvidia/${dir}" -xf -
 
-	if [ ${driver} -ge 390 ]; then
+	if [ ${driver} = "latest" ] || [ ${driver} -ge 390 ]; then
 		kmods="${srcdir}/boot/modules/nvidia.ko"
 		kmods="${kmods} ${srcdir}/boot/modules/nvidia-modeset.ko"
 	else
@@ -289,6 +355,28 @@ setup_nvidia()
 	kldload ${kmods}
 	sysrc -f "${path_tmp_rc_conf}" initgfx_kmods="${kmods}"
 	nvidia_xorg_cfg > "${path_xorg_cfg}"
+	return 0
+}
+
+setup_nv()
+{
+	local driver device
+
+	[ "${vendor}" != "10de" ] && return 1
+	nv_xorg_cfg > "${path_xorg_cfg}"
+	return 0
+}
+
+setup_via()
+{
+	[ "${vendor}" != "1106" ] && return 1
+	via_ids | awk -v device="0x${device}" '
+		$1 == device {
+			exit(100);
+		}
+	'
+	[ $? -ne 100 ] && return 1
+	nv_xorg_cfg > "${path_xorg_cfg}"
 	return 0
 }
 
@@ -311,22 +399,53 @@ write_fallback_cfg()
 	(printf "Section \"Device\"\n"; \
 	 printf "\tIdentifier \"Card0\"\n"; \
 	 printf "\tDriver \"${fallback_driver}\"\n"; \
-	 printf "\tBusID \"PCI:$busID\"\n"; \
+#	 printf "\tBusID \"PCI:$busID\"\n"; 
 	 printf "EndSection\n") > "${path_xorg_cfg}"
+}
+
+probe_and_setup()
+{
+	local i
+
+	for i in nvidia nv ati_amd intel via; do
+		if setup_${i}; then
+			initgfx_debug "Testing Xorg configuration ..."
+			if test_x; then
+				# FIXME: Without the delay the result is a
+				# reboot when using a Nvidia GPU.
+				[ $i = "nvidia" ] && __wait 3
+				save_config_id
+				cp -a "${path_tmp_rc_conf}" /etc/rc.conf
+				return 0
+			else
+				__reset
+				if [ $i = "nvidia" ]; then
+					initgfx_warn "Failed to use $i driver. Trying nv ...">&2
+				else
+					return 1
+				fi
+			fi
+		fi
+	done
+
+	return 1
 }
 
 do_initgfx()
 {
 	unalias echo
+
+	get_vgapci_devices
+	get_fallback_driver
+
 	if [ "$(kenv -q initgfx.detect.disable)" = "1" ]; then
-		del_stale_files
-		get_device_info
+		__reset
 		if ! is_vm; then
-			get_fallback_driver
 			write_fallback_cfg
 		fi
 		return
 	fi
+
 	if check_configured; then
 		initgfx_debug "Using previous configuration ..."
 		for m in ${initgfx_kmods}; do
@@ -335,38 +454,24 @@ do_initgfx()
 		done
 		return
 	fi
-	initgfx_debug "Creating new configuration ..."
-	del_stale_files
-	cp -a /etc/rc.conf "${path_tmp_rc_conf}"
-
+	__reset
 	# In VirtualBox and VMware we are done here
 	if is_vm; then
 		save_config_id
 		return
 	fi
-	get_fallback_driver
-	initgfx_debug "Auto-detecting graphics driver ..."
-	get_device_info
 
-	# Prepare for a crash.
-	for i in nvidia ati_amd intel; do
-		if setup_${i}; then
-			initgfx_debug "Testing Xorg configuration ..."
-			if test_x; then
-				# FIXME: Without the delay the result is a
-				# reboot when using a Nvidia GPU.
-				__wait 3
-				save_config_id
-				cp -a "${path_tmp_rc_conf}" /etc/rc.conf
-				return
-			else
-				initgfx_warn "Failed to use $i driver. " \
-							 "Using ${fallback_driver} instead ..." >&2
-				del_stale_files
-			fi
-			break
-		fi
+	initgfx_debug "Creating new configuration ..."
+	cp -a /etc/rc.conf "${path_tmp_rc_conf}"
+
+	initgfx_debug "Auto-detecting graphics driver ..."
+
+	while next_device; do
+		probe_and_setup && return
 	done
+
+	initgfx_warn "No suitable graphics driver found. " \
+				 "Using ${fallback_driver} instead ..." >&2
 	write_fallback_cfg
 	cp -a "${path_tmp_rc_conf}" /etc/rc.conf
 	sysrc -x initgfx_kmods

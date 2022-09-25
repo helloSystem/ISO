@@ -1,8 +1,7 @@
 #!/bin/sh
 
 # PROVIDE: localize
-# REQUIRE: DAEMON NETWORKING
-# BEFORE:  LOGIN
+# REQUIRE: ldconfig
 # KEYWORD: nojail shutdown
 
 PATH=$PATH:/usr/local/sbin
@@ -15,6 +14,7 @@ start_cmd="${name}_start"
 
 localize_start()
 {
+    /usr/local/bin/update-desktop-database # TODO: Move somewhere else (this has nothing to do with localize but needs to run)
     /usr/local/sbin/localize
 }
 

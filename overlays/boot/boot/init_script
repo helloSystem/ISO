@@ -1,0 +1,285 @@
+# Copyright (c) 2021-22, Simon Peter <probono@puredarwin.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this
+#    list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+if [ "$(kenv -q monkey_patch_init_script)" != "" ] ; then
+  kenv -q -u monkey_patch_init_script # Prevent infinite loop
+  echo ""
+  echo "Monkey patch init_script requested."
+  echo "Looking for a file named init_script on a msdosfs geom with the label MONKEYPATCH"
+  echo ""
+  
+  echo "Waiting for /dev/msdosfs/MONKEYPATCH to appear..."
+  while : ; do
+    [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
+    sleep 2
+  done
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /mnt
+  if [ -e "/mnt/init_script" ] ; then
+    echo "Applying monkey patch..." > /dev/console
+    sh /mnt/init_script > /dev/console
+  else
+    # This text is known to show up also when boot_mute is set
+    echo "/init_script missing" > /dev/console
+  fi
+  umount -f /mnt
+  exit 0
+fi
+
+if [ "`ps -o command 1 | tail -n 1 | ( read c o; echo ${o} )`" = "-s" ]; then
+  echo "==> Running in single-user mode"
+  SINGLE_USER="true"
+  kenv boot_mute="NO"
+  sh
+fi
+
+# Silence messages if boot_mute="YES" is set;
+# /var/log/console.log will contain a log of this
+if [ "$(kenv boot_mute 2>/dev/null)" = "YES" ] ; then
+  exec 1>>/dev/null 2>&1
+else
+  echo -e  '\e[1;37m' > /dev/console # Bold black letters to increase readability
+fi
+
+set -x 
+
+# kldload /boot/kernel/tmpfs.ko # TODO: must not be gzipped so that this works here?
+mount -t tmpfs tmpfs /tmp
+chmod 1777 /tmp # TODO: Check if really needed by FreeBSD 13
+mount -t tmpfs tmpfs /compat
+chmod 1777 /compat # TODO: Check if really needed by FreeBSD 13
+
+mdconfig -a -t vnode -o readonly -f /boot/rootfs.uzip
+
+mount -t tmpfs tmpfs /media
+chmod 1777 /media # TODO: Check if really needed by FreeBSD 13
+
+mkdir -p /media/.uzip
+
+# kldload /boot/kernel/geom_uzip.ko # TODO: must not be gzipped so that this works here?
+mount -t ufs -o ro /dev/md0.uzip /media/.uzip
+
+kldload /media/.uzip/boot/kernel/nullfs.ko
+mount -t nullfs /media/.uzip/System /System
+mount -t nullfs /media/.uzip/Applications /Applications
+mount -t nullfs /media/.uzip/bin /bin
+mount -t nullfs /media/.uzip/lib /lib
+mount -t nullfs /media/.uzip/libexec /libexec
+mount -t tmpfs tmpfs /nvidia # Must be writable for initgfx
+mount -t nullfs /media/.uzip/sbin /sbin
+mount -t nullfs /media/.uzip/usr /usr
+# mount -t nullfs /media/.uzip/etc /etc
+mount -t nullfs /media/.uzip/boot /boot
+
+kldload /media/.uzip/boot/kernel/unionfs.ko
+
+mount -t tmpfs tmpfs /root # Does slim need this?
+
+mount -t tmpfs tmpfs /compat # In case the user wants to install something there in Live mode
+
+mount -t tmpfs tmpfs /var
+cp -R /media/.uzip/var/ /var
+mkdir -p /var/run # Needed for slim?
+# mount -t unionfs -o below /media/.uzip/var /var # TODO: Check: Crashes later on when slim starts? 
+
+# The following does not instantly crash but later in the boot we get a crash
+# TODO: Retest
+# mount -t unionfs -o below /media/.uzip/var /var
+# mkdir -p /var/run
+
+mount -t tmpfs tmpfs /usr/local
+mount -t unionfs -o below /media/.uzip/usr/local /usr/local
+
+# /etc, needed for networking
+cp -R /media/.uzip/etc /tmp
+mount -t tmpfs tmpfs /etc
+mount -t nullfs /tmp/etc /etc
+# cp -R /tmp/etc /etc
+# mv /tmp/etc/* /etc/
+# rm -r /tmp/etc # TODO later
+
+# FIXME: The following also gives instant reboot. Why?
+# mkdir -p /tmp/unionfs/etc
+# mount -o noatime -t unionfs /tmp/unionfs/etc /etc
+
+# Add liveuser, this also creates a writable $HOME from skel
+mount -t tmpfs tmpfs /home
+mkdir -p /home/liveuser/Desktop
+pw useradd liveuser -u 1000 \
+-c "Live User" -d "/home/liveuser" \
+-g wheel -G operator -m -s /usr/local/bin/zsh -k /usr/share/skel -w none
+chown -R liveuser /home/liveuser
+pw groupmod wheel -m liveuser
+pw groupmod video -m liveuser
+pw groupmod webcamd -m liveuser
+pw groupmod cups -m liveuser
+
+######################################################################
+# From here on optional, helloSystem specific optimizations
+######################################################################
+
+# No text consoles if booted with boot_mute (default)
+# TODO: Move to a rc script that also runs in installed mode
+if [ "$(sysctl -q -n kern.consmute)" = "1" ] ; then
+  # Xorg on Ctrl-Alt-F1
+  sed -i '' -e 's|vt09|vt01|g' /usr/local/etc/slim.conf
+  # No text consoles on Ctrl-Alt-F2
+  echo "" > /etc/ttys
+else
+  # Enable application crash dumps to /tmp
+  sysctl savecore_enable="YES" # Crash dumps
+  sysctl kern.coredump=1
+  sysctl kern.corefile="/tmp/%N.core"
+fi
+
+# Allow /Applications to be modified
+mkdir -p /tmp/unionfs/Applications
+mount -t unionfs /tmp/unionfs/Applications /Applications
+
+# Do not launch Welcome in Live mode
+mkdir -p /home/liveuser/.config/hello/
+touch /home/liveuser/.config/hello/.helloSetupDone
+chown -R liveuser /home/liveuser/.config
+
+# TODO: Check whether boot_mute is set and if it is not, then do this?
+# Log the WHOLE verbose output of the helloDesktop session to a logfile
+# Only use this selectively during development
+sed -i '' -e 's|# This script is intended to be invoked by a desktop file|exec 1>>/tmp/start-hello.log 2>\&1\nset -x|g' /usr/local/bin/start-hello
+
+# Prevent /tmp and /var from being overwritten later in the boot process
+# FIXME: Disabling these fails because 'service ... disable' does not find them. Side effect of chrooting?
+# Outright deleting them messes up rcorder,
+# So we are replacing them with dummy files that do nothing
+# but offer the PROVIDEs that other rc scripts are using
+cat > /etc/rc.d/tmp << \EOF
+#!/bin/sh
+# PROVIDE: tmp
+EOF
+cat > /etc/rc.d/cleartmp << \EOF
+#!/bin/sh
+# PROVIDE: cleartmp
+# BEFORE: DAEMON
+EOF
+cat > /etc/rc.d/cleanvar << \EOF
+# PROVIDE: cleanvar
+# REQUIRE: var
+EOF
+cat > /etc/rc.d/var << \EOF
+# PROVIDE: var
+# REQUIRE: mountcritlocal
+EOF
+
+# Set hostname other than the default based on SMBIOS information
+hostname $(kenv -q "smbios.system.product" | xargs | sed -e 's| |-|g')
+# Prevent hostname from being overwritten later in the boot process
+cat > /etc/rc.d/hostname << \EOF
+# PROVIDE: hostname
+# REQUIRE: FILESYSTEMS
+# BEFORE:  netif
+EOF
+
+# TODO: Consider moving this to the ISO generation stage
+# This writes entries to /etc/rc.conf
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_submit_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_outbound_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf sendmail_msp_queue_enable="NO" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf linux_enable="YES" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf dbus_enable="YES" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf kld_list+="cuse ig4 iicbus iichid utouch asmc" >/dev/null 2>/dev/null
+/usr/sbin/sysrc -f /etc/rc.conf allscreens_kbdflags="-b quiet.off" >/dev/null 2>/dev/null
+
+# Want: zfs -> ldconfig -> dbus/initgfx/localize -> slim -> everything else
+# FILESYSTEMS is needed so that this can work on zfs
+
+# Allow ldconfig to run immediately after zfs
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: zfs|g' /etc/rc.d/ldconfig
+
+# Allow dbus and initgfx to run immediately after ldconfig
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: ldconfig|g' /usr/local/etc/rc.d/dbus
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: ldconfig|g' /etc/rc.d/initgfx
+
+# Allow slim to run immediately after localize and force it to run before --> ??? <- this seems to push them out rather than pulling initgx earlier; WHY?
+sed -i '' -e 's|# REQUIRE: .*|# REQUIRE: localize dbus initgfx\n# BEFORE: |g' /usr/local/etc/rc.d/slim
+
+# For debugging: After applying the above patches, show resulting rcorder with
+# rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+
+# Lower initgfx 3 second sleep between Xorg runs
+# Tested on 13.0-CURRENT on Nvidia and Intel GPU machines
+# The sleep was originally introduced in
+# https://github.com/nomadbsd/NomadBSD/commit/a346f134aaca1cdc164346f63808abdb4d8919e3
+sed -i '' -e 's|\&\& __wait 3|\&\& __wait 1|g' /etc/rc.d/initgfx
+
+# Disable console beeps without the need for /etc/rc.conf editing
+kbdcontrol -b quiet.off
+
+# Monkey patch, invoke this by using "set monkey_patch=YES" in the bootloader
+# or by setting an EFI variable called "MonkeyPatch" (this may change)
+
+EFIVAR=$(efivar -Al | grep -e "[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-[0-9a-z]*-MonkeyPatch$")
+if [ -n "${EFIVAR}" ] ; then
+  echo "Monkey patch requested by EFI variable"
+  MONKEY_PATCH=YES
+fi
+
+# TODO: Make this way more configurable
+if [ "$(kenv monkey_patch 2>/dev/null)" != "" ] ; then
+  echo "Monkey patch requested by EFI variable"
+  MONKEY_PATCH=YES
+fi
+
+if [ "$MONKEY_PATCH" == "YES" ] ; then
+  echo ""
+  echo "Monkey patch requested."
+  echo "Looking for a file named monkeypatch.sh on a msdosfs geom with the label MONKEYPATCH"
+  echo ""
+  echo "Waiting for /dev/msdosfs/MONKEYPATCH to appear..."
+  while : ; do
+    [ -e "/dev/msdosfs/MONKEYPATCH" ] && echo "found /dev/msdosfs/MONKEYPATCH" && sleep 2 && break
+    sleep 2
+  done
+  mkdir -p /media/MONKEYPATCH
+  mount -t msdosfs "/dev/msdosfs/MONKEYPATCH" /media/MONKEYPATCH # TODO: Should we use /usr/local/sbin/automount <geom> attach?
+  if [ -e "/media/MONKEYPATCH/monkeypatch.sh" ] ; then
+    echo "Applying monkey patch..." > /dev/console
+    sh /media/MONKEYPATCH/monkeypatch.sh > /dev/console
+  else
+    # This text is known to show up also when boot_mute is set
+    echo "/monkeypatch.sh missing" > /dev/console
+  fi
+  # Unmount the monkey patch volume because /usr/local/sbin/automount will mount it again
+  umount -f /media/MONKEYPATCH
+  echo "Done" > /dev/console
+fi
+
+# Without this, boot messages are shown at shutdown, which is irritating
+export TERM=xterm
+clear > /dev/console
+
+# All console output is suppressed when console muting is on
+# https://www.freebsd.org/cgi/man.cgi?conscontrol
+# NOTE: Whenever we DO want to print to the console, we have to unmute first
+conscontrol mute on >/dev/null 2>&1
+
+exit 0

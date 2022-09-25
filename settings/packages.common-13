@@ -15,10 +15,14 @@ xf86-video-scfb
 xf86-video-vesa
 xf86-video-vmware
 xf86-video-qxl # !i386
-drm-kmod
+# drm-kmod # https://github.com/helloSystem/ISO/issues/388: 
+# We need drm-510-kmod to support the latest Intel GPUs,
+# which at the time of adding the following line had no official FreeBSD package yet
+gpu-firmware-kmod
+# cirrus:github/helloSystem/drm-510-kmod.pkg/main/binaries/drm-510-kmod-5.10.113_1.pkg
+https://api.cirrus-ci.com/v1/artifact/task/5670294248488960/binary/pkg/drm-510-kmod-5.10.113_1.pkg
 # drm-legacy-kmod # Does not exist in 13. FIXME: What happens to the devices that need it?
 libva-intel-driver
-drm-kmod
 # nvidia-driver # !i386 # Is now handled in build.sh initgfx()
 mesa-libs
 mesa-dri
@@ -43,7 +47,8 @@ cpdup
 avahi-app
 nss_mdns
 openntpd
-x11-toolkits/py-qt5-widgets
+# x11-toolkits/py-qt5-widgets was renamed to:
+devel/py-qt5-pyqt
 freedesktop-sound-theme
 # Library to access the Xorg/XFree86 Synaptics TouchPad Driver
 libsynaptics
@@ -60,7 +65,8 @@ b43-fwcutter
 # bwn-firmware-kmod # Exists only in ports, not in packages; need a workaround
 # daemon that loads suitable drivers for PCI and USB hardware based on a txt db of USB and PCI IDs
 dsbdriverd
-# Control screen brightness on some Intel-based machines including MacBook Pro
-intel-backlight
-# Realtek card readers
-# rtsx-kmod # No packages available to install matching 'rtsx-kmod' have been found in the repositories
+# AMD Radeon Xorg Driver, requires amdgpu KMS driver from graphics/drm-kmod
+x11-drivers/xf86-video-amdgpu
+# hplip is apparently needed for non-network HP printers; https://github.com/helloSystem/ISO/issues/225
+# but it is not yet available in FreeBSD 14, hence moved it from packages.hello to packages.common-13 for now
+hplip

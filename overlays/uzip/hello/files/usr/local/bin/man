@@ -1,0 +1,2 @@
+#!/bin/sh
+launch Falkon "https://www.freebsd.org/cgi/man.cgi?${1}"

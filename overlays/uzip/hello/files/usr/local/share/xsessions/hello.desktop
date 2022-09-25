@@ -1,6 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Type=XSession
+Name=helloDesktop
 Exec=/usr/local/bin/start-hello
 TryExec=/usr/local/bin/start-hello
-Name=hello
+Icon=computer-hello

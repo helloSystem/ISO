@@ -1,6 +1,6 @@
 cat << EOF
 name:          localize
-version:       0
+version:       999
 origin:        local
 comment:       Package that installs FuryBSD configuration
 arch:          freebsd:12:x86:64

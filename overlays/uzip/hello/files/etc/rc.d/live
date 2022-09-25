@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# PROVIDE: live
+# REQUIRE: sysctl
+# BEFORE: hostid
+
+. /etc/rc.subr
+
+name="live"
+desc="Prepare read-only filesystem for live boot"
+stop_cmd=":"
+start_cmd="live_start"
+
+live_start()
+{
+  # If we are going to use vfs.root.mountfrom="ufs:/dev/ufs/live"
+  # without chroot/reroot, then we may want to put code here that
+  # makes the relevant parts of the filesystem writeable;
+  # e.g., by invoking the code that currently is in /boot/bootscript
+  # on the ISO
+  # See https://github.com/helloSystem/ISO/issues/4#issuecomment-962623208
+}
+
+load_rc_config $name
+run_rc_command "$1"

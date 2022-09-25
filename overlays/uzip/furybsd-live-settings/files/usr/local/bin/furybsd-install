@@ -5,10 +5,17 @@
 # 2020-2021, Simon Peter <probono@puredarwin.org>
 
 # Exit on errors, this is important for the graphical installer frontend
-set +e
+set -e
+
+set -x
 
 # Export our variables
-LIVEFS="/"
+if [ -e /media/.uzip/libexec ] ; then
+  # We are running on a 0.7.0+ style Live system
+  LIVEFS="/media/.uzip"
+else
+  LIVEFS="/"
+fi
 FSMNT="/mnt"
 DESTPOOL=$(zpool list -H | grep /mnt | awk -F '\t' '{print $1;}')
 
@@ -18,10 +25,14 @@ DESTPOOL=$(zpool list -H | grep /mnt | awk -F '\t' '{print $1;}')
 # then immediately exit
 # if INSTALLER_PRINT_MIB_NEEDED is set. This is needed for the graphical installer frontend
 if [ -n "${INSTALLER_PRINT_MIB_NEEDED}" ] ; then
-  # echo INSTALLER_MIB_NEEDED=$(df -m / | awk '{print $2}' | tail -n 1)
-  bytes=$(zpool get -Hpo value allocated livecd)
-  mib=$(echo "${bytes}/1024/1024" | bc) # Convert bytes to MiB
-  echo "INSTALLER_MIB_NEEDED=${mib}"
+  if [ -e /media/.uzip/libexec ] ; then
+    # We are running on a 0.7.0+ style Live system
+    echo INSTALLER_MIB_NEEDED=$(df -m /dev/md0.uzip | awk '{print $2}' | tail -n 1)
+  else
+    bytes=$(zpool get -Hpo value allocated livecd)
+    mib=$(echo "${bytes}/1024/1024" | bc) # Convert bytes to MiB
+    echo "INSTALLER_MIB_NEEDED=${mib}"
+  fi
   sudo dmidecode --type 0,1,2,3 > /tmp/dmi.txt
   exit 0
 fi
@@ -34,12 +45,15 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-# Cleanup memory devices created before reroot if they exist
-if [ -e "/dev/md0" ] ; then
-  /sbin/mdconfig -du md0
-fi
-if [ -e "/dev/md1" ] ; then
-  /sbin/mdconfig -du md1
+if [ "${LIVEFS}" == "/" ] ; then
+  # On Live systems before 0.7.0:
+  # Cleanup memory devices created before reroot if they exist
+  if [ -e "/dev/md0" ] ; then
+    /sbin/mdconfig -du md0
+  fi
+  if [ -e "/dev/md1" ] ; then
+    /sbin/mdconfig -du md1
+  fi
 fi
 
 # Clean up any previous runs
@@ -49,6 +63,20 @@ zpool export -f "${DESTPOOL}" >/dev/null 2>/dev/null || true
 # Install contents of read only uzip to destination pool
 
 if [ -n "${INSTALLER_DEVICE}" ] ; then
+
+  mounted_partitions=$(mount | grep "^\/dev\/${INSTALLER_DEVICE}[s|p|\.|\ ].*on" | cut -d " " -f 1)
+  for mounted_partition in ${mounted_partitions}; do
+    umount -f ${mounted_partition}
+  done
+
+  # Unmount all FUSE mounted partitions (it would be sufficient to unmount
+  # those on $INSTALLER_DEVICE but we don't know those)
+  for fuse_mount in $(mount | grep -e '^/dev/fuse' | cut -d " " -f 1); do
+    umount /dev/fuse
+  done
+
+  /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || true # This can give 'gpart: arg0 'adaX': Invalid argument'. FIXME: Why?
+  sync
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
   export ZFSBOOT_PARTITION_SCHEME="GPT"
   export ZFSBOOT_POOL_NAME="zroot"
@@ -60,6 +88,10 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   export ZFSBOOT_SWAP_SIZE="0"
   export ZFSBOOT_CONFIRM_LAYOUT="1"
   export nonInteractive="YES"
+  # The following two lines are required so that the system is
+  # bootable not only on EFI based but also on BIOS based machines
+  export ZFSBOOT_BOOT_TYPE"=BIOS+UEFI"
+  # export ZFSBOOT_PARTITION_SCHEME="GPT + Active" # Makes disk unbootable on EFI systems?
   env
   bsdinstall zfsboot
 else
@@ -79,12 +111,7 @@ bsdinstall entropy
 
 # Cleanup LiveCD restore specific contents from destination pool
 chroot "${FSMNT}" pkg remove -y furybsd-live-settings
-chroot "${FSMNT}" pkg remove -y freebsd-installer
 # TODO: Move all of this to pkg scripts of the pkg manifests that have installed these things
-chroot "${FSMNT}" rm /etc/rc.conf.local
-chroot "${FSMNT}" pw userdel liveuser
-chroot "${FSMNT}" pw groupdel liveuser
-chroot "${FSMNT}" rm -rf /usr/home/liveuser
 chroot "${FSMNT}" rm -rf "/Applications/Utilities/Install FreeBSD.app" || true
 
 # Configure the new installation
@@ -223,25 +250,48 @@ sed -i '' -e 's/^default_user/#default_user/' "${FSMNT}/usr/local/etc/slim.conf"
 echo "default_user       ${INSTALLER_USERNAME}" >> "${FSMNT}/usr/local/etc/slim.conf"
 # chroot ${FSMNT} sed -i '' -e 's/^auto_login/#auto_login/' /usr/local/etc/slim.conf
 
-# Until we have a better solution, hardcode it here too...
-cat >> "${FSMNT}/boot/loader.conf" <<\EOF
-# TODO: Transfer settings from Live ISO /boot/loader.conf to installed one
-# https://github.com/furybsd/furybsd-livecd/issues/190
-boot_mute="YES"
-beastie_disable="YES"
-autoboot_delay="3"
-hw.psm.elantech_support="1"
-hw.psm.synaptics_support="1"
-# Unclear whether the next line is needed, https://github.com/helloSystem/ISO/issues/203
-vfs.root.mountfrom.options="rw"
-EOF
-
 # A leftover initgfx_config.id file can result in the installed system failing to start Xorg
 sudo rm "${FSMNT}/var/initgfx_config.id" || true
 
+# Fix unbootable FreeBSD 13
+# https://github.com/helloSystem/hello/issues/242#issuecomment-965617810
+if [ -n "${INSTALLER_DEVICE}" ] ; then
+  mounted_partitions=$(mount | grep "^\/dev\/${INSTALLER_DEVICE}[s|p|\.|\ ].*on" | cut -d " " -f 1)
+  for mounted_partition in ${mounted_partitions}; do
+    umount -f ${mounted_partition}
+  done
+  mount -t msdosfs /dev/"${INSTALLER_DEVICE}p1" "${FSMNT}"/boot/efi || exit 1
+  bsdinstall -D /tmp/bootconfig.log bootconfig
+  umount "${FSMNT}"/boot/efi
+
+  # Clear out fstab because otherwise /dev/adaX gets hardcoded,
+  # resulting in an unbootable machine in the event that other
+  # adaX disks are added or removed to the system,
+  # which can change the adaX numbering
+  sed -i '' -e '/\/boot\/efi/d' "${FSMNT}"/etc/fstab || true
+fi
+
+echo "Applying bootloader configuration from the Live system to the installed system..."
+
+# Bootloader configuration from the Live system is outside of the uzip
+if [ "$(mount | grep '^/media/.uzip/boot on /boot' 2>/dev/null)" != "" ] ; then
+  umount /media/.uzip/boot
+fi
+
+# Use bootloader configuration from the live system but comment out live system specific aspects
+# and add ZFS specific ones
+cat /boot/loader.conf > "${FSMNT}/boot/loader.conf"
+echo '' >> "${FSMNT}/boot/loader.conf" 
+echo '# Load modules required for ZFS' >> "${FSMNT}/boot/loader.conf" 
+echo 'cryptodev_load="YES"' >> "${FSMNT}/boot/loader.conf" # FIXME: On FreeBSD before 13, need opensolaris_load
+echo 'zfs_load="YES"' >> "${FSMNT}/boot/loader.conf"
+sed -i '' -e 's|^vfs.root.mountfrom|# vfs.root.mountfrom|g' "${FSMNT}/boot/loader.conf"
+sed -i '' -e 's|^init_script|# init_script|g' "${FSMNT}/boot/loader.conf"
+if [ -e "/boot/loader.mute.d" ] ; then
+  cp -r "/boot/loader.mute.d" "${FSMNT}"/boot/
+fi
+
 # Cleanup
-# umount -f "${FSMNT}/dev" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
-# zpool export -f "${DESTPOOL}" >/dev/null 2>/dev/null || true # Is this needed? TODO: Re-enable if yes
 echo "Installation finished!"
 
 # Reboot

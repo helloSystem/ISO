@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# Copyright (c) 2021 Simon Peter <probono@puredarwin.org>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that following conditions are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS 'AS IS' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Create md device to be picked up by /usr/local/sbin/automount,
+# wait while it is mounted, and remove it again once it is unmounted
+
+# Exit on errors
+set -e
+
+# Exit if already attached
+mdconfig -v -l | grep $(readlink -f "${1}") >/dev/null 2>&1 && exit 0
+
+# Attach device node
+echo "Attaching disk image to /dev/${md}"...
+md=$(mdconfig -a -t vnode -o readonly -f "${1}")
+
+echo "Attached disk image to /dev/${md}"
+echo "Waiting until it is not mounted anymore..."
+
+# Give /usr/local/sbin/automount time to kick in
+sleep 30
+
+# Periodically check whether anything from that image is still mounted
+while true; do 
+  mount | grep "^\/dev\/$md[s|p|\.|\ ].*on" >/dev/null 2>&1 || break
+  sleep 60
+done
+
+# Clean up device node when no longer needed
+mdconfig -d -u ${md}
+
+echo "Removed /dev/${md}"

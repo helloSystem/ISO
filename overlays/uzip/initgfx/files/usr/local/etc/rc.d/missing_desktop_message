@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
+#
+# PROVIDE: missing_desktop_message
+# REQUIRE: slim
+
+. /etc/rc.subr
+
+name=missing_desktop_message
+start_cmd="do_missing_desktop_message"
+
+rcvar=missing_desktop_message_enable
+
+load_rc_config ${name}
+
+: ${missing_desktop_message_enable:="YES"}
+
+do_missing_desktop_message()
+{
+
+# Wait for 15 seconds; if Xorg is not running then, display the error message
+sleep 15
+
+# Exit if Xorg is running
+pgrep -f Xorg && exit 0
+
+# If we don't have Xorg running by then, output a message and offer to log into the machine
+
+# Change colors, https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+export COLOR_NC='\e[0m' # No Color
+echo -e $COLOR_NC > /dev/console # Reset to defaults
+echo -e '\e[1;43m' > /dev/console # Yellow bg because it is bright; TODO: Find a way to get white (we have redefined it in loader.conf) or very bright gray here
+echo -e  '\e[1;37m' > /dev/console # Bold black letters
+clear # Apply the new background to the entire screen
+
+cat > /dev/console <<EOF
+Failed to start the desktop. Possibly the graphics hardware 
+in this device is not supported yet. Please let us know.
+
+Der Desktop konnte nicht gestartet werden. Möglicherweise wird die Grafikhardware
+in diesem Gerät noch nicht unterstützt. Bitte geben Sie uns Bescheid.
+
+Impossible de démarrer le bureau. Il est possible que le matériel graphique
+de cet appareil ne soit pas encore pris en charge. Veuillez nous le faire savoir.
+EOF
+
+echo "" > /dev/console
+sysctl dev.vgapci | grep pnpinfo > /dev/console
+echo "" > /dev/console
+echo "https://git.io/JXs1V" > /dev/console
+
+echo "" > /dev/console
+
+# Print device information in a format that is suitable for https://bsd-hardware.info/
+for LINE in "$(sysctl dev.vgapci | grep pnpinfo)" ; do
+  VENDOR=$(echo ${LINE} | cut -d " " -f 2 | cut -d "x" -f 2)
+  # echo Vendor: ${VENDOR} > /dev/console
+  DEVICE=$(echo ${LINE} | cut -d " " -f 3 | cut -d "x" -f 2)
+  # echo Device: ${DEVICE} > /dev/console
+  SUBVENDOR=$(echo ${LINE} | cut -d " " -f 4 | cut -d "x" -f 2)
+  # echo Subvendor: ${SUBVENDOR} > /dev/console
+  SUBDEVICE=$(echo ${LINE} | cut -d " " -f 5 | cut -d "x" -f 2)
+  # echo Subdevice: ${SUBDEVICE} > /dev/console
+  CLASS=$(echo ${LINE} | cut -d " " -f 6 | cut -d "x" -f 2)
+  # echo Class: ${CLASS} > /dev/console
+done
+
+echo "" > /dev/console
+
+URL="https://bsd-hardware.info/?d=helloSystem&id=pci:${VENDOR}-${DEVICE}-${SUBVENDOR}-${SUBDEVICE}"
+echo "${URL}" > /dev/console
+
+echo "" > /dev/console
+
+# Output QR code
+echo $URL | qrencode -m 5 -t utf8i >/dev/console
+
+# Reset color for the text that follows
+echo -e $COLOR_NC > /dev/console
+
+# exec login
+
+}
+
+run_rc_command "$1"

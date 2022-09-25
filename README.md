@@ -2,7 +2,7 @@
 
 ## Release
 
-The latest release build r0.6.0 can be downloaded [here](../../releases/tag/r0.6.0).
+The latest release build r0.7.0 can be downloaded [here](../../releases/tag/r0.7.0).
 
 ## Continuous builds
 
@@ -20,13 +20,13 @@ root@FreeBSD:/ # curl -L "https://github.com/probonopd/furybsd-livecd/releases/d
 ## System Requirements for live media
 
 * 2 GHz dual core processor
-* 4 GiB RAM (system memory for physical and virtualized installs)
+* 2 GiB RAM (4 GiB recommended; before 0.7.0: 4 GiB minimum)
 * VGA capable of 1024x768 screen resolution 
 * Either a CD/DVD drive or a USB port for booting the installer media
 
 ## Credentials for live media
 
-There is no password for `liveuser`. The `liveuser` account is removed upon install.  There is also no root password until it is set in the installer. You can become root using `sudo su`.
+There is no password for `liveuser`. The `liveuser` account is removed upon install.  There is also no root password until it is set in the installer. You can become root using `sudo -i`.
 
 ## Acknowledgements
 

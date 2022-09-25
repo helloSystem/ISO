@@ -26,7 +26,8 @@ dsbmixer
 # Adjust the color temperature of your screen
 redshift
 # FreeBSD's devd(8) based automount solution, https://github.com/vermaden/automount
-automount
+# automount # TODO: Re-enable here once the packaged one has the REMOVEDIRS and NICENAMES options
+# In the meantime, we ship our private copy
 # Small, fast, standards compliant, extensible window manager
 # FIXME: Find Qt replacement without too many Kf5 dependencies
 # openbox
@@ -47,8 +48,6 @@ libexif
 # and samba
 gvfs
 # Browser
-# falkon # Pulls in way too many Qt dependencies, so we are light-installing it
-# falkon-qtonly, which is not in http://pkg.freebsd.org/FreeBSD:12:amd64/release_2/ packages yet and which we are hence installing from a https URL, needs this
 kf5-ki18n
 # Message bus system for inter-application communication
 dbus
@@ -68,7 +67,8 @@ qpdfview
 # GUI to set up printers. TODO: Find Qt-based system-config-printer replacement
 system-config-printer
 # hplip is apparently needed for non-network HP printers; https://github.com/helloSystem/ISO/issues/225
-hplip
+# but it is not yet available in FreeBSD 14, hence moving it to packages.common-13 for now
+# hplip
 # cups-pdf is needed to print PDFs
 cups-pdf
 # The 'desktop2app' command needs py37-xdg
@@ -88,19 +88,37 @@ devel/py-pytz
 # qt5-assistant # We are not using it for now
 # Required for Sharing.app
 x11vnc
-net/py-qt5-network
+# net/py-qt5-network was folded into devel/py-qt5-pyqt
 # Required for Lector.app
 devel/py-xmltodict
 www/py-beautifulsoup
 databases/py-sqlite3
 # Required for Sticky Notes.app
-devel/py-qt5-dbus
+# devel/py-qt5-dbus was folded into devel/py-qt5-pyqt
 # For convenience in addition to the curl that comes with FreeBSD base
 wget
 # We need a video player
 mpv
 # Required for Remote Assistance
-ssvnc
+# ssvnc was removed from FreeBSD ports only because it is no more updated upstream; https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=260716
+# Hence installing it with pkg add now in script.hello
+# Required for ssvnc
+graphics/jpeg-turbo
+x11/libICE
+x11/libSM
+x11/libX11
+x11-toolkits/libXaw
+x11/libXext
+x11/libXi
+x11-toolkits/libXmu
+x11/libXpm
+x11-toolkits/libXt
+lang/perl5.32
+security/stunnel
+lang/tcl86
+x11-toolkits/tk-wrapper
+x11-toolkits/tk86
+x11/xterm
 # Required for swapping Ctrl and Alt
 xmodmap
 # Required for Hardware Probe utility and https://bsd-hardware.info/
@@ -112,8 +130,8 @@ lsblk
 pciutils
 usbutils
 # Filesystems for https://github.com/vermaden/automount
-# exfat-utils # TODO: Enable once available in quarterly packages
-# fusefs-exfat # TODO: Enable once available in quarterly packages
+exfat-utils
+fusefs-exfat
 fusefs-ntfs
 fusefs-hfsfuse
 # fusefs-lkl # This is way too large and draws in gcc, and fusefs-ext2 can also do the job
@@ -124,7 +142,8 @@ android-file-transfer-qt5
 # Scanning application
 # skanlite # https://github.com/helloSystem/ISO/issues/65
 # Needed by many helloSystem utilities
-x11-toolkits/py-qt5-widgets
+# x11-toolkits/py-qt5-widgets was renamed to:
+devel/py-qt5-pyqt
 # Convenience package to make '#!/usr/bin/env python3' work
 python3
 # Asian fonts
@@ -132,7 +151,7 @@ wqy-fonts
 # Monospaced fonts
 sourcecodepro-ttf
 # Required for Welcome.app
-lang/py-qt5-qml
+# lang/py-qt5-qml was folded into devel/py-qt5-pyqt
 gstreamer1-plugins-ogg
 gstreamer1-plugins-vorbis
 gstreamer1-plugins-good
@@ -143,8 +162,6 @@ screenkey
 font-awesome
 # Required for some applications (e.g., screenkey) to show icons in the upper right hand corner of the menu (system tray/notification area)
 libappindicator
-# Required for mountarchive tool to mount archives and disk images
-archivemount
 # Needed to load HiDPI cursors [ci skip]
 xrdb
 # Required for Simple Browser
@@ -159,14 +176,13 @@ eject
 # linux-c7-nss
 # linux-c7-alsa-lib
 # linux-c7-cups-libs
-# https URL needed as long as falkon-qtonly is not in releaseX packages
-https://github.com/helloSystem/ISO/releases/download/assets/falkon-qtonly-3.1.0.txz
+falkon-qtonly
 # Needed by gmenudbusmenuproxy which is required for the global menu
 kf5-kconfig
 # Needed by Dock
 qt5-quickcontrols2
 # Needed by Welcome.app
-multimedia/py-qt5-multimedia
+# multimedia/py-qt5-multimedia was folded into devel/py-qt5-pyqt
 # Required for runappimage
 fusefs-squashfuse
 # Needed for Command-Tab in KWin
@@ -181,3 +197,21 @@ mtools
 # Needed to install software for Python that is not in FreeBSD packages yet,
 # such as translate-toolkit which is needed for the applications in the helloSystem/Utilities repository
 devel/py-pip
+# Needed to encode URL as QR message if Xorg cannot be started
+graphics/libqrencode
+# Needed to play mp3 without hassle
+audio/mpg321
+# Needed so that the clipboard works when applications are closed
+deskutils/qlipper
+# Needed to set Xorg cursor and root window background
+x11/xsetroot
+# Neeed by Burn Optical Disc.app
+dvd+rw-tools
+# Needed for QR code when Xorg cannot be started up
+libqrencode
+zip
+# Needed for xapp-thumbnailers
+devel/py-pyelftools
+squashfs-tools
+# Make it easier for people to visualise dependencies
+ports-mgmt/pkg_tree

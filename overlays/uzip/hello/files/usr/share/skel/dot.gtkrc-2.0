@@ -1,0 +1,6 @@
+gtk-button-images=0
+gtk-menu-images=0
+gtk-enable-event-sounds=0
+gtk-enable-input-feedback-sounds=0
+gtk-modules=appmenu-gtk-module
+gtk-icon-theme-name=elementary-xfce

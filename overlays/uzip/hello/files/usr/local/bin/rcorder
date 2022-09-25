@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# If invoked with just -g and if 'dot' is on the $PATH,
+# then produce a graphical image and open it
+if [ -z  "${2}" ]; then
+  if [ "${1}" == "-g" ]; then
+    if [ $(which dot 2>&1) ] ; then
+      rcorder -g /etc/rc.d/* /usr/local/etc/rc.d | dot -Tsvg > /tmp/rcorder.svg
+      xdg-open /tmp/rcorder.svg
+      exit 0
+    fi
+  fi
+fi
+
+if [ "$#" == 0 ] ; then
+  /sbin/rcorder /etc/rc.d/* /usr/local/etc/rc.d/*
+else
+  /sbin/rcorder "$@"
+fi

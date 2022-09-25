@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-# Mount archives and disk images using archivemount
-# https://www.freebsd.org/cgi/man.cgi?archivemount
-
+# Mount archives and disk images using fuse-archive
+# https://github.com/google/fuse-archive
 
 # BSD 2-Clause License
 #
@@ -67,9 +66,8 @@ class ArchiveMounter(object):
         os.makedirs(self.mountpoint)
 
         self.p = QtCore.QProcess()
-        self.p.setProgram("archivemount")
-        # TODO: perhaps we need something along the lines of modules=iconv,from_code=ISO-8859-2,to_code=utf-8 for Windows compatibility?
-        args = ['-o', 'readonly,nonempty,allow_root', filename, self.mountpoint]
+        self.p.setProgram("fuse-archive")
+        args = [filename, self.mountpoint]
         print(self.p.program() + " " + " ".join(args))
         self.p.setArguments(args)
         self.p.setProcessChannelMode(QtCore.QProcess.ForwardedChannels); # Forward standard output and standard error onto the main process
@@ -107,8 +105,8 @@ class ArchiveMounter(object):
             pass
 
 if __name__ == "__main__":
-    if distutils.spawn.find_executable("archivemount") == False:
-        print("archivemount not found, please install it and try again", file=sys.stderr)
+    if distutils.spawn.find_executable("fuse-archive") == False:
+        print("fuse-archive not found, please install it and try again", file=sys.stderr)
         # TODO: Call some system service that can install packages
         sys.exit(1)
 

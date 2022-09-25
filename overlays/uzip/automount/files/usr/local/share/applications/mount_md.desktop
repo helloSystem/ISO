@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mount Disk Image
+Exec=launch "Mount Disk Image" %f
+# Hidden=true
+MimeType=application/x-iso9660-image;application/x-cd-image;application/x-raw-disk-image;application/x-raw-floppy-disk-image;
+# TODO: Define .uzip, .ufs, .img,... mime types and add them here
+# /usr/local/share/applications/mimeapps.list

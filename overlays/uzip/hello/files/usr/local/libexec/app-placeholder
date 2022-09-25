@@ -4,7 +4,6 @@ import os, sys, socket, subprocess, time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-
 def internetCheckConnected(host="8.8.8.8", port=53, timeout=3):
     """
     Host: 8.8.8.8 (google-public-dns-a.google.com)
@@ -23,18 +22,20 @@ def internetCheckConnected(host="8.8.8.8", port=53, timeout=3):
 class LiteInstaller(object):
 
     def __init__(self):
+    
+        self.launched_bundle = os.environ["LAUNCHED_BUNDLE"] # Set by 'launch'; e.g., /Applications/Audio/Audacity.app
 
         self.already_fetched_packages = 0
         self.already_extracted_packages = 0
         self.total_packages_to_be_installed = 0
         self.percentage_was_already_downloaded = 0.0
         self.having_downloaded_means_percent = 0.5  # If we had to download all packages, the progress is this much after the download phase
-        self.file_symlink_resolved = os.path.join(sys.path[0], os.path.basename(os.path.realpath(sys.argv[0])))
 
         self.iconfile = None
-        for file in os.listdir(os.path.dirname(__file__) + "/Resources/"):
+        for file in os.listdir(self.launched_bundle + "/Resources/"):
+            print(file)
             if file.endswith(".png"):
-                self.iconfile = os.path.dirname(__file__) + "/Resources/" + "/" + file
+                self.iconfile = self.launched_bundle + "/Resources/" + "/" + file
                 break
 
         self.ext_process = QtCore.QProcess()
@@ -56,7 +57,7 @@ class LiteInstaller(object):
                 msg = QtWidgets.QMessageBox()
                 msg.setIcon(QtWidgets.QMessageBox.Critical)
                 msg.setWindowTitle(" ")
-                msg.setText("%s needs to be downloaded before it can be used.\nThis requires an active internet connection." % os.path.basename(__file__))
+                msg.setText("%s needs to be downloaded before it can be used.\nThis requires an active internet connection." % os.path.basename(self.launched_bundle).replace(".app", ""))
                 msg.exec_()
                 sys.exit(0)
 
@@ -75,7 +76,7 @@ class LiteInstaller(object):
         if self.iconfile:
             self.msgBox.setIconPixmap(QtGui.QPixmap(self.iconfile).scaledToWidth(64, QtCore.Qt.SmoothTransformation))
         self.msgBox.setWindowTitle(" ")
-        self.msgBox.setText("%s needs to be downloaded before it can be used." % os.path.basename(__file__))
+        self.msgBox.setText("%s needs to be downloaded before it can be used." % os.path.basename(self.launched_bundle).replace(".app", ""))
         self.msgBox.setInformativeText("Do you want to download it now?")
         # self.msgBox.setDetailedText("The following packages and their dependencies be installed:\n" + str(self.packages))
         print("The following packages and their dependencies be installed:\n" + str(self.packages))
@@ -122,6 +123,12 @@ class LiteInstaller(object):
         lines = text.split("\n")
         for line in lines:
             print("OUT:", line)
+            if "still holds the lock" in line:
+                self.ext_process.kill()
+                self.msgBox.hide()
+                self.errBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", ("Another installation is still running. Please try again after it has completed."))
+                self.errBox.exec()
+                exit(0)
             if "Updating FreeBSD repository" in line:
                 # Now pkg has actually started working
                 self.progress.setMaximum(100)
@@ -133,10 +140,13 @@ class LiteInstaller(object):
                 self.total_packages_to_be_installed = int(line.split(" ")[2].strip())
                 print("total_packages_to_be_installed:", self.total_packages_to_be_installed)
             if "Fetching" in line:
-                p = (self.already_fetched_packages / self.total_packages_to_be_installed) * self.having_downloaded_means_percent
-                self.progress.setValue(int(round(p*100)))
-                print(p)
-                self.already_fetched_packages = self.already_fetched_packages + 1 # Increment at the end, because the relevant line is printed when the action starts, not when it finishes
+                try:
+                    p = (self.already_fetched_packages / self.total_packages_to_be_installed) * self.having_downloaded_means_percent
+                    self.progress.setValue(int(round(p*100)))
+                    print(p)
+                    self.already_fetched_packages = self.already_fetched_packages + 1 # Increment at the end, because the relevant line is printed when the action starts, not when it finishes
+                except:
+                    pass
             if "Extracting" in line:
                 if self.already_fetched_packages < self.total_packages_to_be_installed:
                     # Some or all packages had already been downloaded and were re-used from the cache.
@@ -155,7 +165,7 @@ class LiteInstaller(object):
     # def scroll_to_last_line(self):
     #     cursor = self.textCursor()
     #     cursor.movePosition(QTextCursor.End)
-    #     cursor.movePosition(QTextCursor.Up if cursor.atBlockStart() else
+    #     cursor.movePosition(QTextCursor.Up if cursor.atBStart() else
     #                         QTextCursor.StartOfLine)
     #     self.setTextCursor(cursor)
 
@@ -185,7 +195,7 @@ class LiteInstaller(object):
 
 
     def show_install(self):
-        self.msgBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", ("Downloading %s..." % (os.path.basename(__file__))), QtWidgets.QMessageBox.NoButton)
+        self.msgBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", ("Downloading %s..." % (os.path.basename(self.launched_bundle).replace(".app", ""))), QtWidgets.QMessageBox.NoButton)
         # self.msgBox.setWindowFlags(QtCore.Qt.CustomizeWindowHint) # Needed for the next line
         self.msgBox.setWindowFlag(QtCore.Qt.WindowCloseButtonHint, False) # Remove the Close button frim the window decoration; FIXME: Why does this remove the window decorations altogether?
         # self.msgBox.setStyleSheet("QTextEdit{min-width: 500px;}")
@@ -228,7 +238,7 @@ class LiteInstaller(object):
 
     def read_file_contents(self, filename):
         global results
-        file = open(os.path.dirname(__file__) + "/Resources/" + filename)
+        file = open(self.launched_bundle + "/Resources/" + filename)
         lines = file.read().split("\n")
         file.close()
         results = []
