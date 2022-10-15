@@ -27,7 +27,7 @@ mesa-libs
 mesa-dri
 gpu-firmware-kmod
 open-vm-tools
-virtualbox-ose-additions
+# virtualbox-ose-additions # Not available for 14 as of Oct 15, 2022
 xauth
 xinit
 setxkbmap
