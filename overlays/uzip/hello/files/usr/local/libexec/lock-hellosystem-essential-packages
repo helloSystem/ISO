@@ -1,0 +1,65 @@
+#!/bin/sh
+
+# This script should be run when the freshly installed system is running for the first time,
+# or at the end of helloSystem ISO creation. Its purpose is to create a package that
+# depends on all non-automatic packages on this system, so that we can lock this package
+# in the hope that pkg will never uninstall (but may update) those packages during future 
+# updates and upgrades of the installed system.
+
+# Intended result e.g.,
+# % sudo pkg remove -y mountarchive               
+# Updating database digests format: 100%
+# pkg: $PACKAGE_NAME is locked, cannot delete mountarchive
+# Cannot perform request
+
+PACKAGE_VERSION=0
+PACKAGE_NAME=hellosystem-essential-packages
+
+# Unlock and uninstall previously installed package, if available
+sudo pkg unlock -y $PACKAGE_NAME 2>/dev/null || true
+sudo pkg remove -y $PACKAGE_NAME 2>/dev/null || true
+
+# List non-automatic packages
+# Note that we would like to use only origin instead of package names
+# in the hope that this would handle minor Python version updates more gracefully
+# (we don't want to depend on any particular Pyhton version because these
+# tend to change all the time)
+DEP_LINES=$(pkg query -e '%a =     0' '"%n": {origin: "%o", version: "%v"},')
+
+echo $DEP_LINES
+
+# Create manifest
+# https://hackmd.io/@dch/HkwIhv6x7
+
+cat > /tmp/manifest.ucl <<EOF
+name:         $PACKAGE_NAME
+origin:       hellosystem/$PACKAGE_NAME
+comment:      "Packages on the helloSystem ISO."
+prefix:       /usr/local
+version:      $PACKAGE_VERSION
+www:          ""
+maintainer:   ""
+deps:         {
+$DEP_LINES
+              }
+desc:         <<EOD
+This package depends on all non-automatic packages on the helloSystem ISO.
+Locking this package should prevent packages that come with the helloSystem ISO
+from being inadvertently removed.
+EOD
+EOF
+
+# Create package
+
+pkg create --verbose --root-dir /var/empty --manifest /tmp/manifest.ucl --out-dir /tmp/
+
+# Install package. Note that 'pkg add' only works if all dependencies have already
+# been installed on the system, which is the case here
+
+sudo pkg add /tmp/$PACKAGE_NAME-$PACKAGE_VERSION.pkg
+
+pkg info $PACKAGE_NAME
+echo -n "Dependencies: "
+pkg info -dx $PACKAGE_NAME
+
+sudo pkg lock -y $PACKAGE_NAME

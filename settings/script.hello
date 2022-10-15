@@ -512,3 +512,7 @@ chroot "${uzip}" update-desktop-database # Needed?
 # dd if=/dev/random of="${uzip}"/random.data bs=1M count=2
 # hello-0.8.0_0H106-FreeBSD-14.0-amd64.iso WITH the above line uncommented crashes with:
 # panic: guz_zstd_decompress: Expected 262144 bytes, got 163840
+
+# Create and lock a package that depends on non-automatic packages on the ISO
+# https://github.com/helloSystem/hello/issues/161#issuecomment-1267976086
+chroot "${uzip}" /usr/local/libexec/lock-hellosystem-essential-packages
