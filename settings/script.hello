@@ -509,4 +509,6 @@ chroot "${uzip}" update-desktop-database # Needed?
 
 # Add some random data to debug https://github.com/helloSystem/ISO/issues/389
 # TODO: Remove this
-dd if=/dev/random of="${uzip}"/random.data bs=1M count=2
+# dd if=/dev/random of="${uzip}"/random.data bs=1M count=2
+# hello-0.8.0_0H106-FreeBSD-14.0-amd64.iso WITH the above line uncommented crashes with:
+# panic: guz_zstd_decompress: Expected 262144 bytes, got 163840
