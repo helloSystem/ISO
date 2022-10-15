@@ -20,7 +20,8 @@ xf86-video-qxl # !i386
 # which at the time of adding the following line had no official FreeBSD package yet
 gpu-firmware-kmod
 # cirrus:github/helloSystem/drm-510-kmod.pkg/main/binaries/drm-510-kmod-5.10.113_1.pkg
-https://api.cirrus-ci.com/v1/artifact/task/5670294248488960/binary/pkg/drm-510-kmod-5.10.113_1.pkg
+# https://api.cirrus-ci.com/v1/artifact/task/5670294248488960/binary/pkg/drm-510-kmod-5.10.113_1.pkg # Error 500
+https://api.cirrus-ci.com/v1/artifact/task/4627266566094848/binary/pkg/drm-510-kmod-5.10.113_7.pkg
 # drm-legacy-kmod # Does not exist in 13. FIXME: What happens to the devices that need it?
 libva-intel-driver
 # nvidia-driver # !i386 # Is now handled in build.sh initgfx()
