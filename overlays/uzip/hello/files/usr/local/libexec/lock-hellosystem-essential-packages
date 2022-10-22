@@ -24,7 +24,9 @@ sudo pkg remove -y $PACKAGE_NAME 2>/dev/null || true
 # in the hope that this would handle minor Python version updates more gracefully
 # (we don't want to depend on any particular Pyhton version because these
 # tend to change all the time)
-DEP_LINES=$(pkg query -e '%a =     0' '"%n": {origin: "%o", version: "%v"},')
+# Do not depend on packages that need to be uninstalled,
+# e.g., during installation of the system to disk
+DEP_LINES=$(pkg query -e '%a =     0' '"%n": {origin: "%o", version: "%v"},' | grep -v live-settings)
 
 echo $DEP_LINES
 
