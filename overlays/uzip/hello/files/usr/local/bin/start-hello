@@ -288,6 +288,7 @@ launch Filer &
 # Welcome Wizard
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
   launch Welcome
+  ( sleep 120 && balooctl enable ) & # Enable indexing after 2 minutes
 fi
 
 # Wait for Menu to appear on D-Bus; this is needed for autostart to work properly
