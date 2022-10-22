@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=ffmpeg
+Exec=ffmpeg -i %i %o -fs %s
+MimeType=audio/mpeg
