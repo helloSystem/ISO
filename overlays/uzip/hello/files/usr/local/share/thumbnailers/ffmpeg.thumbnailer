@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=ffmpeg
+Exec=ffmpeg -i %i %o -fs %s
+MimeType=audio/mpeg;video/jpeg;video/mp4;video/mpeg;video/quicktime;video/x-ms-asf;video/x-ms-wm;video/x-ms-wmv;video/x-msvideo;video/x-flv;video/x-matroska;video/webm;video/mp2t;
