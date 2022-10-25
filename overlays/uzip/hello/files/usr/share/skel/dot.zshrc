@@ -10,3 +10,6 @@ zstyle :compinstall filename '/home/liveuser/.zshrc'
 autoload -Uz compinit
 compinit
 # End of lines added by compinstall
+
+# Fix 'Delete' key in zsh
+bindkey "^[[3~" delete-char
