@@ -37,6 +37,7 @@ if [ -f "/usr/sbin/pciconf" ] ; then
   /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q VirtualBox 2>/dev/null
   if [ $? -eq 0 ] ; then
       export VIRTUAL_MACHINE=YES
+      /usr/local/bin/VBoxClient-all & # Since /usr/local/etc/xdg/autostart/ is not interpreted
   fi
 fi
 
@@ -44,6 +45,7 @@ if [ -f "/usr/sbin/pciconf" ] ; then
   /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q VMware 2>/dev/null
   if [ $? -eq 0 ] ; then
       export VIRTUAL_MACHINE=YES
+      /usr/local/bin/vmware-user-suid-wrapper & # Since /usr/local/etc/xdg/autostart/ is not interpreted
   fi
 fi
 
