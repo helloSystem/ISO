@@ -290,7 +290,7 @@ if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
   launch Welcome
   ( sleep 120 && balooctl enable || true ) & # Enable indexing after 2 minutes
 else
-  ( sleep 30 && balooctl resume || true ) & # Resume indexing after 30 seconds
+  ( sleep 30 && baloo_file || true ) & # Resume indexing after 30 seconds
 fi
 
 # Wait for Menu to appear on D-Bus; this is needed for autostart to work properly
