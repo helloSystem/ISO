@@ -146,10 +146,14 @@ if [ "$(sysctl -q -n kern.consmute)" = "1" ] ; then
   # No text consoles on Ctrl-Alt-F2
   echo "" > /etc/ttys
 else
+  # Prevent the kernel from rebooting immediately at a kernel panic
+  # so that one can see the last error message
+  sysctl kern.panic_reboot_wait_time=30
   # Enable application crash dumps to /tmp
-  sysctl savecore_enable="YES" # Crash dumps
-  sysctl kern.coredump=1
-  sysctl kern.corefile="/tmp/%N.core"
+  # What good is this on a Live ISO?
+  # sysctl savecore_enable="YES" # Crash dumps
+  # sysctl kern.coredump=1
+  # sysctl kern.corefile="/tmp/%N.core"
 fi
 
 # Allow /Applications to be modified
