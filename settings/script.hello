@@ -463,6 +463,20 @@ fi
 wget -c -q "https://github.com/helloSystem/QKeySequenceOverride/releases/download/continuous/libQKeySequenceOverride.so.1.0.0"
 mv libQKeySequenceOverride.so.1.0.0 "${uzip}/usr/local/lib/"
 
+# 'pause' command that does nothing, but never exits
+# Needed for /usr/local/bin/start-hello
+cat > /tmp/pause.c <<\EOF
+#define _POSIX_SOURCE
+#include <unistd.h>
+
+int main() {
+    pause();
+}
+EOF
+clang /tmp/pause.c -o /tmp/pause
+strip /tmp/pause 
+mv /tmp/pause "${uzip}/usr/local/bin/"
+
 # FIXME: Desperate attempt at reducing image size
 rm -rf "${uzip}"/usr/local/share/icons/breeze*
 rm -rf "${uzip}"/usr/local/*-portbld-*/ # What is it; is it actually needed? https://forums.freebsd.org/threads/what-is-the-portbld-directory.71759/
