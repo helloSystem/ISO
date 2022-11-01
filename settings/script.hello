@@ -78,7 +78,7 @@ sudo mv stylesheet.qss "${uzip}/usr/local/etc/xdg/"
 # launch
 wget -q https://github.com/helloSystem/launch/releases/download/continuous/launch_FreeBSD.zip
 unzip launch_FreeBSD.zip
-mv launch "${uzip}/usr/local/bin/"
+mv launch bundle-thumbnailer "${uzip}/usr/local/bin/"
 rm -f launch_FreeBSD.zip
 
 # DSBexec
