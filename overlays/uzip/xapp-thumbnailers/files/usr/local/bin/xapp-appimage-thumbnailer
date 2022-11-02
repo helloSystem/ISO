@@ -5,6 +5,7 @@ import random
 import subprocess
 from elftools.elf.elffile import ELFFile
 
+# probono: load from Python minor version independent location
 import sys
 sys.path.append('/usr/local/lib/python3/site-packages')
 
@@ -40,3 +41,5 @@ if icon_path != None:
     t.save_path(icon_path)
     os.system(f"rm -rf '{TMP_DIR}'")
 
+# probono: Add to launch.db
+subprocess.run(["bundle-thumbnailer", t.args.input])
