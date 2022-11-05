@@ -38,8 +38,8 @@
 
 
 import os, sys, stat, shutil, subprocess, plistlib, signal, time
-from xdg import IniFile, IconTheme  # pkg install py37-xdg
-
+from xdg import IniFile, IconTheme  # pkg install devel/py-xdg
+import xattr # pkg install devel/py-xattr
 
 # Create .app bundles for desktop files
 
@@ -195,10 +195,17 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
         "XAppWrapper": True,
         "NSTypes": nstypes
     }
-    fileName = open("%s/%s.app/Resources/Info-gnustep.plist" % (destination, name), 'wb')
-    plistlib.dump(properties, fileName)
-    fileName.close()
+    f = open("%s/%s.app/Resources/Info-gnustep.plist" % (destination, name), 'wb')
+    plistlib.dump(properties, f)
+    f.close()
 
+    # Simplicity wins. We are calling these "simplified .app bundles" for a reason
+    if mime != None:
+        f = open("%s/%s.app/Resources/can-open" % (destination, name), 'wt')
+        f.write(mime)
+        f.close()
+        xattr.setxattr("%s/%s.app/" % (destination, name), "can-open", mime.encode('utf-8'))
+    
     print("Wrapper placed in %s/%s.app" % (destination, name))
     return True
 
