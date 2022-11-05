@@ -173,6 +173,11 @@ export SUDO_ASKPASS=/usr/local/bin/askpass
 export VISUAL=/usr/local/bin/nano
 export EDITOR=/usr/local/bin/nano
 
+# Enable GPU acceleration in Falkon and other WebEngine based browsers
+# Test with:
+# chrome://gpu
+export QTWEBENGINE_CHROMIUM_FLAGS="--ignore-gpu-blacklist --enable-gpu-rasterization --enable-native-gpu-buffers"
+
 ##################
 # Global menus for Gtk applications
 # 
