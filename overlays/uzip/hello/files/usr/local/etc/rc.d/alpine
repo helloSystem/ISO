@@ -1,0 +1,87 @@
+#!/bin/sh
+#
+# PROVIDE: debian
+# REQUIRE: archdep mountlate devd
+# KEYWORD: nojail
+#
+# This is a modified version of /etc/rc.d/linux from FreeBSD 12.2-RELEASE
+#
+. /etc/rc.subr
+
+name="alpine"
+desc="Enable Alpine chroot, and Linux ABI"
+rcvar="alpine_enable"
+start_cmd="${name}_start"
+stop_cmd="${name}_stop"
+
+cleanup() {
+  umount -f /compat/*/tmp 2>/dev/null
+  umount -f /compat/*/dev/shm 2>/dev/null
+  umount -f /compat/*/dev/fd 2>/dev/null
+  umount -f /compat/*/dev 2>/dev/null
+  umount -f /compat/*/sys 2>/dev/null
+  umount -f /compat/*/proc 2>/dev/null
+}
+
+unmounted()
+{
+	[ `stat -f "%d" "$1"` == `stat -f "%d" "$1/.."` -a \
+	  `stat -f "%i" "$1"` != `stat -f "%i" "$1/.."` ]
+}
+
+alpine_stop()
+{
+	sysctl compat.linux.emul_path=""
+	cleanup
+}
+
+alpine_start()
+{
+	cleanup
+
+	mkdir -p 
+	
+	local _emul_path _tmpdir
+
+	load_kld -e 'linux(aout|elf)' linux
+	case `sysctl -n hw.machine_arch` in
+	amd64)
+		load_kld -e 'linux64elf' linux64
+		;;
+	esac
+
+	# Linux uses the pre-pts(4) tty naming scheme.
+	load_kld pty
+
+	# Handle unbranded ELF executables by defaulting to ELFOSABI_LINUX.
+	if [ `sysctl -ni kern.elf64.fallback_brand` -eq "-1" ]; then
+		sysctl kern.elf64.fallback_brand=3 > /dev/null
+	fi
+
+	if [ `sysctl -ni kern.elf32.fallback_brand` -eq "-1" ]; then
+		sysctl kern.elf32.fallback_brand=3 > /dev/null
+	fi
+	sysctl compat.linux.emul_path=/compat/alpine
+
+	_emul_path="/compat/alpine"
+
+	mkdir -p "${_emul_path}/"
+	
+        ( cd "${_emul_path}/" ; wget -c "https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64/alpine-minirootfs-3.16.2-x86_64.tar.gz" )
+        ( cd "${_emul_path}/" ; tar xf alpine-minirootfs-*.tar.gz )
+	cp /etc/resolv.conf "${_emul_path}/etc/"
+
+	unmounted "${_emul_path}/proc" && mkdir -p "${_emul_path}/proc" && (mount -t linprocfs linprocfs "${_emul_path}/proc" || exit 1)
+	unmounted "${_emul_path}/sys" && mkdir -p "${_emul_path}/sys" && (mount -t linsysfs linsysfs "${_emul_path}/sys" || exit 1)
+	unmounted "${_emul_path}/dev" && mkdir -p "${_emul_path}/dev" && (mount -t devfs devfs "${_emul_path}/dev" || exit 1)
+	unmounted "${_emul_path}/dev/fd" && mkdir -p "${_emul_path}/dev/fd" && (mount -o linrdlnk -t fdescfs fdescfs "${_emul_path}/dev/fd" || exit 1)
+	unmounted "${_emul_path}/dev/shm" && mkdir -p "${_emul_path}/dev/shm" && (mount -o mode=1777 -t tmpfs tmpfs "${_emul_path}/dev/shm" || exit 1)
+	unmounted "${_emul_path}/tmp" && mkdir -p "${_emul_path}/tmp" && (mount -t nullfs /tmp "${_emul_path}/tmp" || exit 1)
+	unmounted /dev/fd && (mount -t fdescfs null /dev/fd || exit 1)
+	unmounted /proc && (mount -t procfs procfs /proc || exit 1)
+
+	true
+}
+
+load_rc_config $name
+run_rc_command "$1"
