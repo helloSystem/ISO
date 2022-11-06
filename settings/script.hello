@@ -6,6 +6,9 @@ set -e
 # Be verbose
 set -x
 
+# Allow all users to write extended attributes; setuid
+chmod +s "${uzip}/usr/sbin/setextattr"
+
 mkdir -p /tmp/system-overlay 
 cd /tmp/system-overlay
 
