@@ -160,6 +160,7 @@ fi
 # Allow /Applications to be modified
 mkdir -p /tmp/unionfs/Applications
 mount -t unionfs /tmp/unionfs/Applications /Applications
+chmod +rwx /Applications
 
 # Do not launch Welcome in Live mode
 mkdir -p /home/liveuser/.config/hello/
