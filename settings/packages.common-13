@@ -30,6 +30,8 @@ mesa-dri
 gpu-firmware-kmod
 open-vm-tools
 virtualbox-ose-additions
+# Posibly needed for VirtualBox guest integration?
+virtualbox-ose-kmod
 xauth
 xinit
 setxkbmap
