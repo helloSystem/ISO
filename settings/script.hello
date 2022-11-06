@@ -214,6 +214,7 @@ chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/qpdfvi
 # mkdir -p "${uzip}"/usr/share/skel/Desktop
 # cd "${uzip}"/usr/share/skel/Desktop/
 # ln -s /Applications .
+chroot "${uzip}" ln -s /Applications/Internet/Falkon.app /usr/share/skel/Desktop
 
 # More Preferences
 mkdir -p "${uzip}/Applications/Preferences"
