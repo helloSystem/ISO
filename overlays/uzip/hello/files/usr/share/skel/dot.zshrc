@@ -19,5 +19,6 @@ unset LAUNCHED_BUNDLE
 unset LAUNCHED_EXECUTABLE
 
 # Get cwd into window title of QTerminal
-# As a side effect, it also shows up in the command line prompt
-PROMPT=$'\e]0;%~\a%n@%m:%~ $ '
+# As a side effect, it also shows up in the command line prompt,
+# and as another side effect QTerminal behaves erratically; unusable
+# PROMPT=$'\e]0;%~\a%n@%m:%~ $ '
