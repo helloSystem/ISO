@@ -280,17 +280,17 @@ if [ -z "$VIRTUAL_MACHINE" ] ; then
   redshift -t 6500:5500 -l$(getlalo) &
 fi
 
-# Menubar
+# Menubar (restart automatically if it crashes)
 export GTK_MODULES=appmenu-gtk-module
-launch Menu &
+daemon -r launch Menu &
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
 ### "${HERE}"/dde-globalmenu-service & # gmenudbusmenuproxy without Plasma deps
 gmenudbusmenuproxy &
 
-# Desktop
-launch Filer &
+# Desktop (restart automatically if it crashes)
+daemon -r launch Filer &
 
 # Welcome Wizard and file system indexing
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
