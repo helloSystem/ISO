@@ -204,8 +204,11 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
         f = open("%s/%s.app/Resources/can-open" % (destination, name), 'wt')
         f.write(mime)
         f.close()
-        xattr.setxattr("%s/%s.app/" % (destination, name), "can-open", mime.encode('utf-8'))
-    
+        try:
+            # This fails, e.g., at ISO creation time
+            xattr.setxattr("%s/%s.app/" % (destination, name), "can-open", mime.encode('utf-8'))
+        except:
+            pass
     print("Wrapper placed in %s/%s.app" % (destination, name))
     return True
 
