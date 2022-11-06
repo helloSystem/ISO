@@ -107,8 +107,9 @@ mkdir -p /var/run # Needed for slim?
 # mount -t unionfs -o below /media/.uzip/var /var
 # mkdir -p /var/run
 
-mount -t tmpfs tmpfs /usr/local
-mount -t unionfs -o below /media/.uzip/usr/local /usr/local
+# Avoid using '-o below' because it is known to be crashy
+mkdir -p /tmp/usr/local
+mount -t unionfs /tmp/usr/local /usr/local
 
 # /etc, needed for networking
 cp -R /media/.uzip/etc /tmp
