@@ -1,1 +1,1 @@
-/Applications/Internet/Falkon.app
+../../../Applications//Internet/Falkon.app

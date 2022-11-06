@@ -282,7 +282,7 @@ fi
 
 # Menubar (restart automatically if it crashes)
 export GTK_MODULES=appmenu-gtk-module
-daemon -r launch Menu &
+daemon -r launch Menu
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
@@ -290,7 +290,7 @@ daemon -r launch Menu &
 gmenudbusmenuproxy &
 
 # Desktop (restart automatically if it crashes)
-daemon -r launch Filer &
+daemon -r launch Filer
 
 # Welcome Wizard and file system indexing
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
