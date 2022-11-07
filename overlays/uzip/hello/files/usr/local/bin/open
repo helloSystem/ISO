@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if [ "$1" == "-e" ] ; then
-  shift
-  launch FeatherPad "$@"
-else
-  launch Filer "$@"
-fi
