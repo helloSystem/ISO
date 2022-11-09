@@ -528,9 +528,6 @@ find "${uzip}"/Applications -type f -exec chmod g+rw {} \;
 
 chroot "${uzip}" update-desktop-database # Needed?
 
-# Apply boot time optimization by late-starting services
-chroot "${uzip}" service late-start disable_early_services
-
 # Add some random data to debug https://github.com/helloSystem/ISO/issues/389
 # TODO: Remove this
 # dd if=/dev/random of="${uzip}"/random.data bs=1M count=2

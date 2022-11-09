@@ -85,7 +85,7 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   export ZFSBOOT_DATASET_NESTING="1"
   export BOOT_BLOCKS_FROM_DISTSET="1"
   export ZFSBOOT_VDEV_TYPE="stripe"
-  export ZFSBOOT_SWAP_SIZE="8g"
+  export ZFSBOOT_SWAP_SIZE="0" # Just hangs with "8g"
   export ZFSBOOT_CONFIRM_LAYOUT="1"
   export nonInteractive="YES"
   # The following two lines are required so that the system is
@@ -291,6 +291,9 @@ sed -i '' -e 's|^init_script|# init_script|g' "${FSMNT}/boot/loader.conf"
 if [ -e "/boot/loader.mute.d" ] ; then
   cp -r "/boot/loader.mute.d" "${FSMNT}"/boot/
 fi
+
+# Apply boot time optimization by late-starting services
+chroot "${FSMNT}" service late-start disable_early_services
 
 # Cleanup
 echo "Installation finished!"
