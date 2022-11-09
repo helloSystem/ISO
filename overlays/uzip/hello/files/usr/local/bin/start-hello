@@ -4,6 +4,9 @@
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
+# Kill leftovers from previous session
+killall daemon
+
 # Normally $PATH gets changed by slim anyway so it's probably ok to change it here again
 # The closer to the user, the more upfront so that users can override what the system provides
 # and helloSystem can override what FreeBSD provides
