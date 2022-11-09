@@ -194,6 +194,7 @@ fi
 
 # Transfer settings from running /etc/rc.conf.local to installed one
 cat /etc/rc.conf.local | xargs sysrc -f ${FSMNT}/etc/rc.conf
+truncate -s 0b ${FSMNT}//etc/rc.conf.local
 
 # initgfx does not work from a read-only disk
 chroot "${FSMNT}" sysrc root_rw_mount="YES"
