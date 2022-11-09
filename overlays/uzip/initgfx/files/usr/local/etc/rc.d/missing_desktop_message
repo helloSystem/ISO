@@ -74,7 +74,7 @@ echo "${URL}" > /dev/console
 echo "" > /dev/console
 
 # Output QR code
-echo $URL | qrencode -m 5 -t utf8i >/dev/console
+echo $URL | /usr/local/bin/qrencode -m 5 -t utf8i >/dev/console
 
 # Reset color for the text that follows
 echo -e $COLOR_NC > /dev/console
