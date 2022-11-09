@@ -218,3 +218,5 @@ squashfs-tools
 ports-mgmt/pkg_tree
 # Local filesystem search
 kf5-baloo
+# Needed for MIDI controllers, like MIDI keyboards
+alsa-seq-server
