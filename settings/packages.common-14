@@ -66,3 +66,6 @@ b43-fwcutter
 dsbdriverd
 # AMD Radeon Xorg Driver, requires amdgpu KMS driver from graphics/drm-kmod
 x11-drivers/xf86-video-amdgpu
+# Bluetooth
+comms/bluez-firmware
+comms/iwmbt-firmware

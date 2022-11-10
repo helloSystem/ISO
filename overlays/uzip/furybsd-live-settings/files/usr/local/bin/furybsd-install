@@ -292,9 +292,6 @@ if [ -e "/boot/loader.mute.d" ] ; then
   cp -r "/boot/loader.mute.d" "${FSMNT}"/boot/
 fi
 
-# Apply boot time optimization by late-starting services
-chroot "${FSMNT}" service late-start disable_early_services
-
 # Cleanup
 echo "Installation finished!"
 
