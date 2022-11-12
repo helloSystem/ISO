@@ -277,6 +277,9 @@ chroot "${uzip}" python3 -m pip install translate-toolkit
 # Needed for Display.app
 chroot "${uzip}" python3 -m pip install pyedid
 
+# Needed for FUSE mounting by users
+chmod 1777 ${uzip}/media
+
 # Workaround for: appmenu-gtk-module is not yet in quarterly packages; FIXME: install it from the packages once it is there
 # https://github.com/helloSystem/ISO/issues/20
 # FIXME: This fails on 13-CURRENT https://github.com/helloSystem/ISO/issues/27

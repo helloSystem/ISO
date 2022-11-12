@@ -220,3 +220,5 @@ ports-mgmt/pkg_tree
 kf5-baloo
 # Needed for MIDI controllers, like MIDI keyboards
 alsa-seq-server
+# Needed for sftp mounting
+sysutils/fusefs-sshfs

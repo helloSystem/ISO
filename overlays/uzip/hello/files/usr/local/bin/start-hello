@@ -94,6 +94,14 @@ if [ -z $DBUS_SESSION_BUS_ADDRESS ] ; then
   export $(dbus-launch)
 fi
 
+# Allow for sshfs to ask for a password
+# and to do identity verification
+if [ -z $SSH_AUTH_SOCK ] ; then
+  eval $(ssh-agent -a "/tmp/${USER}-ssh-agent")
+  export SSH_ASKPASS=/usr/local/bin/lxqt-openssh-askpass
+  export SSH_AUTH_SOCK="${SOCKET_PATH}"
+fi
+
 # Set locale if it is not set already
 # and if /usr/local/var/localize/include exists
 # (might have been created by the localize script during boot)
