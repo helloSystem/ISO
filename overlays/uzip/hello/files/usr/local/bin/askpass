@@ -32,5 +32,6 @@ if os.environ.get('SUDO_ASKPASS_TEXT') is not None:
 app = QtWidgets.QApplication([])
 password, ok = QtWidgets.QInputDialog.getText(None, "sudo", text, QtWidgets.QLineEdit.Password)
 if ok:
-    print(password)
+    if password is not "":
+        print(password)
 app.exit(0)
