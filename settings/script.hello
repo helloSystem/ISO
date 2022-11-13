@@ -84,6 +84,7 @@ sudo mv stylesheet.qss "${uzip}/usr/local/etc/xdg/"
 # launch
 wget -q https://github.com/helloSystem/launch/releases/download/continuous/launch_FreeBSD.zip
 unzip launch_FreeBSD.zip
+cp launch "${uzip}/usr/local/sbin/xdg-open" # Override the one provided by devel/xdg-utils
 mv launch open bundle-thumbnailer "${uzip}/usr/local/bin/"
 rm -f launch_FreeBSD.zip
 
