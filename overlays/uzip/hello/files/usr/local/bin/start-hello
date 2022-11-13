@@ -268,7 +268,7 @@ fi
 #   export KWIN_TRIPLE_BUFFER=1
 # fi
 
-launch /System/KWin.app &
+daemon -r launch /System/KWin.app
 
 # Desktop notifications
 dunst &
