@@ -512,7 +512,7 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list plasma5-breeze) ; do rm $FILE ; don
 # https://github.com/helloSystem/ISO/issues/191#issuecomment-861822967
 # Do not fail if a certain python version can't be uninstalled
 chroot ${uzip} pkg remove -y python310 || true
-chroot ${uzip} pkg remove -y python39 || true
+chroot ${uzip} pkg remove -y python38 || true
 chroot ${uzip} pkg remove -y python37 || true
 chroot ${uzip} pkg remove -y python36 || true
 chroot ${uzip} pkg remove -y python27 || true
