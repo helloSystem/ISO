@@ -54,7 +54,6 @@ class ArchiveMounter(object):
     def __init__(self, filename):
 
         self.mountpoint = "/tmp/" + str(getpass.getuser()) + "/" + os.path.normpath(filename).replace("/", "_")
-        # TODO: Check how gvfs calls its mountpoints
 
         if os.path.exists(self.mountpoint):
             print("Directory '%s' already exists, trying to re-mount")
