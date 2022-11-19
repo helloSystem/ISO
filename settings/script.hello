@@ -305,7 +305,7 @@ IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add "https://github
 # Prevent the hello package from being upgraded with an unrelated package of the same name
 # and prevent the modifications made to the system in this script from being overwritten
 # by package updates done by the user at a later time; FIXME: Find a cleaner way
-chroot "${uzip}" pkg lock -y hello automount dejavu liberation-fonts-ttf
+chroot "${uzip}" pkg lock -y hello automount slim dejavu liberation-fonts-ttf
 rm ${uzip}/etc/resolv.conf
 umount ${uzip}/var/cache/pkg
 umount ${uzip}/dev
