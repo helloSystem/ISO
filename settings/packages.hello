@@ -43,10 +43,6 @@ qt5-wayland
 menu-cache
 # Library to read digital camera file meta-data; Filer needs this
 libexif
-# GNOME virtual file system; FIXME: Find something non-GNOME
-# This has some really strange dependencies such as webkit2-gtk3
-# and samba
-gvfs
 # Browser
 kf5-ki18n
 # Message bus system for inter-application communication
