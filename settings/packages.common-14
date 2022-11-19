@@ -27,7 +27,9 @@ mesa-libs
 mesa-dri
 gpu-firmware-kmod
 open-vm-tools
-# virtualbox-ose-additions # Not available for 14 as of Oct 15, 2022
+# Posibly needed for VirtualBox guest integration?
+virtualbox-ose-kmod
+# virtualbox-ose-additions # Not available for 14 as of Nov 19, 2022
 xauth
 xinit
 setxkbmap
