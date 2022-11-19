@@ -1,10 +1,13 @@
 task:
-  freebsd_instance:
+  compute_engine_instance:
+    platform: freebsd
     cpu: 4
     memory: 16G
     matrix:
-      - image_family: freebsd-13-1
-      - image_family: freebsd-14-0-snap # Disabled due to https://github.com/helloSystem/ISO/issues/389
+    - name: arm64
+      image_family: freebsd-13-1
+      # image_family: freebsd-14-0-snap # Disabled due to https://github.com/helloSystem/ISO/issues/389
+      arch: arm64
 
   env:
     CIRRUS_CLONE_DEPTH: 1
