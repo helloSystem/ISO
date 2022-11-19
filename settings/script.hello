@@ -423,7 +423,7 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list font-misc-meltho) ; do rm $FILE ; d
 # Arial, Times New Roman, and Courier New. Ever since, every Linux desktops looks ugly
 chroot ${uzip} sh -c 'for FILE in $(pkg list liberation-fonts-ttf) ; do rm $FILE ; done'
 
-chroot "${uzip}" update-desktop-database # Needed for mountarchive to be associated with the MIME types it can handle; TODO: Get rid of XDG
+# chroot "${uzip}" update-desktop-database # Needed for mountarchive to be associated with the MIME types it can handle; TODO: Get rid of XDG
 
 # Temporary workaround for https://github.com/helloSystem/ISO/issues/14
 # mv "${uzip}/usr/sbin/pkg" "${uzip}/usr/sbin/pkg.real"
@@ -533,7 +533,7 @@ fi
 find "${uzip}"/Applications -type d -exec chmod g+rwx {} \;
 find "${uzip}"/Applications -type f -exec chmod g+rw {} \; 
 
-chroot "${uzip}" update-desktop-database # Needed?
+# chroot "${uzip}" update-desktop-database # Needed?
 
 # Add some random data to debug https://github.com/helloSystem/ISO/issues/389
 # TODO: Remove this
