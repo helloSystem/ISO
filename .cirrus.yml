@@ -4,7 +4,7 @@ task:
     memory: 16G
     matrix:
       - image_family: freebsd-13-1
-      - image_family: freebsd-14-0-snap # Disabled due to https://github.com/helloSystem/ISO/issues/389
+      # image_family: freebsd-14-0-snap # Disabled due to https://github.com/helloSystem/ISO/issues/389
 
   env:
     CIRRUS_CLONE_DEPTH: 1
