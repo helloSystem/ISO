@@ -3,8 +3,8 @@ task:
     cpu: 4
     memory: 16G
     matrix:
-      - image: freebsd-13-1-release-amd64
-      # image: freebsd-14-0-current-amd64-v20220701 # Disabled due to https://github.com/helloSystem/ISO/issues/389
+      - image_family: freebsd-13-1
+      - image_family: freebsd-14-0-snap # Disabled due to https://github.com/helloSystem/ISO/issues/389
 
   env:
     CIRRUS_CLONE_DEPTH: 1
