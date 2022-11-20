@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# This script is intended to be invoked by a desktop file
+set -x
+
 # from /usr/local/share/xsessions
 # where the display manager (login window) picks it up
 
@@ -268,7 +269,7 @@ fi
 #   export KWIN_TRIPLE_BUFFER=1
 # fi
 
-daemon -r launch /System/KWin.app
+/System/KWin.app/KWin 2>/dev/null &
 
 # Desktop notifications
 dunst &
@@ -293,7 +294,7 @@ fi
 
 # Menubar (restart automatically if it crashes)
 export GTK_MODULES=appmenu-gtk-module
-daemon -r launch Menu
+/System/Menu.app/Menu &
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
@@ -301,19 +302,24 @@ daemon -r launch Menu
 gmenudbusmenuproxy &
 
 # Desktop (restart automatically if it crashes)
-daemon -r launch Filer
+sleep 1 # This seems to be absolutely critical. Without this the desktop does not boot
+launch /System/Filer.app/Filer &
 
 # Welcome Wizard and file system indexing
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
   launch Welcome
   ( sleep 120 && balooctl enable || true ) & # Enable indexing after 2 minutes
 else
-  ( sleep 30 && daemon -r -R 10 baloo_file || true ) & # Resume indexing after 30 seconds and restart it if it fails
+  if [ "${USER}" != "liveuser" ] ; then
+    ( sleep 30 && daemon -r -R 120 baloo_file || true ) & # Resume indexing after 30 seconds and restart it if it fails
+  fi
 fi
+
 
 # Wait for Menu to appear on D-Bus; this is needed for autostart to work properly
 while true; do 
   RESULT=$(dbus-send --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep AppMenu)
+  sleep 1
   if [ "${RESULT}" != "" ] ; then
     break
   fi
@@ -322,6 +328,7 @@ done
 # System-wide autostart
 for APP in /Applications/Autostart/* ; do
   echo "Autostarting ${APP}"
+  # sleep 0.5
   launch "${APP}" &
 done
 # Per-user autostart
