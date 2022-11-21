@@ -7,6 +7,8 @@
     # Which monitor should the notifications be displayed on.
     monitor = 0
 
+    corner_radius=7
+
     # Display notification on focused monitor.  Possible modes are:
     #   mouse: follow mouse pointer
     #   keyboard: follow window with keyboard focus
