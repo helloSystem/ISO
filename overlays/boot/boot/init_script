@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright (c) 2021-22, Simon Peter <probono@puredarwin.org>
 # All rights reserved.
 #
@@ -203,6 +204,17 @@ cat > /etc/rc.d/hostname << \EOF
 # REQUIRE: FILESYSTEMS
 # BEFORE:  netif
 EOF
+
+# VirtualBox
+PRODUCT=$(kenv -q "smbios.system.product")
+if [ "${PRODUCT}" = "VirtualBox" ] ; then
+  # Load VirtualBox guest kernel modules
+  kldload /boot/modules/vboxdrv.ko
+  kldload /boot/modules/vboxguest.ko
+  # Enable VirtualBox guest services
+  /usr/sbin/sysrc -f /etc/rc.conf vboxguest_enable="YES"
+  /usr/sbin/sysrc -f /etc/rc.conf vboxservice_enable="YES"
+fi
 
 # TODO: Consider moving this to the ISO generation stage
 # This writes entries to /etc/rc.conf
