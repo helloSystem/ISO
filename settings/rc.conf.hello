@@ -1,5 +1,4 @@
 slim_enable="YES"
-autofs_enable="YES"
 load_acpi_enable="YES"
 firewall_enable="NO"
 firewall_quiet="YES"
