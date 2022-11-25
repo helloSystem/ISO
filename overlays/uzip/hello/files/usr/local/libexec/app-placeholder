@@ -93,7 +93,7 @@ class LiteInstaller(object):
         self.ext_process._decoder_stdout = codec.makeDecoder()
         self.ext_process._decoder_stderr = codec.makeDecoder()
         self.ext_process.readyReadStandardOutput.connect(self._ready_read_standard_output)
-        # self.ext_process.readyReadStandardError.connect(self._ready_read_standard_error)
+        self.ext_process.readyReadStandardError.connect(self._ready_read_standard_error)
 
 
         self.ext_process.finished.connect(self.onProcessFinished)
@@ -172,8 +172,12 @@ class LiteInstaller(object):
     def _ready_read_standard_error(self):
         raw_bytes = self.ext_process.readAllStandardError()
         text = self.ext_process._decoder_stdout.toUnicode(raw_bytes)
-        print("ERR:", text)
-
+        print("ERR:", text.strip())
+        self.ext_process.kill()
+        self.msgBox.hide()
+        self.errBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", (text.strip() + "."))
+        self.errBox.exec()
+        exit(0)
 
     def onProcessFinished(self):
         self.progress.setValue(100)
