@@ -7,3 +7,4 @@ sudo /usr/local/sbin/eject "${1}"
 sleep 1
 
 find /media -depth 1 -empty -prune -delete 2>/dev/null
+exit 0
