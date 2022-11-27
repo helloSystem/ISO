@@ -71,6 +71,9 @@ wget -q https://github.com/helloSystem/Filer/releases/download/continuous/Filer_
 unzip Filer_FreeBSD.zip
 rm -f Filer_FreeBSD.zip
 
+# Ugly hack so that drag and drop in Filer shows the normal mouse cursor (arrow pointer) instead of one with "+"
+chroot "${uzip}" ln -sf /usr/local/share/icons/default/cursors/left_ptr /usr/local/share/icons/default/cursors/dnd-copy
+
 # QtPlugin
 wget -q https://github.com/helloSystem/QtPlugin/releases/download/continuous/QtPlugin_FreeBSD.zip
 unzip QtPlugin_FreeBSD.zip
