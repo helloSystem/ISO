@@ -22,19 +22,21 @@
     # will be ignored.
     follow = mouse
 
-    # The geometry of the window:
-    #   [{width}]x{height}[+/-{x}+/-{y}]
-    # The geometry of the message window.
-    # The height is measured in number of notifications everything else
-    # in pixels.  If the width is omitted but the height is given
-    # ("-geometry x2"), the message window expands over the whole screen
-    # (dmenu-like).  If width is 0, the window expands to the longest
-    # message displayed.  A positive x is measured from the left, a
-    # negative from the right side of the screen.  Y is measured from
-    # the top and down respectively.
-    # The width can be negative.  In this case the actual width is the
-    # screen width minus the width defined in within the geometry option.
-    geometry = "300x5-15+50"
+    ### Geometry ###
+
+    # dynamic width from 0 to 300
+    # width = (0, 300)
+    # constant width of 300
+    width = 300
+
+    # The maximum height of a single notification, excluding the frame.
+    height = 300
+
+    # Position the notification in the top right corner
+    origin = top-right
+
+    # Offset from the origin
+    offset = 22x44
 
     # Show how many messages are currently hidden (because of geometry).
     indicate_hidden = yes
@@ -63,6 +65,11 @@
 
     # Horizontal padding.
     horizontal_padding = 18
+    
+    # Gaps between notifications
+    [global]
+    gaps = true
+    gap_size = 22
 
     # Defines width in pixels of frame around the notification window.
     # Set to 0 to disable.
@@ -90,7 +97,7 @@
 
     ### Text ###
 
-    font = Nimbus Sans Bold 9
+    font = Nimbus Sans 9
 
     # The spacing between lines.  If the height is smaller than the
     # font height, it will get raised to the font height.
