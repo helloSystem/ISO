@@ -15,8 +15,8 @@ qt5-graphicaleffects
 # plasma5-plasma-workspace
 # GTK module for putting application menubar in a global menubar
 appmenu-gtk-module
-# Global keyboard shortcuts registration
-lxqt-globalkeys
+# Global keyboard shortcuts registration is now handled by kglobalaccel
+# lxqt-globalkeys # Is now handled by kglobalaccel
 # Compositor for drop shadows
 # picom # No more needed with KWin.app
 # Lightweight notification daemon
