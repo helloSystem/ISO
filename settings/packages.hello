@@ -1,5 +1,7 @@
 # Graphical login manager for X11
 slim
+# Required for QtPlugin; TODO: Find out why and remove the need for it
+libqtxdg
 # Required for hello QtPlugin and Menu
 kf5-kdbusaddons
 libdbusmenu-qt5
