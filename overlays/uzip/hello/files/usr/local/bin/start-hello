@@ -247,12 +247,12 @@ fi
 
 # Launch per-user daemons
 
-# Global keyboard shortcuts
+# Candicate for removal: Global keyboard shortcuts are now managed by kglobalaccel
 # It reads its configuration from
 # ${XDG_CONFIG_HOME}/lxqt/globalkeyshortcuts.conf
 # --config-file=FILENAME can be used several times, the last one is used for saving
 # TODO: Move this functionality into Menu?
-/usr/local/bin/lxqt-globalkeysd &
+# /usr/local/bin/lxqt-globalkeysd &
 
 # Window decorations
 if [ "$HIDPI" = "" ] ; then
