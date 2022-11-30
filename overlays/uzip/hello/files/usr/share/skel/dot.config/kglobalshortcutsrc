@@ -152,7 +152,3 @@ _k_friendly_name=KWin
 view_actual_size=Meta+Ctrl+0,Meta+0,Actual Size
 view_zoom_in=Meta+Ctrl++,Meta+=,Vergrößern
 view_zoom_out=Meta+Ctrl+-,Meta+-,Verkleinern
-
-[qterminal.desktop]
-_k_friendly_name=QTerminal
-_launch=Ctrl+Alt+T,none,QTerminal
