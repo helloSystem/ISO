@@ -458,7 +458,7 @@ developer()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  ( cd "${uzip}" ; makefs "${cdroot}/rootfs.ufs" ../spec.user )
+  ( cd "${uzip}" ; makefs -b 75% -f 75% "${cdroot}/rootfs.ufs" ../spec.user )
   mkdir -p "${cdroot}/boot/"
   if [ $MAJOR -gt 13 ] ; then
     mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
