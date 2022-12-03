@@ -39,6 +39,8 @@
 
 import os, sys, subprocess
 
+got_hint = False
+
 if os.geteuid() != 0:
     exit("You need to have root privileges. Exiting.")
 
@@ -112,6 +114,7 @@ try:
                 # print(language)
                 locale = "%s_%s.UTF-8" % (language, country)
                 timezone = timezones[index]
+                got_hint = true
                 break
         if "prev-lang" in line:
             relevant_line = True # The next line after this one is the one we are after
@@ -146,11 +149,16 @@ for line in subprocess.check_output(usbtool).split(b'\n'):
         # print(language)
         locale = "%s_%s.UTF-8" % (language, country)
         timezone = timezones[index]
+        got_hint = true
         # print(timezone)
     
 # TODO: As a last resort, use network localization
 
 # After all methods of localization are exhausted, apply/export our findings
+
+if got_hint == False:
+    print("--> Got no hints, exiting without writing", target_file)
+    exit(0)
 
 if "DISPLAY" in os.environ.keys():
     run(["setxkbmap", "-layout", country.lower()])  # Works only if called as the user from within Xorg

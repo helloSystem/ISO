@@ -292,6 +292,11 @@ if [ -z "$VIRTUAL_MACHINE" ] ; then
   redshift -t 6500:5500 -l$(getlalo) &
 fi
 
+# If we still have no LANG, ask the user
+if [ -z "${LANG}" ] || [ "C.UTF-8" = "${LANG}" ]  ; then
+  export LANG=$(launch /System/Language.app)
+fi
+
 # Menubar (restart automatically if it crashes)
 export GTK_MODULES=appmenu-gtk-module
 /System/Menu.app/Menu &
