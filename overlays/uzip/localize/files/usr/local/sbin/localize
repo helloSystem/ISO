@@ -114,7 +114,7 @@ try:
                 # print(language)
                 locale = "%s_%s.UTF-8" % (language, country)
                 timezone = timezones[index]
-                got_hint = true
+                got_hint = True
                 break
         if "prev-lang" in line:
             relevant_line = True # The next line after this one is the one we are after
@@ -149,7 +149,7 @@ for line in subprocess.check_output(usbtool).split(b'\n'):
         # print(language)
         locale = "%s_%s.UTF-8" % (language, country)
         timezone = timezones[index]
-        got_hint = true
+        got_hint = True
         # print(timezone)
     
 # TODO: As a last resort, use network localization
@@ -157,7 +157,7 @@ for line in subprocess.check_output(usbtool).split(b'\n'):
 # After all methods of localization are exhausted, apply/export our findings
 
 if got_hint == False:
-    print("--> Got no hints, exiting without writing", target_file)
+    print("--> localize got no hints, exiting")
     exit(0)
 
 if "DISPLAY" in os.environ.keys():
