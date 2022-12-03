@@ -9,7 +9,10 @@ task:
   env:
     CIRRUS_CLONE_DEPTH: 1
     GITHUB_TOKEN: ENCRYPTED[!0f42e3f70fd51cdeddfe7e98160982fc9efe7e8a26869b725fcd5de05d067a7100b994cf52f0f1b470a983148e0b8ec2!]
-    
+
+  furybsd_cache:
+    folder: /usr/local/furybsd/amd64/cache/
+
   auto_cancellation: false
   stateful: false
   timeout_in: 60m
