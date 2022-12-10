@@ -299,7 +299,7 @@ fi
 
 # Menubar (restart automatically if it crashes)
 export GTK_MODULES=appmenu-gtk-module
-/System/Menu.app/Menu &
+daemon -R 3 /System/Menu.app/Menu &
 
 # FIXME: Does the next line have to run AFTER menubar?
 # Else we see no QMenus at all, as if something was badly crashing?
@@ -308,7 +308,7 @@ gmenudbusmenuproxy &
 
 # Desktop (restart automatically if it crashes)
 sleep 1 # This seems to be absolutely critical. Without this the desktop does not boot
-launch /System/Filer.app/Filer &
+daemon -R 3 launch /System/Filer.app/Filer &
 
 # Welcome Wizard and file system indexing
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
@@ -343,7 +343,7 @@ done
 # done
 
 # Create placeholder .app bundles for applications installed with pkg
-desktop2app &
+daemon -R 3 desktop2app &
 
 # Here we must start something that never exits;
 # the session ends when that thing exits
