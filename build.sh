@@ -440,13 +440,13 @@ developer()
   echo "$(cat "${livecd}"/spec.user | wc -l) items for user image"
 
   # Create the developer image
-  makefs -o label="Developer" -R 16384 "${iso}/developer.ufs" "${livecd}"/spec.developer.sorted
+  makefs -o label="Developer" -R 262144 "${iso}/developer.ufs" "${livecd}"/spec.developer.sorted
   developerimagename=$(basename $(echo ${isopath} | sed -e 's|.iso$|.developer.img|g'))
   if [ $MAJOR -gt 13 ] ; then
     mkuzip -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   else
     # Use zstd when possible, which is available in FreeBSD beginning with 13 but broken in 14 (FreeBSD bug 267082)
-    mkuzip -A zstd -C 15 -d -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
+    mkuzip -A zstd -C 15 -d -s 262144 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   fi
   rm "${iso}/developer.ufs"
   md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}.md5"
@@ -458,13 +458,13 @@ developer()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  ( cd "${uzip}" ; makefs -b 75% -f 75% -R 16384 "${cdroot}/rootfs.ufs" ../spec.user )
+  ( cd "${uzip}" ; makefs -b 75% -f 75% -R 262144 "${cdroot}/rootfs.ufs" ../spec.user )
   mkdir -p "${cdroot}/boot/"
   if [ $MAJOR -gt 13 ] ; then
     mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
   else
     # Use zstd when possible, which is available in FreeBSD beginning with 13 but broken in 14 (FreeBSD bug 267082)
-    mkuzip -A zstd -C 15 -d -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
+    mkuzip -A zstd -C 15 -d -s 262144 -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
   fi
 
   rm -f "${cdroot}/rootfs.ufs"
