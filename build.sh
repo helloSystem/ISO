@@ -440,7 +440,7 @@ developer()
   echo "$(cat "${livecd}"/spec.user | wc -l) items for user image"
 
   # Create the developer image
-  makefs -o label="Developer" -R 1b "${iso}/developer.ufs" "${livecd}"/spec.developer.sorted
+  makefs -o label="Developer" -R 16384 "${iso}/developer.ufs" "${livecd}"/spec.developer.sorted
   developerimagename=$(basename $(echo ${isopath} | sed -e 's|.iso$|.developer.img|g'))
   if [ $MAJOR -gt 13 ] ; then
     mkuzip -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
@@ -458,7 +458,7 @@ developer()
 uzip() 
 {
   install -o root -g wheel -m 755 -d "${cdroot}"
-  ( cd "${uzip}" ; makefs -b 75% -f 75% -R 1b "${cdroot}/rootfs.ufs" ../spec.user )
+  ( cd "${uzip}" ; makefs -b 75% -f 75% -R 16384 "${cdroot}/rootfs.ufs" ../spec.user )
   mkdir -p "${cdroot}/boot/"
   if [ $MAJOR -gt 13 ] ; then
     mkuzip -o "${cdroot}/boot/rootfs.uzip" "${cdroot}/rootfs.ufs"
