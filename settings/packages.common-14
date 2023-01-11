@@ -29,7 +29,7 @@ gpu-firmware-kmod
 open-vm-tools
 # Posibly needed for VirtualBox guest integration?
 virtualbox-ose-kmod
-# virtualbox-ose-additions # Not available for 14 as of Nov 19, 2022
+virtualbox-ose-additions
 xauth
 xinit
 setxkbmap
