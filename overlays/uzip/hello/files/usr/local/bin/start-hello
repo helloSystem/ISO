@@ -110,17 +110,15 @@ fi
 if [ -f "/usr/local/etc/X11/xorg.conf.d/00-keyboard.conf" ] ; then
   echo "Skipping keyboard autoconfiguration because /usr/local/etc/X11/xorg.conf.d/00-keyboard.conf exists"
 else
-  if [ -z "${LANG}" ] || [ "C.UTF-8" = "${LANG}" ]  ; then
-    if [ -e "/usr/local/var/localize/include" ] ; then
-      . /usr/local/var/localize/include
-      export LANG
-      export MM_CHARSET
-      export TZ # This leads to correct time, and to time/date formatting
-      COUNTRY=$(echo "${LANG}" | cut -d _ -f 2 | cut -d "." -f 1 | tr '[A-Z]' '[a-z]')
-      setxkbmap -layout "${COUNTRY}"
-      setxkbmap -variant nodeadkeys 2>/dev/null
-      setxkbmap -query
-    fi
+  if [ -e "/usr/local/var/localize/include" ] ; then
+    . /usr/local/var/localize/include
+    export LANG
+    export MM_CHARSET
+    export TZ # This leads to correct time, and to time/date formatting
+    COUNTRY=$(echo "${LANG}" | cut -d _ -f 2 | cut -d "." -f 1 | tr '[A-Z]' '[a-z]')
+    setxkbmap -layout "${COUNTRY}"
+    setxkbmap -variant nodeadkeys 2>/dev/null
+    setxkbmap -query
   fi
 fi
 
