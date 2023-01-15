@@ -4,7 +4,7 @@
 set -e
 
 # Workaround for cases when the running kernel doesn't exactly match the kernel on the ISO
-set IGNORE_OSVERSION=yes
+export IGNORE_OSVERSION=yes
 
 # Determine the version of the running host system.
 # Building ISOs for other major versions than the running host system
