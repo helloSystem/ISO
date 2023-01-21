@@ -30,6 +30,7 @@ task:
 
   Environment_script:
     # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
+    - rm -f /usr/local/furybsd/amd64/cache/packages/transient/* || true # Don't cache transient pkg
     - env
     - kldload zfs.ko || true
     - kldload tmpfs.ko || true
@@ -52,6 +53,7 @@ task:
     - df -h
     - ls -lh /usr/local/furybsd/iso/*.iso || false # Error out if ISO was not produced to mitigate the above
     # ( cd /usr/local/furybsd/ ; zsyncmake *.iso )
+    - rm -f /usr/local/furybsd/amd64/cache/packages/transient/* || true # Don't cache transient pkg
     
   Upload_script:
     - export VER=$(uname -r | cut -d "-" -f 1) # No way to pass on from Build_script to Upload_script?
