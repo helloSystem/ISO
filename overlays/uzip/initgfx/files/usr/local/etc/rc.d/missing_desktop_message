@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) 2021, Simon Peter <probono@puredarwin.org>
+# Copyright (c) 2020-2023, Simon Peter <probono@puredarwin.org>
 #
 # PROVIDE: missing_desktop_message
 # REQUIRE: slim
