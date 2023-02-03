@@ -4,6 +4,7 @@ import os, sys, socket, subprocess, time
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
+
 def internetCheckConnected(host="8.8.8.8", port=53, timeout=3):
     """
     Host: 8.8.8.8 (google-public-dns-a.google.com)
@@ -17,6 +18,22 @@ def internetCheckConnected(host="8.8.8.8", port=53, timeout=3):
     except socket.error as ex:
         print(ex)
         return False
+
+
+def get_pkg_locking_pid() -> str:
+    codec = QtCore.QTextCodec.codecForLocale()
+    decoder_stdout = codec.makeDecoder()
+    check_lock_process = QtCore.QProcess()
+    check_lock_process.setProgram("pkg")
+    args = ["shell", "SELECT * FROM pkg_lock_pid"]
+    check_lock_process.setArguments(args)
+    check_lock_process.start()
+    check_lock_process.waitForFinished()
+    output_as_bytes = check_lock_process.readAllStandardOutput()
+    output_pid: str = decoder_stdout.toUnicode(output_as_bytes)
+    output_pid = output_pid.strip('\n')
+
+    return output_pid
 
 
 class LiteInstaller(object):
@@ -68,7 +85,6 @@ class LiteInstaller(object):
             print("Proceeding to install %s from the %s packages" %(self.filename, self.packages))
             self.show_install()
 
-
     def show_message(self):
         self.msgBox = QtWidgets.QMessageBox()
 
@@ -94,7 +110,6 @@ class LiteInstaller(object):
         self.ext_process._decoder_stderr = codec.makeDecoder()
         self.ext_process.readyReadStandardOutput.connect(self._ready_read_standard_output)
         self.ext_process.readyReadStandardError.connect(self._ready_read_standard_error)
-
 
         self.ext_process.finished.connect(self.onProcessFinished)
         env = QtCore.QProcessEnvironment.systemEnvironment()
@@ -122,12 +137,12 @@ class LiteInstaller(object):
         lines = text.split("\n")
         for line in lines:
             print("OUT:", line)
-            if "still holds the lock" in line:
-                self.ext_process.kill()
-                self.msgBox.hide()
-                self.errBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", ("Another installation is still running. Please try again after it has completed."))
-                self.errBox.exec()
-                exit(0)
+            #if "still holds the lock" in line:
+            #    self.ext_process.kill()
+            #    self.msgBox.hide()
+            #    self.errBox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, " ", ("Another installation is still running. Please try again after it has completed."))
+            #    self.errBox.exec()
+            #    exit(0)
             if "Updating FreeBSD repository" in line:
                 # Now pkg has actually started working
                 self.progress.setMaximum(100)
@@ -235,9 +250,21 @@ class LiteInstaller(object):
 
         self.msgBox.layout().addWidget(QtWidgets.QLabel(), 1, 1, 1, self.msgBox.layout().columnCount(),
                                   QtCore.Qt.AlignCenter)
-        self.startInstallProcess()
-        self.msgBox.exec()
 
+        if get_pkg_locking_pid() != '':
+            self.check_pkg_lock_timer = QtCore.QTimer(self.msgBox)
+
+            self.msgBox.setText("Another installation is still running.")
+            self.progress.setRange(0, 0)  # Set progress bar to undetermined state
+            close_button: QtWidgets.QPushButton = self.msgBox.addButton(QtWidgets.QMessageBox.Cancel)
+            close_button.clicked.connect(self.check_pkg_lock_timer.stop)
+
+            self.check_pkg_lock_timer.timeout.connect(self.check_pkg_lock_timer_timeout)
+            self.check_pkg_lock_timer.start(1000)
+        else:
+            self.startInstallProcess()
+
+        self.msgBox.exec()
 
     def read_file_contents(self, filename):
         global results
@@ -257,6 +284,18 @@ class LiteInstaller(object):
                 if line != "":
                     results.append(line)
         return results
+
+    def check_pkg_lock_timer_timeout(self):
+        pid = get_pkg_locking_pid()
+
+        if pid != '':
+            print('PID %s is holding the lock' % pid)
+        else:
+            self.check_pkg_lock_timer.stop()
+
+            self.msgBox.setText("Downloading %s..." % (os.path.basename(self.launched_bundle).replace(".app", "")))
+            self.startInstallProcess()
+
 
 if __name__ == "__main__":
     LI = LiteInstaller()
