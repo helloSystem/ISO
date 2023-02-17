@@ -426,7 +426,6 @@ developer()
   sed -i '' -e 's|^\./Applications/Utilities/BuildNotify.app.*|& # developer45|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./Applications/Autostart/BuildNotify.app.*|& # developer46|' "${livecd}"/spec.annotated
   sed -i '' -e 's|^\./usr/sbin/portsnap\ .*|& # developer47|' "${livecd}"/spec.annotated
-  sed -i '' -e 's|^\./usr/bin/vi|& # developer48|' "${livecd}"/spec.annotated
   
   cp "${livecd}"/spec.annotated "${livecd}"/spec.user
   cp "${livecd}"/spec.annotated "${livecd}"/spec.developer
