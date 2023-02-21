@@ -115,7 +115,7 @@ bsdinstall entropy
 # Cleanup LiveCD restore specific contents from destination pool
 chroot "${FSMNT}" pkg remove -y furybsd-live-settings
 # TODO: Move all of this to pkg scripts of the pkg manifests that have installed these things
-chroot "${FSMNT}" rm -rf "/Applications/Utilities/Install FreeBSD.app" || true
+chroot "${FSMNT}" rm -rf "/Applications/Utilities/Install helloSystem.app" || true
 
 # Configure the new installation
 mount -t devfs devfs ${FSMNT}/dev
