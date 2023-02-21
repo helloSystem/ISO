@@ -68,6 +68,21 @@ class LiteInstaller(object):
         else:
             app = QtWidgets.QApplication(sys.argv)
 
+            # Check if the output of "mount" contains "/media/.uzip" as an indication that we are running from a Live system
+            proc = QtCore.QProcess()
+            command = 'mount'
+            args = []
+            print("Starting %s %s" % (command, args))
+            proc.start(command, args)
+            proc.waitForFinished()
+            if "/media/.uzip" in str(proc.readAllStandardOutput()):
+                print("Live system detected")
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setWindowTitle(" ")
+                msg.setText("%s needs to be downloaded before it can be used.\nDoing this on a Live system may lead to instabilities.\nFor best results, install the operating system first." % os.path.basename(self.launched_bundle).replace(".app", ""))
+                msg.exec_()
+
             if internetCheckConnected() == False:
                 print("Offline?")
                 msg = QtWidgets.QMessageBox()
