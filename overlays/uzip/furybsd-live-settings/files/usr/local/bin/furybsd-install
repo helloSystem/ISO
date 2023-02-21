@@ -79,18 +79,21 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   sync
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
   export ZFSBOOT_PARTITION_SCHEME="GPT"
-  export ZFSBOOT_POOL_NAME="zroot"
-  export ZFSBOOT_BEROOT_NAME="ROOT"
-  export ZFSBOOT_BOOTFS_NAME="default"
-  export ZFSBOOT_DATASET_NESTING="1"
-  export BOOT_BLOCKS_FROM_DISTSET="1"
-  export ZFSBOOT_VDEV_TYPE="stripe"
-  export ZFSBOOT_SWAP_SIZE="0" # Just hangs with "8g"
+  # export ZFSBOOT_POOL_NAME="zroot"
+  # export ZFSBOOT_BEROOT_NAME="ROOT"
+  # export ZFSBOOT_BOOTFS_NAME="default"
+  # export ZFSBOOT_DATASET_NESTING="1"
+  # export BOOT_BLOCKS_FROM_DISTSET="1"
+  # export ZFSBOOT_VDEV_TYPE="stripe"
+  export ZFSBOOT_SWAP_SIZE="16g"
+  if [ ! -z "${INSTALLER_DISABLE_SWAP}" ] ; then
+    export ZFSBOOT_SWAP_SIZE="0"
+  fi
   export ZFSBOOT_CONFIRM_LAYOUT="1"
   export nonInteractive="YES"
   # The following two lines are required so that the system is
   # bootable not only on EFI based but also on BIOS based machines
-  export ZFSBOOT_BOOT_TYPE"=BIOS+UEFI"
+  export ZFSBOOT_BOOT_TYPE="BIOS+UEFI"
   # export ZFSBOOT_PARTITION_SCHEME="GPT + Active" # Makes disk unbootable on EFI systems?
   env
   bsdinstall zfsboot
