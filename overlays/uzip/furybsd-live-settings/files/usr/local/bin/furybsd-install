@@ -96,7 +96,7 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
   export ZFSBOOT_BOOT_TYPE="BIOS+UEFI"
   # export ZFSBOOT_PARTITION_SCHEME="GPT + Active" # Makes disk unbootable on EFI systems?
   env
-  bsdinstall zfsboot
+  sh -ex /usr/sbin/bsdinstall zfsboot
 else
   echo "Environment variable INSTALLER_DEVICE not set, running bsdinstall zfsboot"
   bsdinstall zfsboot
