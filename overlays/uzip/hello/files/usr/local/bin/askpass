@@ -27,11 +27,26 @@ from PyQt5 import QtWidgets
 if os.environ.get('SUDO_ASKPASS_TEXT') is not None:
     text = os.environ.get('SUDO_ASKPASS_TEXT') + "\n\n" + "Please enter the password:"
 else:
-    text = "Please enter the password to run the \"%s\" command:" % (sys.argv[1])
+    # According to https://linux.die.net/man/8/sudo,
+    # "The program specified by askpass should display the argument passed to it as the prompt"
+    text = sys.argv[1]
     
 app = QtWidgets.QApplication([])
-password, ok = QtWidgets.QInputDialog.getText(None, "sudo", text, QtWidgets.QLineEdit.Password)
+
+title = "sudo"
+if os.environ.get('LAUNCHED_BUNDLE') is not None:
+    title = os.environ.get('LAUNCHED_BUNDLE').split("/")[-1].split(".")[0]
+
+password, ok = QtWidgets.QInputDialog.getText(None, title, text, QtWidgets.QLineEdit.Password)
 if ok:
     if password != "":
         print(password)
-app.exit(0)
+        sys.exit(0)
+    else:
+        sys.exit(1)
+
+# FIXME: Password dialog should work correctly when the user cancels it
+# FIXME: Password dialog should show clear error when the user enters wrong password
+# Is this even possible with sudo and the askpass spec?
+
+sys.exit(1)
