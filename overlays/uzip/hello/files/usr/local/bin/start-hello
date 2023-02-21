@@ -122,6 +122,11 @@ else
   fi
 fi
 
+# Possibly fixes "invalid locale" errors in tools like "top"
+if [ "$LANG" == "en" ] ; then
+  export LANG=en_US.UTF-8
+fi
+
 # Use sysmouse if there is a problem with the touchpad; Credits: NomadBSD
 tpquirk
 
