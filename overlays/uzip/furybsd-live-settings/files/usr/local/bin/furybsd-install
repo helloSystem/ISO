@@ -75,6 +75,11 @@ if [ -n "${INSTALLER_DEVICE}" ] ; then
     umount /dev/fuse
   done
 
+  # Remove ZFS metadata from the disk so that we can use it for installation;
+  # otherwise bsdinstall zfsboot will fail with "Pool zroot already taken"
+  # in /tmp/bsdinstall_log
+  zpool labelclear -f "${INSTALLER_DEVICE}" || true # https://github.com/helloSystem/ISO/issues/473
+
   /sbin/gpart destroy -F "${INSTALLER_DEVICE}" || true # This can give 'gpart: arg0 'adaX': Invalid argument'. FIXME: Why?
   sync
   export ZFSBOOT_DISKS="${INSTALLER_DEVICE}"
