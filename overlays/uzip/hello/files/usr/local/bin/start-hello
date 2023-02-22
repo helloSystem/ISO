@@ -345,6 +345,9 @@ done
 #   launch "${APP}" &
 # done
 
+# Start Battery.app if a battery is found in the device
+sysctl "dev.battery.0.%parent" 2>/dev/null && launch /System/Battery.app &
+
 # Create placeholder .app bundles for applications installed with pkg
 daemon -R 3 desktop2app &
 
