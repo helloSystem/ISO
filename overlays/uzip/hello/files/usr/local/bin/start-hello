@@ -355,15 +355,6 @@ daemon -R 3 desktop2app &
 # TODO: Handle this in Filer, then remove here
 mkdir -p ~/.local/share/Trash/files
 
-# Do not export VIRTUAL_MACHINE if the virtual machine is VirtualBox
-# because VirtualBox is known to work reasonably well
-if [ -f "/usr/sbin/pciconf" ] ; then
-  /usr/sbin/pciconf -lv 2>/dev/null | /usr/bin/grep -q VirtualBox 2>/dev/null
-  if [ $? -eq 0 ] ; then
-      unset VIRTUAL_MACHINE
-  fi
-fi
-
 # When running from Live media, put a link to the installer onto the desktop
 LIVE=$(mount | grep "/media/.uzip" 2>/dev/null)
 if [ ! -z "$LIVE" ] ; then
