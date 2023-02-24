@@ -301,6 +301,9 @@ sed -i '' -e 's|^init_script|# init_script|g' "${FSMNT}/boot/loader.conf"
 if [ -e "/boot/loader.mute.d" ] ; then
   cp -r "/boot/loader.mute.d" "${FSMNT}"/boot/
 fi
+if [ -e "/boot/lua/local.lua" ] ; then
+  cp -r "/boot/lua/local.lua" "${FSMNT}"/boot/lua/
+fi
 
 # Cleanup
 echo "Installation finished!"
