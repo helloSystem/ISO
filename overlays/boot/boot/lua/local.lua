@@ -6,18 +6,16 @@ KEY_UPPER_V = 86
 KEY_LOWER_S = 115
 KEY_UPPER_S = 83
 
+-- Move the cursor out of view
+screen.setcursor(1, 70)
+
 -- Fill whole screen with white, even though
 -- we have redefined what white actually means by using bootloader variables
--- TODO: Find out screen size in pixels and use that. If more pixels are given
--- than the screen actually has, nothing gets painted at all
 if core.isFramebufferConsole() then
-    loader.fb_drawrect(0, 0, 1024, 768, 1)
+    local width = loader.getenv("screen.width") or 640
+    local height = loader.getenv("screen.height") or 480
+    loader.fb_drawrect(0, 0, width, height, 1)
 end
-
---if core.isFramebufferConsole() and
---loader.term_putimage ~= nil then
---    loader.fb_putimage("/boot/images/freebsd-brand-rev.png", 50, 50, 150, 150, 0)
---end
 
 local shouldboot = true
 
@@ -53,6 +51,7 @@ repeat
         if ch == KEY_LOWER_S or ch == KEY_UPPER_S then
             printc("Single user boot")
             core.setSingleUser(true)
+            loader.unsetenv("boot_mute")
             loader.setenv("kern.vt.color.15.rgb", "0,0,0")
             loader.setenv("kern.vt.color.7.rgb", "0,0,0")
             core.boot()
@@ -82,7 +81,7 @@ if shouldboot == true then
         printc(core.KEYSTR_CSI .. "3" .. "7" .. "m")
         printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
         -- Make the cursor (black rectangle) invisible
-        screen.setcursor(70, 70)
+        -- screen.setcursor(70, 70)
     end
     core.boot()
 end
