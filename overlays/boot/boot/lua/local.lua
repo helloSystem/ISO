@@ -6,6 +6,8 @@ KEY_UPPER_V = 86
 KEY_LOWER_S = 115
 KEY_UPPER_S = 83
 
+loader.setenv("screen_font", "8x16")
+
 -- Move the cursor out of view
 screen.setcursor(1, 70)
 
@@ -49,7 +51,10 @@ repeat
         end
 
         if ch == KEY_LOWER_S or ch == KEY_UPPER_S then
-            printc("Single user boot")
+            -- Make the loading messages colors fit the background
+            printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
+            printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
+            printc("Single user boot\n\n")
             core.setSingleUser(true)
             loader.unsetenv("boot_mute")
             loader.setenv("kern.vt.color.15.rgb", "0,0,0")
@@ -59,7 +64,10 @@ repeat
         end
 
         if ch == KEY_LOWER_V or ch == KEY_UPPER_V then
-            printc("Verbose boot")
+             -- Make the loading messages colors fit the background
+            printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
+            printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
+            printc("Verbose boot\n\n")
             loader.unsetenv("boot_mute")
             core.setVerbose(true)
             loader.setenv("kern.vt.color.15.rgb", "0,0,0")
