@@ -1,16 +1,23 @@
 local core = require("core")
 local screen = require("screen")
 
--- loader.* functions are not part of normal lua, where are they documented?
--- Just look at the other lua files for "documentation"
-
-screen.clear()
-screen.defcursor()
-
 KEY_LOWER_V = 118
 KEY_UPPER_V = 86
 KEY_LOWER_S = 115
 KEY_UPPER_S = 83
+
+-- Fill whole screen with white, even though
+-- we have redefined what white actually means by using bootloader variables
+-- TODO: Find out screen size in pixels and use that. If more pixels are given
+-- than the screen actually has, nothing gets painted at all
+if core.isFramebufferConsole() then
+    loader.fb_drawrect(0, 0, 1024, 768, 1)
+end
+
+--if core.isFramebufferConsole() and
+--loader.term_putimage ~= nil then
+--    loader.fb_putimage("/boot/images/freebsd-brand-rev.png", 50, 50, 150, 150, 0)
+--end
 
 local shouldboot = true
 
@@ -67,7 +74,15 @@ repeat
 until time <= 0
 
 if shouldboot == true then
-    -- Set black font so that we don't see the messages while the kernel is being loaded
-    printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
+    if core.isFramebufferConsole() then
+        -- Set fg and bg color to white, because we have painted a white background
+        -- on the whole screen earlier. This way the background of the screen
+        -- and the background of the text are the same color, even though
+        -- we have redefined what white actually means by using bootloader variables
+        printc(core.KEYSTR_CSI .. "3" .. "7" .. "m")
+        printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
+        -- Make the cursor (black rectangle) invisible
+        screen.setcursor(70, 70)
+    end
     core.boot()
 end
