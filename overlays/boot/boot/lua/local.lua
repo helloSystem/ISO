@@ -42,6 +42,7 @@ repeat
         end
 
         if ch == core.KEY_BACKSPACE or ch == core.KEY_DELETE then
+            screen.setcursor(1, 1)
             loader.setenv("beastie_disable", "NO")
             loader.setenv("loader_logo", "none")
             loader.setenv("loader_brand", "none")
@@ -51,6 +52,7 @@ repeat
         end
 
         if ch == KEY_LOWER_S or ch == KEY_UPPER_S then
+            screen.setcursor(1, 1)
             -- Make the loading messages colors fit the background
             printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
             printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
@@ -64,7 +66,8 @@ repeat
         end
 
         if ch == KEY_LOWER_V or ch == KEY_UPPER_V then
-             -- Make the loading messages colors fit the background
+            screen.setcursor(1, 1)
+            -- Make the loading messages colors fit the background
             printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
             printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
             printc("Verbose boot\n\n")
