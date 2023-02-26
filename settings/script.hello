@@ -20,6 +20,7 @@ cd /tmp/system-overlay
 wget -q "https://github.com/helloSystem/ISO/releases/download/assets/graphite.jpg" -O "${uzip}"/usr/local/share/slim/themes/default/background.jpg
 wget -q "https://github.com/helloSystem/ISO/releases/download/assets/graphite_shadow.jpg" -O "${uzip}"/usr/local/share/slim/themes/default/background_shadow.jpg
 
+# Icons
 # Use blue folder icons instead of the ones packaged in FreeBSD which have yellow folder icons
 # Don't extract directly in /tmp, as tar will modify its permissions
 icons_temp=$(mktemp -d /tmp/icons.XXXXX)
@@ -34,6 +35,9 @@ sed -i -e 's|usr/share|usr/local/share|g' "${uzip}"/usr/local/share/icons/elemen
 rm "${uzip}"/usr/local/share/icons/elementary-xfce/copyright-e
 cd -
 rm -r $icons_temp
+# hello icons
+wget -q "https://raw.githubusercontent.com/helloSystem/Artwork/main/elementary-hello/usr/local/share/icons/devices/128/computer.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer.png
+wget -q "https://raw.githubusercontent.com/helloSystem/Artwork/main/elementary-hello/usr/local/share/icons/devices/128/computer-laptop.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer-laptop.png
 
 # Give disk images the CD image icon as long as we don't have a proper one
 # FIXME: https://github.com/shimmerproject/elementary-xfce/issues/234
@@ -50,9 +54,6 @@ mv macOSBigSur "${uzip}/usr/local/share/icons/"
 ( cd "${uzip}/usr/local/share/icons/" ; ln -s macOSBigSur default )
 chmod 755 "${uzip}/usr/local/share/icons/macOSBigSur"
 rm macOSBigSur.tar.gz
-
-# Icon
-wget "https://raw.githubusercontent.com/helloSystem/hello/master/branding/computer-hello.png" -O "${uzip}"/usr/local/share/icons/elementary-xfce/devices/128/computer-hello.png
 
 # KWin
 if [ "${MAJOR}" == "13" ] ; then
