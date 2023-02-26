@@ -1,4 +1,4 @@
-# hello Live ISO builder [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO)
+# hello Live ISO builder [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO) [![Help Wanted Issues](https://img.shields.io/github/issues/helloSystem/ISO/help%20wanted)](https://github.com/helloSystem/ISO/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
 ## Release
 
