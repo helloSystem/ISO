@@ -1,8 +1,8 @@
-# helloSystem ISO <br> [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO) [![GitHub all releases](https://img.shields.io/github/downloads/helloSystem/ISO/total)](https://github.com/helloSystem/ISO/releases) [![Help Wanted Issues](https://img.shields.io/github/issues/helloSystem/ISO/help%20wanted)](https://github.com/helloSystem/ISO/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+# helloSystem ISO <br> [![Build Status](https://api.cirrus-ci.com/github/helloSystem/ISO.svg)](https://cirrus-ci.com/github/helloSystem/ISO) [![GitHub all releases](https://img.shields.io/github/downloads/helloSystem/ISO/total)](../../releases) [![GitHub release (latest by date)](https://img.shields.io/github/downloads/helloSystem/ISO/latest/total)](../../releases/latest) [![Help Wanted Issues](https://img.shields.io/github/issues/helloSystem/ISO/help%20wanted)](../../issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
 ## Release
 
-The latest release build r0.8.0 can be downloaded [here](../../releases/tag/r0.8.0).
+The latest release can be downloaded [here](../../releases/latest).
 
 ## Continuous builds
 
