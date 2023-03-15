@@ -497,20 +497,6 @@ boot()
   # Compress the modules in a way the kernel understands
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -exec gzip -f {} \;
   find "${cdroot}"/boot/kernel -type f -name '*.ko' -delete
-  # Install Ventoy module; note this MUST NOT be gzip compressed or else it will not work
-  # It is not yet available for FreeBSD 14. TODO: Re-check later
-  if [ "${MAJOR}" -lt 14 ] ; then
-    if [ "${arch}" = "amd64" ] ; then
-      # fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/master/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
-      # https://github.com/helloSystem/ISO/issues/385#issuecomment-1227631254 claims that Ventoy v1.0.70 works with FreeBSD 13.1
-      fetch -o "${cdroot}"/boot/kernel/geom_ventoy.ko.xz "https://github.com/ventoy/Ventoy/blob/v1.0.70/Unix/ventoy_unix/FreeBSD/geom_ventoy_ko/${MAJOR}.x/64/geom_ventoy.ko.xz?raw=true"
-      unxz "${cdroot}"/boot/kernel/geom_ventoy.ko.xz
-      # https://github.com/ventoy/Ventoy/discussions/1277
-      # wget https://github.com/ventoy/Ventoy/files/7638059/geom_ventoy.zip
-      # unzip geom_ventoy.zip && rm geom_ventoy.zip
-      # mv geom_ventoy.ko "${cdroot}"/boot/kernel/
-    fi
-  fi
   mkdir -p "${cdroot}"/dev "${cdroot}"/etc # TODO: Create all the others here as well instead of keeping them in overlays/boot
   cp "${uzip}"/etc/login.conf  "${cdroot}"/etc/ # Workaround for: init: login_getclass: unknown class 'daemon'
   cd "${uzip}" && tar -cf - rescue | tar -xf - -C "${cdroot}" # /rescue is full of hardlinks
