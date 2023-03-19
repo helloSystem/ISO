@@ -392,17 +392,22 @@ cat >> "${uzip}"/etc/devfs.conf <<\EOF
 # Allow users to write optical media
 # https://github.com/helloSystem/ISO/issues/327
 
-own     acd0    root:wheel
-perm    acd0    0660
+own     acd*    root:wheel
+perm    acd*    0660
 
-own     cd0     root:wheel
-perm    cd0     0660
+own     cd*     root:wheel
+perm    cd*     0660
 
-own     pass1   root:wheel
-perm    pass1   0660
+own     pass*   root:wheel
+perm    pass*   0660
 
-own     pass0   root:wheel
-perm    pass0   0660
+# Allow users access to serial ports
+
+own     cua*    root:wheel
+perm    cua*    0660
+
+own     tty*    root:wheel
+perm    tty*    0660
 EOF
 
 # https://github.com/helloSystem/hello/issues/50#issuecomment-753237990
