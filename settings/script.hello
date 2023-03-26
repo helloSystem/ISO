@@ -362,6 +362,18 @@ mv /tmp/rc.shutdown "${uzip}/etc/rc.shutdown"
 ## EOF
 ## chmod +x "${uzip}/usr/sbin/vidcontrol"
 
+# Branded kernel boot logo image
+mkdir -p "${uzip}/tmp/logo/"
+wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/logo.bin" -O "${uzip}/tmp/logo/logo.bin"
+wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/logo2kernel" -O "${uzip}/tmp/logo/logo2kernel"
+chmod +x "${uzip}/tmp/logo/logo2kernel"
+cat << EOR | chroot "${uzip}"
+cd /tmp/logo
+./logo2kernel
+mv kernel.modified /boot/kernel/kernel
+EOR
+rm -rf "${uzip}/tmp/logo/"
+
 # setuid, setgid so that normal users can attach disk images
 chmod 6755 "${uzip}"/sbin/mdconfig
 
