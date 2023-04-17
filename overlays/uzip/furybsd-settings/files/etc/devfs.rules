@@ -8,7 +8,7 @@ add path 'fd*'          mode 0644 group operator
 add path 'md*'          mode 0644 group operator
 add path 'uscanner*'    mode 0644 group operator
 add path 'ugen*'        mode 0644 group operator
-add path 'video*'       mode 0644 group operator
+add path 'video*'       mode 0664 group operator
 add path 'cuse*'        mode 0644 group operator
 add path 'usb*'        mode 0644 group operator
 # https://www.freebsd.org/doc/en_US.ISO8859-1/articles/cups/printing-cups-configuring-server.html
