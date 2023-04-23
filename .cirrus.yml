@@ -3,7 +3,7 @@ task:
     cpu: 4
     memory: 16G
     matrix:
-      - image_family: freebsd-13-1
+      - image_family: freebsd-13-2
       # image_family: freebsd-14-0-snap
 
   env:
