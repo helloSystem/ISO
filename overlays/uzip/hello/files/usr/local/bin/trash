@@ -1,0 +1,112 @@
+#!/bin/sh
+
+# Move items to the trash from the command line without the need for gio or KDE
+# Inspired by
+# https://twitter.com/Skyoptika/status/1670688270940872706
+
+# Define the trash directory and info directory
+TRASH_DIR="$HOME/.local/share/Trash/files"
+INFO_DIR="$HOME/.local/share/Trash/info"
+
+# Function to check if two paths are on the same filesystem
+same_filesystem() {
+    [ "$(stat -f "%d" -- "$1")" = "$(stat -f "%d" -- "$2")" ]
+}
+
+# Function to move a file or folder to the trash
+trash() {
+    local source="$1"
+    local destination="$TRASH_DIR/$(basename "$source")"
+    local absolute_path=$(readlink -f "$source")
+
+    if same_filesystem "$source" "$TRASH_DIR"; then
+        if [ -w "$source" ]; then
+            mv "$source" "$destination"
+            create_info_file "$absolute_path" "$destination"
+            echo "Moved '$source' to trash."
+        else
+            if [ "$(id -u)" -eq 0 ]; then
+                if mv "$source" "$destination"; then
+                    create_info_file "$absolute_path" "$destination"
+                    echo "Moved '$source' to trash."
+                else
+                    echo "Failed to move '$source' to trash."
+                fi
+            else
+                read -r -p "Root privileges are required to move the file '$source' to the trash. Do you want to proceed? [Y/N]: " response
+                case "$response" in
+                    [Yy])
+                        if ! sudo mv "$source" "$destination"; then
+                            echo "Failed to move '$source' to trash."
+                        else
+                            create_info_file "$absolute_path" "$destination"
+                            echo "Moved '$source' to trash."
+                        fi
+                        ;;
+                    *)
+                        echo "File '$source' was not moved to trash."
+                        ;;
+                esac
+            fi
+        fi
+    else
+        read -r -p "The file '$source' is on a different filesystem. Do you want to permanently delete it? This cannot be undone. [Y/N]: " response
+        case "$response" in
+            [Yy])
+                if [ "$(id -u)" -eq 0 ]; then
+                    rm -rf "$source"
+                    echo "Deleted '$source'."
+                else
+                    echo "Root privileges required to delete the file. Please run the command with 'sudo'."
+                fi
+                ;;
+            *)
+                echo "File '$source' was not deleted."
+                ;;
+        esac
+    fi
+}
+
+# Function to create a .trashinfo file
+create_info_file() {
+    local source="$1"
+    local destination="$2"
+    local trashinfo_file="$INFO_DIR/$(basename "$source").trashinfo"
+    local deletion_date=$(date +"%Y-%m-%dT%H:%M:%S")
+
+    # Create the .trashinfo file
+    {
+        echo "[Trash Info]"
+        echo "Path=$source"
+        echo "DeletionDate=$deletion_date"
+    } >"$trashinfo_file"
+}
+
+# Main script
+
+if [ $# -eq 0 ]; then
+    echo "Usage: trash <file/folder> [<file/folder> ...]"
+    exit 1
+fi
+
+# Create the trash directory if it doesn't exist
+mkdir -p "$TRASH_DIR" || {
+    echo "Failed to create the trash directory: $TRASH_DIR"
+    exit 1
+}
+
+# Check if the trash directory is writable
+if ! [ -w "$TRASH_DIR" ]; then
+    echo "The trash directory is not writable: $TRASH_DIR"
+    exit 1
+fi
+
+# Move each file/folder to the trash or delete if on a different filesystem
+for item in "$@"; do
+    # Check if the item exists
+    if [ -e "$item" ]; then
+        trash "$item"
+    else
+        echo "File or folder '$item' does not exist."
+    fi
+done
