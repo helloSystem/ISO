@@ -7,12 +7,12 @@ Profiles=profile-zero;profile-one;profile-two;
 
 [X-Action-Profile profile-zero]
 MimeTypes=;text/*;application/x-shellscript
-Exec=sudo -E -A launch FeatherPad %f
+Exec=sudo env QT_QPA_PLATFORMTHEME=panda launch FeatherPad %f
 
 [X-Action-Profile profile-one]
 MimeTypes=inode/directory;
-Exec=sudo -E -A launch Filer %f
+Exec=sudo env QT_QPA_PLATFORMTHEME=panda launch Filer %f
 
 [X-Action-Profile profile-two]
 MimeTypes=inode/mount-point;
-Exec=sudo -E -A launch Filer /media/%w
+Exec=sudo env QT_QPA_PLATFORMTHEME=panda launch Filer /media/%w
