@@ -222,3 +222,5 @@ kf5-baloo
 alsa-seq-server
 # Needed for sftp mounting
 sysutils/fusefs-sshfs
+# As a courtesy for third party developers
+sysutils/kdialog
