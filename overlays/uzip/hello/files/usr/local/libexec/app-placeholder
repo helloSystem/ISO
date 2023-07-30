@@ -114,8 +114,13 @@ class LiteInstaller(object):
         self.msgBox.setDefaultButton(QtWidgets.QMessageBox.Yes)
         return(self.msgBox.exec())
 
+    def closeEvent(self, event):
+        print("Ignoring close event")
+        event.ignore()
 
     def startInstallProcess(self):
+        # Make it impossible to close the window by intercepting the close event
+        self.msgBox.closeEvent = self.closeEvent
 
         # self.ext_process.setStandardOutputFile(wizard.logfile) # TODO: Append lines to "Details" box
 
@@ -211,6 +216,8 @@ class LiteInstaller(object):
 
     def onProcessFinished(self):
         self.progress.setValue(100)
+        # Un-intercept the close event for msgBox by setting it to the superclass' method
+        self.msgBox.closeEvent = QtWidgets.QMessageBox.closeEvent
         print("Installer script process finished")
         # cursor = self.output.textCursor()
         # cursor.movePosition(cursor.End)
