@@ -326,7 +326,7 @@ initgfx()
     for ver in '' 390 340 304; do
         # pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.pkg nvidia-driver${ver:+-$ver})
-        fetch -o "${cache}/" "https://pkg.ghost.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
+        fetch -o "${cache}/" "https://pkg.ghostbsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-latest}/"
         tar xfC "${cache}"/${pkgfile} "${uzip}/usr/local/nvidia/${ver:-latest}/"
         ls "${uzip}/usr/local/nvidia/${ver:-latest}/+COMPACT_MANIFEST"
