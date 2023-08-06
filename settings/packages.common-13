@@ -70,7 +70,7 @@ b43-fwcutter
 # daemon that loads suitable drivers for PCI and USB hardware based on a txt db of USB and PCI IDs
 dsbdriverd
 # AMD Radeon Xorg Driver, requires amdgpu KMS driver from graphics/drm-kmod
-x11-drivers/xf86-video-amdgpu
+##### x11-drivers/xf86-video-amdgpu ##### Missing in GhostBSD
 # hplip is apparently needed for non-network HP printers; https://github.com/helloSystem/ISO/issues/225
 # but it is not yet available in FreeBSD 14, hence moved it from packages.hello to packages.common-13 for now
 hplip
