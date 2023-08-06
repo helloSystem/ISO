@@ -187,12 +187,10 @@ pkg_add_from_url()
 
 packages()
 {
-  cat > "${uzip}/etc/pkg/GhostBSD.conf" <<\\EOF
-GhostBSD_PKG: {
-  url: "http://pkg.ghostbsd.org/stable/${ABI}/latest",
-  enabled: yes
-}
-EOF
+  echo 'GhostBSD_PKG: {' >> "${uzip}/etc/pkg/GhostBSD.conf" 
+  echo '  url: "http://pkg.ghostbsd.org/stable/${ABI}/latest",' >> "${uzip}/etc/pkg/GhostBSD.conf" 
+  echo '  enabled: yes' >> "${uzip}/etc/pkg/GhostBSD.conf" 
+  echo '}' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   sed -i '' -e 's|enabled: yes|enabled: no|g' "${uzip}/etc/pkg/FreeBSD.conf"
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
   if [ $MAJOR -eq 12 ] ; then
