@@ -266,10 +266,8 @@ mv "QTerminal.app" "${uzip}/Applications/Utilities/"
 rm QTerminal_FreeBSD.zip
 
 # Needed for /usr/local/bin/mountarchive
-wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/fuse-archive.zip"
-unzip fuse-archive.zip
+wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/fuse-archive"
 sudo mv fuse-archive "${uzip}/usr/local/bin/"
-rm fuse-archive.zip
 
 # cp "${uzip}"/usr/local/share/applications/usr_local_lib_qt5_bin_assistant.desktop "${uzip}"/tmp/documentation.desktop
 # sed -i -e 's|^GenericName=.*|GenericName=Documentation|g' "${uzip}"/tmp/documentation.desktop
