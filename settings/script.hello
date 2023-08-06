@@ -54,6 +54,7 @@ done
 wget -c -q https://github.com/ful1e5/apple_cursor/releases/download/v1.0.6/macOSBigSur.tar.gz
 tar xfv macOSBigSur.tar.gz
 cp -r macOSBigSur/cursor* "${uzip}/usr/local/share/icons/default/"
+rm -rf macOSBigSur/
 # mv macOSBigSur "${uzip}/usr/local/share/icons/"
 # ( cd "${uzip}/usr/local/share/icons/" ; ln -s macOSBigSur default ) # TODO: Find a way to make this work with the elementary-xfce theme
 # chmod 755 "${uzip}/usr/local/share/icons/macOSBigSur"
@@ -62,7 +63,7 @@ rm macOSBigSur.tar.gz
 
 # KWin
 if [ "${MAJOR}" == "13" ] ; then
-  wget -q "https://github.com/helloSystem/KWin/releases/download/main-13.2/KWin.app.zip"
+  wget -q "https://github.com/helloSystem/KWin/releases/download/main-13.1/KWin.app.zip"
 else
   wget -q "https://github.com/helloSystem/KWin/releases/download/main-14.0/KWin.app.zip"
 fi
