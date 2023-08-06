@@ -211,7 +211,7 @@ packages()
   # FIXME: In the following line, the hardcoded "i386" needs to be replaced by "${arch}" - how?
   for p in common-${MAJOR} ${desktop}; do
     sed '/^#/d;/\!i386/d;/^cirrus:/d;/^https:/d' "${cwd}/settings/packages.$p" | \
-      xargs /usr/local/sbin/pkg-static -c "${uzip}" install -y
+      xargs chroot "${uzip}" /usr/local/sbin/pkg-static install -y
     pkg_cachedir=/var/cache/pkg
     # Install packages beginning with 'cirrus:'
     mkdir -p ${uzip}${pkg_cachedir}/furybsd-cirrus
