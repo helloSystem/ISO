@@ -188,12 +188,13 @@ pkg_add_from_url()
 packages()
 {
   echo 'GhostBSD_PKG: {' >> "${uzip}/etc/pkg/GhostBSD.conf" 
-  echo '  url: "http://pkg.ghostbsd.org/stable/${ABI}/latest",' >> "${uzip}/etc/pkg/GhostBSD.conf" 
+  echo '  url: "http://pkg.us.ghostbsd.org/stable/${ABI}/latest",' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   echo '  enabled: yes' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   echo '}' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   sed -i '' -e 's|enabled: yes|enabled: no|g' "${uzip}/etc/pkg/FreeBSD.conf"
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
-  env ASSUME_ALWAYS_YES=yes /usr/local/sbin/pkg-static -c "${uzip}" update
+  cat "${uzip}/etc/pkg/GhostBSD.conf"
+  env ASSUME_ALWAYS_YES=yes /usr/local/sbin/pkg-static -c "${uzip}" update -f
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
   mount_nullfs ${packages} ${uzip}/var/cache/pkg
