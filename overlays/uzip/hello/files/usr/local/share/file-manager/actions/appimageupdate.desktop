@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Action
+Name=Update
+Profiles=profile-update;
+MimeTypes=application/vnd.appimage;
+
+[X-Action-Profile profile-update]
+Exec=launch "launch AppImageUpdate" %f
