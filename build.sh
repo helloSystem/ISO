@@ -193,17 +193,7 @@ packages()
   echo '}' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   sed -i '' -e 's|enabled: yes|enabled: no|g' "${uzip}/etc/pkg/FreeBSD.conf"
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
-  if [ $MAJOR -eq 12 ] ; then
-    # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
-    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/GhostBSD.conf"
-    echo "Major version 12, using quarterly packages"
-  elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, using quarterly packages"
-    # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/GhostBSD.conf"
-  elif [ $MAJOR -eq 14 ] ; then
-    echo "Major version 14, hence changing /etc/pkg/GhostBSD.conf to use latest packages"
-    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/GhostBSD.conf"
-  fi
+  chroot ${uzip} pkg update -f
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
   mount_nullfs ${packages} ${uzip}/var/cache/pkg
@@ -211,7 +201,7 @@ packages()
   # FIXME: In the following line, the hardcoded "i386" needs to be replaced by "${arch}" - how?
   for p in common-${MAJOR} ${desktop}; do
     sed '/^#/d;/\!i386/d;/^cirrus:/d;/^https:/d' "${cwd}/settings/packages.$p" | \
-      xargs chroot "${uzip}" /usr/local/sbin/pkg-static install -y
+      xargs /usr/local/sbin/pkg-static -c "${uzip}" install -y
     pkg_cachedir=/var/cache/pkg
     # Install packages beginning with 'cirrus:'
     mkdir -p ${uzip}${pkg_cachedir}/furybsd-cirrus
