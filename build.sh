@@ -187,17 +187,24 @@ pkg_add_from_url()
 
 packages()
 {
+  cat > "${uzip}/etc/pkg/GhostBSD.conf" <\EOF
+GhostBSD_PKG: {
+  url: "http://pkg.ghostbsd.org/stable/${ABI}/latest",
+  enabled: yes
+}
+EOF
+  sed -i '' -e 's|enabled: yes|enabled: no|g' "${uzip}/etc/pkg/FreeBSD.conf"
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
   if [ $MAJOR -eq 12 ] ; then
     # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
-    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
+    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/GhostBSD.conf"
     echo "Major version 12, using quarterly packages"
   elif [ $MAJOR -eq 13 ] ; then
     echo "Major version 13, using quarterly packages"
-    # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
+    # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/GhostBSD.conf"
   elif [ $MAJOR -eq 14 ] ; then
-    echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
-    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
+    echo "Major version 14, hence changing /etc/pkg/GhostBSD.conf to use latest packages"
+    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/GhostBSD.conf"
   fi
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
@@ -344,7 +351,7 @@ script()
     # rm "${uzip}"/tmp/script
     "${cwd}/settings/script.${desktop}"
   fi
-  rm "${uzip}"/var/db/pkg/repo-FreeBSD.sqlite || true
+  rm "${uzip}"/var/db/pkg/repo-*BSD.sqlite || true
   find "${uzip}" -type d -name '__pycache__' -delete || true
 }
 
