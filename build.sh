@@ -315,7 +315,7 @@ initgfx()
   /usr/local/sbin/pkg-static -c ${uzip} update # Needed if we are shipping additional repos 
   if [ "${arch}" != "i386" ] ; then
     if [ $MAJOR -lt 14 ] ; then
-      PKGS="quarterly"
+      PKGS="latest" # There is no "quarterly" in GhostBSD?
       # PKGS="latest" # This must match what we specify in packages()
     else
       PKGS="latest"
@@ -326,7 +326,7 @@ initgfx()
     for ver in '' 390 340 304; do
         # pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.txz nvidia-driver${ver:+-$ver})
         pkgfile=$(/usr/local/sbin/pkg-static -c ${uzip} rquery %n-%v.pkg nvidia-driver${ver:+-$ver})
-        fetch -o "${cache}/" "https://pkg.freebsd.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
+        fetch -o "${cache}/" "https://pkg.ghost.org/FreeBSD:${MAJOR}:amd64/${PKGS}/All/${pkgfile}"
         mkdir -p "${uzip}/usr/local/nvidia/${ver:-latest}/"
         tar xfC "${cache}"/${pkgfile} "${uzip}/usr/local/nvidia/${ver:-latest}/"
         ls "${uzip}/usr/local/nvidia/${ver:-latest}/+COMPACT_MANIFEST"
