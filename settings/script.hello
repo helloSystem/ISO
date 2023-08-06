@@ -6,6 +6,9 @@ set -e
 # Be verbose
 set -x
 
+VER=$(echo "${version}" | cut -d "-" -f 1) # "12.2" or "13.0"
+MAJOR=$(echo "${version}" | cut -d "." -f 1) # "12" or "13"
+
 # Allow all users to write extended attributes; setuid
 chmod +s "${uzip}/usr/sbin/setextattr"
 
