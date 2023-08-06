@@ -267,6 +267,7 @@ rm QTerminal_FreeBSD.zip
 
 # Needed for /usr/local/bin/mountarchive
 wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/fuse-archive"
+chmod +x fuse-archive
 sudo mv fuse-archive "${uzip}/usr/local/bin/"
 
 # cp "${uzip}"/usr/local/share/applications/usr_local_lib_qt5_bin_assistant.desktop "${uzip}"/tmp/documentation.desktop
