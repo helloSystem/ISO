@@ -193,7 +193,7 @@ packages()
   echo '}' >> "${uzip}/etc/pkg/GhostBSD.conf" 
   sed -i '' -e 's|enabled: yes|enabled: no|g' "${uzip}/etc/pkg/FreeBSD.conf"
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
-  chroot ${uzip} pkg update -f
+  chroot ${uzip} pkg-static update -f
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
   mount_nullfs ${packages} ${uzip}/var/cache/pkg
