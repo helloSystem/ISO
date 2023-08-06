@@ -187,7 +187,7 @@ pkg_add_from_url()
 
 packages()
 {
-  cat > "${uzip}/etc/pkg/GhostBSD.conf" <<-\EOF
+  cat > "${uzip}/etc/pkg/GhostBSD.conf" <<-'EOF'
     GhostBSD_PKG: {
       url: "http://pkg.ghostbsd.org/stable/${ABI}/latest",
       enabled: yes
