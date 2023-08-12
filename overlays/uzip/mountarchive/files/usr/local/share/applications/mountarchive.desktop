@@ -3,4 +3,4 @@ Type=Application
 Name=Mount Archive
 Exec=mountarchive %f
 # Hidden=true
-MimeType=application/x-xz-compressed-tar;application/x-lzma-compressed-tar;application/x-bzip-compressed-tar;application/x-tar;application/x-compressed-tar;application/zip;application/gzip;application/bzip;application/x-rar;
+MimeType=application/x-xz-compressed-tar;application/x-lzma-compressed-tar;application/x-bzip-compressed-tar;application/x-tar;application/x-compressed-tar;application/zip;application/gzip;application/bzip;application/x-rar;application/vnd.rar;application/x-rar-compressed;application/vnd.debian.binary-package;
