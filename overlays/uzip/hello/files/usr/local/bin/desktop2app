@@ -40,6 +40,9 @@
 import os, sys, stat, shutil, subprocess, plistlib, signal, time
 from xdg import IniFile, IconTheme  # pkg install devel/py-xdg
 import xattr # pkg install devel/py-xattr
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QIcon
+from xdg import IniFile, IconTheme
 
 # Create .app bundles for desktop files
 
@@ -47,6 +50,9 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
     i = IniFile.IniFile()
 
     i.parse(desktopfile)
+    
+    icon_name = None
+    icon_pixmap = None
 
     if not "Desktop Entry" in i.content.keys():
         print("No Desktop Entry section, hence skipping '%s'" % desktopfile)
@@ -82,30 +88,13 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
     else:
         description = name
     if "Icon" in i.content["Desktop Entry"].keys():
-        icon = i.content["Desktop Entry"]["Icon"]
+        icon_name = i.content["Desktop Entry"]["Icon"]
+        icon = QIcon.fromTheme(icon_name)
+        icon_size = 128  # Set the desired icon size
+        icon_pixmap = icon.pixmap(icon_size, icon_size)
     else:
         print("No Icon=..., hence skipping '%s'" % desktopfile)
         return False
-
-    # FIXME: Do not hardcode the name of the theme here;
-    # seemingly PyQt5 can give us icons from the currently selected Qt theme;
-    # hence we need to rewrite the icon retrieval part in PyQt5
-    iconfile = IconTheme.getIconPath(icon, size=128, extensions=['png'], theme='elementary-xfce')
-    svgiconfile = IconTheme.getIconPath(icon, extensions=['svg'], theme='elementary-xfce')
-
-    if svgiconfile == None and (iconfile == None or os.path.exists(iconfile) == False):
-
-        print("The icon '%s' does not exist" % icon)
-        print("svgiconfile: '%s'" % svgiconfile)
-        print("iconfile: '%s'" % iconfile)
-        if iconfile != None:
-            print("os.path.exists(iconfile) '%s':" % os.path.exists(iconfile))
-        return False
-    else:
-        if iconfile == None or os.path.exists(iconfile) == False:
-            if os.path.exists(svgiconfile) == False:
-                print("The icon '%s' does not exist" % icon)
-                return False
 
     if "MimeType" in i.content["Desktop Entry"].keys():
         mime = i.content["Desktop Entry"]["MimeType"]
@@ -131,16 +120,12 @@ def d2a(desktopfile, destination, use_generic_name=False, name=None):
         print("Could not create .app bundle. Missing permissions? Exiting")
         return False
 
-    if iconfile == None and svgiconfile == None:
+    if icon_pixmap == None:
         print("Could not find a suitable icon for %s', exiting" % icon)
         return False
-    if svgiconfile != None:
-        print("Using icon from %s" % iconfile)
-        shutil.copyfile(svgiconfile, ("%s/%s.app/Resources/%s.svg" % (destination, name, name)))
-    if iconfile != None:
-        print("Using icon from %s" % iconfile)
-        shutil.copyfile(iconfile, ("%s/%s.app/Resources/%s.png" % (destination, name, name)))
-
+    if icon_pixmap != None:
+        icon_png_path = os.path.join(destination, f"{name}.app/Resources/{name}.png")
+        icon_pixmap.save(icon_png_path, "png")
 
     launcher_path = ("%s/%s.app/%s" % (destination, name, name))
     if os.path.exists("/usr/local/libexec/app-placeholder"):
@@ -269,6 +254,9 @@ def get_desktop_files_in_system():
 handled_desktop_files_in_system = []
 
 if __name__ == "__main__":
+
+    # Create a QApplication instance to access the current Qt theme
+    app = QApplication([])
 
     destination = "."
     use_generic_name = False
