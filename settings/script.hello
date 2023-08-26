@@ -227,9 +227,9 @@ rm -rf "Inter *"
 # Applications
 mkdir -p "${uzip}/Applications"
 chmod g+w "${uzip}/Applications"
-# chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.falkon.desktop /Applications/ # See workaround below
-chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/featherpad.desktop /Applications/
-chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/qpdfview.desktop /Applications/
+# chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.falkon.desktop /Applications/ # See workaround below
+chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/featherpad.desktop /Applications/
+chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/qpdfview.desktop /Applications/
 
 # Links on the Desktop
 # mkdir -p "${uzip}"/usr/share/skel/Desktop
@@ -240,11 +240,11 @@ chroot "${uzip}" ln -s /Applications/Internet/Falkon.app /usr/share/skel/Desktop
 # More Preferences
 mkdir -p "${uzip}/Applications/Preferences"
 chmod g+w "${uzip}/Applications/Preferences"
-# chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/lxqt-config-globalkeyshortcuts.desktop /Applications/Preferences/
-chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/arandr.desktop /Applications/Preferences/ -g
-chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/system-config-printer.desktop /Applications/Preferences/
+# chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/lxqt-config-globalkeyshortcuts.desktop /Applications/Preferences/
+chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/arandr.desktop /Applications/Preferences/ -g
+chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/system-config-printer.desktop /Applications/Preferences/
 echo "GenericName=Sound" >> "${uzip}"/usr/local/share/applications/dsbmixer.desktop
-chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/dsbmixer.desktop /Applications/Preferences/ -g
+chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/dsbmixer.desktop /Applications/Preferences/ -g
 
 # https://github.com/PreyK/HelloDisplay
 git clone https://github.com/PreyK/HelloDisplay
@@ -263,8 +263,8 @@ mv Display.app "${uzip}/Applications/Under Construction/"
 # More Utilities
 mkdir -p "${uzip}/Applications/Utilities"
 chmod g+w "${uzip}/Applications/Utilities"
-# chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.systemmonitor.desktop /Applications/Utilities/ # TODO: Find lighter replacement
-# chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/qterminal.desktop /Applications/Utilities/
+# chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.systemmonitor.desktop /Applications/Utilities/ # TODO: Find lighter replacement
+# chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/qterminal.desktop /Applications/Utilities/
 # For now, we are using a patched version of QTerminal that includes https://github.com/lxqt/qtermwidget/pull/418
 wget -c -q "https://github.com/helloSystem/ISO/releases/download/assets/QTerminal_FreeBSD.zip"
 unzip QTerminal_FreeBSD.zip
@@ -326,7 +326,7 @@ umount ${uzip}/var/cache/pkg
 umount ${uzip}/dev
 
 # Workaround for disappeared falkon package
-# chroot "${uzip}" /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.falkon.desktop /Applications/
+# chroot "${uzip}" env QT_QPA_PLATFORM=minimal /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.falkon.desktop /Applications/
 
 # Autostart
 mkdir -p "${uzip}/Applications/Autostart/"
