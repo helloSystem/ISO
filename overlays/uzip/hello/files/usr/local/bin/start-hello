@@ -218,7 +218,7 @@ export QT_QPA_PLATFORMTHEME=panda
 # It would be possible to set a different Qt style here
 # If you set it to a non-existing one, it will print the available ones
 # export QT_STYLE_OVERRIDE=panda # helloSystem/QtPlugin default style
-export QT_STYLE_OVERRIDE=Fusion # Qt default style
+# export QT_STYLE_OVERRIDE=Fusion # Qt default style
 
 # Calculate DPI and determine whether we have a HiDPI screen. TODO: Is there a better way?
 # Get vertical size in cm
