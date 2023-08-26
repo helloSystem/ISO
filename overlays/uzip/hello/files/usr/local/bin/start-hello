@@ -316,7 +316,18 @@ gmenudbusmenuproxy &
 
 # Desktop (restart automatically if it crashes)
 sleep 1 # This seems to be absolutely critical. Without this the desktop does not boot
-daemon -R 3 launch /System/Filer.app/Filer &
+
+# If booted in verbose mode, use experimental Filer
+boot_verbose=$(sysctl -n debug.bootverbose)
+if [ "$boot_verbose" -eq 1 ]; then
+    echo "debug.bootverbose is set to 1. Debug mode is enabled."
+    # Desktop (restart automatically if it crashes)
+    daemon -R 3 launch "/Applications/Under Construction/Filer.app"
+else
+    echo "debug.bootverbose is not set to 1. Debug mode is disabled."
+    # Desktop (restart automatically if it crashes)
+    daemon -R 3 launch /System/Filer.app/Filer &
+fi
 
 # Welcome Wizard and file system indexing
 if [ ! -e "${HOME}/.config/hello/.helloSetupDone" ] ; then
