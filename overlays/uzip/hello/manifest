@@ -8,7 +8,7 @@
 # https://docs.freebsd.org/en/books/porters-handbook/book/#makefile-naming-revepoch
 cat << EOF
 name:          hello
-version:       0.8.2_LOCALBUILD
+version:       0.9.0_LOCALBUILD
 origin:        helloSystem
 comment:       Package that installs hello core components
 arch:          freebsd:12:x86:64

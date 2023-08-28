@@ -35,7 +35,6 @@ UFS/FAT/exFAT/NTFS/EXT2/EXT3/EXT4/MTP/HFS/ISO9660
 Add these to mount NTFS/exFAT/EXT4/HFS/XFS/MTP respectively:
  o sysutils/fusefs-ntfs
  o sysutils/fusefs-exfat
- o sysutils/fusefs-ext4fuse
  o sysutils/fusefs-hfsfuse
  o sysutils/fusefs-lkl
  o sysutils/fusefs-simple-mtpfs
@@ -125,6 +124,15 @@ BLACKLIST (unset by default)
 
   example: BLACKLIST='da0 da3s1a'
 
+
+BLACKLIST_REGEX (unset by default)
+  The boolean flag option complements the above BLACKLIST option
+  if one wants regex match instead of exact match for ignoring devices.
+  Below will ignore all partitions ada0p1/ada0p2/... of ada0 device.
+
+  example: BLACKLIST='ada0'
+           BLACKLIST_REGEX=true
+
 USER (root by default)
   If set to some username, the mount command will
   chown(1) the mount directory with the user and
@@ -143,7 +151,6 @@ NICENAMES (set to NO by default)
   If set to YES the device/filesystem label will be used for /media dir name.
 
   example: NICENAMES=YES
-
 
 IGNORE_SYS_PARTS (set to NO by default)
   If set to YES automount(8) will ignore system partitions like EFI or MSR.
@@ -168,7 +175,7 @@ then
   echo "  /  /  //  /  //  //  /  //        \\\  \  \  \\\  \  \\\  \  \\\  \  \\\  \_   "
   echo "  \_____\\\____/ \__\\\____//__________\\\__\__\__\\\____/ \_____\\\__\__\\\___\ "
   echo
-  echo "automount 1.7.7 2022/02/20"
+  echo "automount 1.7.9 2022/05/24"
   exit 0
 fi
 
@@ -196,8 +203,8 @@ fi
 : ${FAT_CODEPAGE='cp437'}               # US/Canada
 : ${ISO9660_CODEPAGE='UTF-8'}           # UTF-8
 : ${ATIME='NO'}                         # when NO mount with noatime
-: ${RETRY_COUNT='3'}                    # retry count
-: ${RETRY_DELAY='1'}                    # retry delay time
+: ${RETRY_COUNT='5'}                    # retry count
+: ${RETRY_DELAY='2'}                    # retry delay time
 : ${USERUMOUNT='NO'}                    # when YES add suid bit to umount(8)
 : ${NOTIFY='NO'}                        # use notify-send(1) (devel/libnotify)
 : ${WALL='NO'}                          # use wall(1)
@@ -260,11 +267,12 @@ __guess_fs_type() { # 1=DEV
   # second time guess with file(1) tool with -k option
   # (do not stop at the first match and keep going)
   unset FS_TYPE
-  local FS_TYPE=$( file -k -r -b -L -s ${1} 2> /dev/null | sed -E 's/label:\ \".*\"//g' )
+  local FS_TYPE=$( file -k -r -b -L -s ${1} 2> /dev/null | tr '\n' ' ' | sed -E 's/label:\ \".*\"//g' )
   case ${FS_TYPE} in
-    (*Unix\ Fast\ File*) return ${FS_TYPE_UFS}  ;;
-    (*NTFS*)             return ${FS_TYPE_NTFS} ;;
-    (*FAT*|*MSDOS*)      return ${FS_TYPE_FAT}  ;;
+    (*Unix\ Fast\ File*) return ${FS_TYPE_UFS}   ;;
+    (*NTFS*)             return ${FS_TYPE_NTFS}  ;;
+    (*ExFAT*)            return ${FS_TYPE_EXFAT} ;;
+    (*\ FAT\ *|*MSDOS*)  return ${FS_TYPE_FAT}   ;;
   esac
   # try with fstyp(8) last (exFAT on UFS issue)
   unset FS_TYPE
@@ -337,7 +345,8 @@ __remove_dir() { # 1=TARGET
     if [ -d "${1}" ]
     then
       sleep 1
-      find "${1}" -type d -empty -maxdepth 1 -exec rm -r {} '+' 2> /dev/null
+    # find "${1}" -type d -empty -maxdepth 1 -exec rm -r {} '+' 2> /dev/null
+      find "${MNT_PREFIX}" -depth 1 -empty -prune -delete 2> /dev/null
     fi
   fi
 }
@@ -434,7 +443,7 @@ case ${2} in
     if [ "${IGNORE_SYS_PARTS}" = 'YES' ]
     then
       SYS_DEV=$( echo ${1} | grep -E -o '^[a-z]+[0-9]+' )
-      SYS_GPART=$( gpart show -p -r ${SYS_DEV} | sed 's@=>@@g' | grep " ${1} " | awk '{print $4}' )
+      SYS_GPART=$( gpart show -p -r ${SYS_DEV} 2> /dev/null | sed 's@=>@@g' | grep " ${1} " | awk '{print $4}' )
       case ${SYS_GPART} in
         (c12a7328-f81f-11d2-ba4b-00a0c93ec93b) exit 0 ;;
         (e3c9e316-0b5c-4db8-817d-f92df00215ae) exit 0 ;;
@@ -479,6 +488,10 @@ case ${2} in
         if [ "${1}" = "${I}" ]
         then
           __log "${DEV}: device blocked by BLACKLIST option"
+          exit 0
+        elif [ -n "${BLACKLIST_REGEX}" ] &&  echo ${DEV} | grep -q "${I}" 1> /dev/null 2> /dev/null
+        then
+          __log "${DEV}: device blocked by BLACKLIST_REGEX option"
           exit 0
         fi
       done
@@ -537,15 +550,17 @@ case ${2} in
         FS_CHECK_PORT='sysutils/e2fsprogs'
         FS_CHECK_CMD='fsck.ext2'
         FS_CHECK_ARGS="-y"
-        FS_MOUNT_CMD='mount'
-        FS_MOUNT_ARGS="-t ext2fs ${OPTS} ${DEV} ${MNT}"
+        FS_MOUNT_PORT='sysutils/fusefs-lkl'
+        FS_MOUNT_CMD='lklfuse'
+        FS_MOUNT_ARGS="-o type=ext2 -o allow_other -o intr -o uid=${UID} -o gid=${GID} -o umask=002 ${DEV} ${MNT}"
         ;;
       (${FS_TYPE_EXT3})
         FS_CHECK_PORT='sysutils/e2fsprogs'
         FS_CHECK_CMD='fsck.ext3'
         FS_CHECK_ARGS="-y"
-        FS_MOUNT_CMD='mount'
-        FS_MOUNT_ARGS="-t ext2fs ${OPTS} ${DEV} ${MNT}"
+        FS_MOUNT_PORT='sysutils/fusefs-lkl'
+        FS_MOUNT_CMD='lklfuse'
+        FS_MOUNT_ARGS="-o type=ext3 -o allow_other -o intr -o uid=${UID} -o gid=${GID} -o umask=002 ${DEV} ${MNT}"
         ;;
       (${FS_TYPE_EXT4})
         FS_CHECK_PORT='sysutils/e2fsprogs'
@@ -714,11 +729,10 @@ case ${2} in
       for I in ${GROUP_USERS}
       do
         [ "${I}" = "root" ] && continue
-        DISPLAY_ID=$( procstat pargs $( pgrep Xorg ) | grep "^argv\[1\]:" | awk '{print $NF}' )
-        if [ -z "${DISPLAY_ID}" ]
-        then
-          continue
-        fi
+        XORG_PID=$( pgrep Xorg )
+        [ "${XORG_PID}" = "" ] && continue
+        DISPLAY_ID=$( procstat pargs ${XORG_PID} | grep "^argv\[1\]:" | awk '{print $NF}' )
+        [ -z "${DISPLAY_ID}" ] && continue
         __log "${DEV}: starting '${FM}' file manager"
         su -l "${I}" -c "env DISPLAY=${DISPLAY_ID} ${FM} ${MNT} &" 1> /dev/null 2>&1
       done
@@ -729,7 +743,7 @@ case ${2} in
     __log "${DEV}: detach"
     if [ -f ${STATE} ]
     then
-      grep -E "^/dev/${1}" ${STATE} \
+      grep -E "^/dev/${1} " ${STATE} \
         | while read DEV PROVIDER MNT
           do
             TARGET=$( mount | grep -v \.gvfs | grep -m 1 -E "^${PROVIDER} " | awk '{print $3}' )
@@ -739,6 +753,7 @@ case ${2} in
               continue
             fi
             ( # put entire umount/find/rm block into background
+              umount -f "${TARGET}" 1> /dev/null 2>&1
               umount -f "${TARGET}" 1> /dev/null 2>&1
               __log "${DEV}: (state) umount '${TARGET}'"
               __remove_dir "${TARGET}" &
