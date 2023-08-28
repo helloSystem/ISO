@@ -232,7 +232,7 @@ rm -rf "Inter *"
 
 # Applications
 mkdir -p "${uzip}/Applications"
-chmod g+w "${uzip}/Applications"
+chmod a+rwx "${uzip}/Applications"
 # chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.falkon.desktop /Applications/ # See workaround below
 chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/featherpad.desktop /Applications/
 chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/qpdfview.desktop /Applications/
@@ -245,7 +245,6 @@ chroot "${uzip}" ln -s /Applications/Internet/Falkon.app /usr/share/skel/Desktop
 
 # More Preferences
 mkdir -p "${uzip}/Applications/Preferences"
-chmod g+w "${uzip}/Applications/Preferences"
 # chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/lxqt-config-globalkeyshortcuts.desktop /Applications/Preferences/
 chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/arandr.desktop /Applications/Preferences/ -g
 chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/system-config-printer.desktop /Applications/Preferences/
@@ -268,7 +267,6 @@ mv Display.app "${uzip}/Applications/Under Construction/"
 
 # More Utilities
 mkdir -p "${uzip}/Applications/Utilities"
-chmod g+w "${uzip}/Applications/Utilities"
 # chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/org.kde.systemmonitor.desktop /Applications/Utilities/ # TODO: Find lighter replacement
 # chroot "${uzip}" env QT_QPA_PLATFORM=minimal QT_QPA_PLATFORMTHEME=panda /usr/local/bin/desktop2app /usr/local/share/applications/qterminal.desktop /Applications/Utilities/
 # For now, we are using a patched version of QTerminal that includes https://github.com/lxqt/qtermwidget/pull/418
@@ -336,7 +334,6 @@ umount ${uzip}/dev
 
 # Autostart
 mkdir -p "${uzip}/Applications/Autostart/"
-chmod g+w "${uzip}/Applications/Autostart/"
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/BuildNotify.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Volume.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Network.app . )
@@ -567,10 +564,6 @@ if [ -n  "${CIRRUS_CHANGE_IN_REPO}" ] ; then
   IMAGE_VERSION="\${BUILDNUMBER}_"${SHA}\"
   eof
 fi
-
-# Make sure members of group wheel can manipulate /Applications
-find "${uzip}"/Applications -type d -exec chmod g+rwx {} \;
-find "${uzip}"/Applications -type f -exec chmod g+rw {} \; 
 
 # chroot "${uzip}" update-desktop-database # Needed?
 
