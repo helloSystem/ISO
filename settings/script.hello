@@ -137,8 +137,8 @@ mv * "${uzip}/System/"
 mkdir -p "${uzip}/Applications/"
 mkdir -p "${uzip}/System/"
 
-wget -q https://github.com/helloSystem/Utilities/archive/master.zip
-unzip master.zip
+# The direct download link gives 403 Forbidden now, so we git clone it instead
+git clone --depth 1 --branch master https://github.com/helloSystem/Utilities.git Utilities-master
 mv "Utilities-master/Root/"* "${uzip}"/
 mv 'Utilities-master/Internet' "${uzip}/Applications/"
 mv 'Utilities-master/3D Printing' "${uzip}/Applications/"
