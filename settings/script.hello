@@ -67,7 +67,7 @@ rm macOSBigSur.tar.gz
 
 # KWin
 if [ "${MAJOR}" == "13" ] ; then
-  wget -q "https://github.com/helloSystem/KWin/releases/download/main-13.1/KWin.app.zip"
+  wget -q "https://github.com/helloSystem/KWin/releases/download/main-13.2/KWin.app.zip"
   md5sum KWin.app.zip
 else
   wget -q "https://github.com/helloSystem/KWin/releases/download/main-14.0/KWin.app.zip"
