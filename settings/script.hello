@@ -152,7 +152,7 @@ mv 'Utilities-master/System'/* "${uzip}/System/"
 mv 'Utilities-master/Utilities' "${uzip}/Applications/"
 mv 'Utilities-master/Video' "${uzip}/Applications/"
 ( cd "${uzip}/System/Welcome.app/Resources/" && wget -q "https://github.com/helloSystem/Utilities/releases/download/assets/pamgaea-by-kevin-macleod-from-filmmusic-io.ogg" )
-rm -rf master.zip Utilities-master/
+rm -rf Utilities-master/
 
 # Experimental Filer
 wget -q -q https://github.com/probonopd/Filer/releases/download/continuous/Filer_FreeBSD.zip
@@ -172,15 +172,15 @@ chmod +x tuntox
 mv tuntox "${uzip}/usr/local/bin/"
 
 # BuildNotify.app: Notifications about continuous build server status
-wget -q https://github.com/anaynayak/buildnotify/archive/2.0.0.zip
-unzip 2.0.0.zip
-mkdir -p BuildNotify.app
-mv buildnotify-2.0.0 BuildNotify.app/Resources
-( cd BuildNotify.app && ln -s Resources/buildnotifyapplet.py BuildNotify )
-rm -f 2.0.0.zip
-sed -i -e 's|/usr/bin/env python|/usr/bin/env python3|g' BuildNotify.app/Resources/buildnotifyapplet.py
-rm -f BuildNotify.app/Resources/buildnotifyapplet.py-e
-mv BuildNotify.app "${uzip}/Applications/Utilities/"
+# wget -q https://github.com/anaynayak/buildnotify/archive/2.0.0.zip
+# unzip 2.0.0.zip
+# mkdir -p BuildNotify.app
+# mv buildnotify-2.0.0 BuildNotify.app/Resources
+# ( cd BuildNotify.app && ln -s Resources/buildnotifyapplet.py BuildNotify )
+# rm -f 2.0.0.zip
+# sed -i -e 's|/usr/bin/env python|/usr/bin/env python3|g' BuildNotify.app/Resources/buildnotifyapplet.py
+# rm -f BuildNotify.app/Resources/buildnotifyapplet.py-e
+# mv BuildNotify.app "${uzip}/Applications/Utilities/"
 
 # Lector.app: E-book reader
 # Requires: py37-xmltodict py37-beautifulsoup
@@ -218,11 +218,13 @@ mv QHexEdit.app "${uzip}/Applications/Developer/"
 rm -f QHexEdit_FreeBSD.zip
 
 # URW fonts including Nimbus Sans
-wget -c -q https://github.com/ArtifexSoftware/urw-base35-fonts/archive/20200910.zip
-unzip -q 20200910.zip
+# The direct download link gives 403 Forbidden now, so we git clone it instead
+# wget -c -q https://github.com/ArtifexSoftware/urw-base35-fonts/archive/20200910.zip
+# unzip -q 20200910.zip
+git clone --depth 1 --branch master https://github.com/ArtifexSoftware/urw-base35-fonts.git urw-base35-fonts-master
 mkdir -p "${uzip}/usr/local/share/fonts/TTF/"
-cp -R urw-base35-fonts-20200910/fonts/*.ttf "${uzip}/usr/local/share/fonts/TTF/"
-rm -rf urw-base35-fonts-20200910/ 20200910.zip
+cp -R urw-base35-fonts-master/fonts/*.ttf "${uzip}/usr/local/share/fonts/TTF/"
+rm -rf urw-base35-fonts-master/
 
 # Inter font, needed for proper special characters in menus
 wget -c -q https://github.com/rsms/inter/releases/download/v3.19/Inter-3.19.zip
