@@ -509,9 +509,6 @@ if [ -f "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonito
   chflags schg "${uzip}/usr/local/share/dbus-1/services/org.gtk.vfs.UDisks2VolumeMonitor.service"
 fi
 
-# Prevent sudo lecture, it breaks package installation; https://github.com/helloSystem/Utilities/issues/174
-echo "Defaults lecture=always" >> "${uzip}/usr/local/etc/sudoers"
-
 # Library needed to display symbols for keyboard shortcuts
 # https://github.com/helloSystem/hello/issues/46
 wget -c -q "https://github.com/helloSystem/QKeySequenceOverride/releases/download/continuous/libQKeySequenceOverride.so.1.0.0"
