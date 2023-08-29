@@ -60,9 +60,11 @@ tar xfv macOSBigSur.tar.gz
 cp -r macOSBigSur/cursor* "${uzip}/usr/local/share/icons/default/"
 rm -rf macOSBigSur/
 # mv macOSBigSur "${uzip}/usr/local/share/icons/"
-# ( cd "${uzip}/usr/local/share/icons/" ; ln -s macOSBigSur default ) # TODO: Find a way to make this work with the elementary-xfce theme
+# ( cd "${uzip}/usr/local/share/icons/" ; ln -s macOSBigSur default )
 # chmod 755 "${uzip}/usr/local/share/icons/macOSBigSur"
 rm macOSBigSur.tar.gz
+
+ln -s "${uzip}/usr/local/share/icons/macOSBigSur"/cursor* "${uzip}/usr/local/share/icons/elementary-xfce/"
 
 
 # KWin
