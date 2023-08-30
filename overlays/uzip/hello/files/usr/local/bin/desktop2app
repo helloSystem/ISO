@@ -256,7 +256,7 @@ handled_desktop_files_in_system = []
 if __name__ == "__main__":
 
     # Create a QApplication instance to access the current Qt theme
-    app = QApplication([])
+    app = QApplication(sys.argv)
 
     destination = "."
     use_generic_name = False
@@ -282,8 +282,6 @@ if __name__ == "__main__":
             exit(1)
 
         signal.signal(signal.SIGINT, QtCore.QCoreApplication.quit) # FIXME: Make Ctrl-C work; Does not seem to work
-
-        app = QtCore.QCoreApplication(sys.argv)
 
         handled_desktop_files_in_system = get_desktop_files_in_system()
 
