@@ -2,7 +2,7 @@
 Hide=Ctrl+H,none,Hide qterminal
 Hide Others=Meta+Ctrl+H,none,Hide Others
 Search=Ctrl+Space,none,Suchen
-Show All=Ctrl+Shift+H,none,Show All
+Show All=none,none,Show All
 _k_friendly_name=Menu
 
 [kwin]
