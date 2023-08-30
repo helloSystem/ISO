@@ -338,7 +338,7 @@ umount ${uzip}/dev
 
 # Autostart
 mkdir -p "${uzip}/Applications/Autostart/"
-( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/BuildNotify.app . )
+# ( cd "${uzip}/Applications/Autostart/" ; ln -s ../Utilities/BuildNotify.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Volume.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s ../../System/Network.app . )
 ( cd "${uzip}/Applications/Autostart/" ; ln -s /usr/local/bin/qlipper . )
