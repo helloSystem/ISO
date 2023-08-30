@@ -125,9 +125,9 @@ chmod +x gmenudbusmenuproxy
 mv gmenudbusmenuproxy "${uzip}/usr/local/bin/"
 
 # Dock
-wget -q https://github.com/helloSystem/Dock/releases/download/continuous/Dock_FreeBSD.zip
-unzip Dock_FreeBSD.zip
-rm -f Dock_FreeBSD.zip
+# wget -q https://github.com/helloSystem/Dock/releases/download/continuous/Dock_FreeBSD.zip
+# unzip Dock_FreeBSD.zip
+# rm -f Dock_FreeBSD.zip
 
 mv * "${uzip}/System/"
 
