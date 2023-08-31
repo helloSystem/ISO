@@ -66,7 +66,7 @@ class ArchiveMounter(object):
 
         self.p = QtCore.QProcess()
         self.p.setProgram("fuse-archive")
-        args = [filename, self.mountpoint]
+        args = ["-o", "allow_other", filename, self.mountpoint]
         print(self.p.program() + " " + " ".join(args))
         self.p.setArguments(args)
         self.p.setProcessChannelMode(QtCore.QProcess.ForwardedChannels); # Forward standard output and standard error onto the main process
