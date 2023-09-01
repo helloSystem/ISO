@@ -175,7 +175,7 @@ then
   echo "  /  /  //  /  //  //  /  //        \\\  \  \  \\\  \  \\\  \  \\\  \  \\\  \_   "
   echo "  \_____\\\____/ \__\\\____//__________\\\__\__\__\\\____/ \_____\\\__\__\\\___\ "
   echo
-  echo "automount 1.7.9 2022/05/24"
+  echo "automount 1.7.9 2023/08/23"
   exit 0
 fi
 
@@ -753,6 +753,7 @@ case ${2} in
               continue
             fi
             ( # put entire umount/find/rm block into background
+              # umount(8) two times to make sure its unmounted
               umount -f "${TARGET}" 1> /dev/null 2>&1
               umount -f "${TARGET}" 1> /dev/null 2>&1
               __log "${DEV}: (state) umount '${TARGET}'"
@@ -765,6 +766,8 @@ case ${2} in
       # code for NICENAMES mounting instead of the /dev/${DEV} default
       if [ "${NICENAMES}" != YES ]
       then
+        # umount(8) two times to make sure its unmounted
+        umount -f "${MNT_PREFIX}/${1}" 1> /dev/null 2>&1
         umount -f "${MNT_PREFIX}/${1}" 1> /dev/null 2>&1
         __log "${DEV}: (direct) umount '${MNT_PREFIX}/${1}'"
         __remove_dir "${MNT_PREFIX}/${1}" &
