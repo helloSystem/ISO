@@ -65,13 +65,38 @@ repeat
             break
         end
 
-        if ch == KEY_LOWER_V or ch == KEY_UPPER_V then
+        -- Verbose boot without serial console over USB
+        if ch == KEY_LOWER_V then
             screen.setcursor(1, 1)
             -- Make the loading messages colors fit the background
             printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
             printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
             printc("Verbose boot\n\n")
             loader.unsetenv("boot_mute")
+            core.setVerbose(true)
+            loader.setenv("kern.vt.color.15.rgb", "0,0,0")
+            loader.setenv("kern.vt.color.7.rgb", "0,0,0")
+            core.boot()
+            break
+        end
+        -- Verbose boot with serial console over USB
+        if ch == KEY_UPPER_V then
+            screen.setcursor(1, 1)
+            -- Make the loading messages colors fit the background
+            printc(core.KEYSTR_CSI .. "3" .. "0" .. "m")
+            printc(core.KEYSTR_CSI .. "4" .. "7" .. "m")
+            printc("Verbose boot with serial console over USB\n\n")
+            loader.unsetenv("boot_mute")
+            loader.setenv("uftdi_load", "YES")
+            loader.setenv("umodem_load", "YES")
+            loader.setenv("uplcom_load", "YES")
+            loader.setenv("uslcom_load", "YES")
+            loader.setenv("boot_multicons", "YES")
+            loader.setenv("boot_serial", "115200")
+            loader.setenv("comconsole_speed", "")
+            loader.setenv("console", "comconsole,vidconsole")
+            -- TODO: Check if running on EFI, in which case we need
+            -- loader.setenv("console", "comconsole,efi")
             core.setVerbose(true)
             loader.setenv("kern.vt.color.15.rgb", "0,0,0")
             loader.setenv("kern.vt.color.7.rgb", "0,0,0")
