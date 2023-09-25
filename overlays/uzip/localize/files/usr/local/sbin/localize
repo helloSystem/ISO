@@ -39,6 +39,11 @@
 
 import os, sys, subprocess
 
+include_file_path = "/usr/local/var/localize/include"
+if os.path.isfile(include_file_path):
+    print(include_file_path, "exists. Exiting.")
+    exit(0)
+
 got_hint = False
 
 if os.geteuid() != 0:
@@ -176,12 +181,11 @@ run(["tzsetup", timezone])
 
 # Write a shell file that can be sourced at session startup time to export
 # the environment variables
-target_file = "/usr/local/var/localize/include"
-os.makedirs(os.path.dirname(target_file), exist_ok=True)
-f = open(target_file, "w+")
+os.makedirs(os.path.dirname(include_file_path), exist_ok=True)
+f = open(include_file_path, "w+")
 f.write(template.replace("%locale%", locale).replace("%timezone%", timezone))
 f.close()
-print("--> Wrote", target_file)
+print("--> Wrote", include_file_path)
 
 # It looks like this:
 # LANG="de_DE.UTF-8"
