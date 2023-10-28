@@ -452,8 +452,8 @@ developer()
     mkuzip -A zstd -C 15 -d -s 262144 -o "${iso}/${developerimagename}" "${iso}/developer.ufs"
   fi
   rm "${iso}/developer.ufs"
-  md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}.md5"
-
+  # md5 "${iso}/${developerimagename}" > "${iso}/${developerimagename}.md5"
+  sha256 "${iso}/${developerimagename}" | cut -d " " -f 4 > "${iso}/${developerimagename}.sha256"
   cd -
 
 }
@@ -527,7 +527,8 @@ image()
 {
   sh "${cwd}/scripts/mkisoimages-${arch}.sh" -b "${label}" "${isopath}" "${cdroot}"
   sync ### Needed?
-  md5 "${isopath}" > "${isopath}.md5"
+  # md5 "${isopath}" > "${isopath}.md5"
+  sha256 "${isopath}" | cut -d " " -f 4 > "${isopath}.sha256"
   echo "$isopath created"
 }
 
