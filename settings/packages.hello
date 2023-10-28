@@ -114,7 +114,8 @@ x11/libXi
 x11-toolkits/libXmu
 x11/libXpm
 x11-toolkits/libXt
-lang/perl5.32
+# lang/perl5.32 is no longer in Q4/2023
+lang/perl5.34
 security/stunnel
 lang/tcl86
 x11-toolkits/tk-wrapper
@@ -150,7 +151,8 @@ python3
 # Asian fonts
 wqy-fonts
 # Monospaced fonts
-sourcecodepro-ttf
+# sourcecodepro-ttf # Was renamed in Q4/2023 to x11-fonts/source-code-pro-ttf
+x11-fonts/source-code-pro-ttf
 # Required for Welcome.app
 # lang/py-qt5-qml was folded into devel/py-qt5-pyqt
 gstreamer1-plugins-ogg
