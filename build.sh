@@ -18,7 +18,7 @@ if [ "${MAJOR}" = "13" ] ; then
   # version="13.0-RC3"
   # version="13.0-RELEASE"
   version="13.2-RELEASE"
-elif [ "${MAJOR}" = "13" ] ; then
+elif [ "${MAJOR}" = "14" ] ; then
   version="14.0-RC4"
 fi
 
