@@ -12,14 +12,18 @@ export IGNORE_OSVERSION=yes
 version=$(uname -r | cut -d "-" -f 1-2) # "12.2-RELEASE" or "13.0-CURRENT"
 echo "Host system version: ${version}"
 
-if [ "${version}" = "13.0-RELEASE" ] ; then
+MAJOR=$(echo "${version}" | cut -d "." -f 1) # "12" or "13"
+
+if [ "${MAJOR}" = "13" ] ; then
   # version="13.0-RC3"
   # version="13.0-RELEASE"
   version="13.2-RELEASE"
+elif [ "${MAJOR}" = "13" ] ; then
+  version="14.0-RC4"
 fi
 
 VER=$(echo "${version}" | cut -d "-" -f 1) # "12.2" or "13.0"
-MAJOR=$(echo "${version}" | cut -d "." -f 1) # "12" or "13"
+
 
 # Download from either https://download.freebsd.org/ftp/releases/
 #                  or https://download.freebsd.org/ftp/snapshots/
@@ -188,17 +192,17 @@ pkg_add_from_url()
 packages()
 {
   # NOTE: Also adjust the Nvidia drivers accordingly below. TODO: Use one set of variables
-  if [ $MAJOR -eq 12 ] ; then
-    # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
-    # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
-    echo "Major version 12, using quarterly packages"
-  elif [ $MAJOR -eq 13 ] ; then
-    echo "Major version 13, using quarterly packages"
-    # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
-  elif [ $MAJOR -eq 14 ] ; then
-    echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
-    sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
-  fi
+  #if [ $MAJOR -eq 12 ] ; then
+  #  # echo "Major version 12, hence using release_2 packages since quarterly can be missing packages from one day to the next"
+  #  # sed -i '' -e 's|quarterly|release_2|g' "${uzip}/etc/pkg/FreeBSD.conf"
+  #  echo "Major version 12, using quarterly packages"
+  #elif [ $MAJOR -eq 13 ] ; then
+  #  echo "Major version 13, using quarterly packages"
+  #  # sed -i '' -e 's|quarterly|release_1|g' "${uzip}/etc/pkg/FreeBSD.conf"
+  #elif [ $MAJOR -eq 14 ] ; then
+  #  echo "Major version 14, hence changing /etc/pkg/FreeBSD.conf to use latest packages"
+  #  sed -i '' -e 's|quarterly|latest|g' "${uzip}/etc/pkg/FreeBSD.conf"
+  #fi
   cp /etc/resolv.conf ${uzip}/etc/resolv.conf
   mkdir ${uzip}/var/cache/pkg
   mount_nullfs ${packages} ${uzip}/var/cache/pkg
@@ -309,7 +313,7 @@ initgfx()
 {
   /usr/local/sbin/pkg-static -c ${uzip} update # Needed if we are shipping additional repos 
   if [ "${arch}" != "i386" ] ; then
-    if [ $MAJOR -lt 14 ] ; then
+    if [ $MAJOR -lt 15 ] ; then
       PKGS="quarterly"
       # PKGS="latest" # This must match what we specify in packages()
     else
