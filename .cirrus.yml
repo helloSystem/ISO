@@ -4,7 +4,7 @@ task:
     memory: 16G
     matrix:
       - image_family: freebsd-13-2
-      # image_family: freebsd-14-0-snap
+      - image_family: freebsd-14-0
 
   env:
     CIRRUS_CLONE_DEPTH: 1
