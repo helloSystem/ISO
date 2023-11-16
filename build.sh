@@ -19,7 +19,7 @@ if [ "${MAJOR}" = "13" ] ; then
   # version="13.0-RELEASE"
   version="13.2-RELEASE"
 elif [ "${MAJOR}" = "14" ] ; then
-  version="14.0-RC4"
+  version="14.0-RELEASE"
 fi
 
 VER=$(echo "${version}" | cut -d "-" -f 1) # "12.2" or "13.0"
