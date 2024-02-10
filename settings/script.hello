@@ -328,7 +328,7 @@ IGNORE_OSVERSION=yes /usr/local/sbin/pkg-static -c "${uzip}" add "https://github
 # Prevent the hello package from being upgraded with an unrelated package of the same name
 # and prevent the modifications made to the system in this script from being overwritten
 # by package updates done by the user at a later time; FIXME: Find a cleaner way
-chroot "${uzip}" pkg lock -y hello automount slim dejavu liberation-fonts-ttf
+chroot "${uzip}" pkg lock -y hello automount slim dejavu liberation-fonts-ttf noto-basic
 rm ${uzip}/etc/resolv.conf
 umount ${uzip}/var/cache/pkg
 umount ${uzip}/dev
@@ -462,6 +462,7 @@ chroot ${uzip} sh -c 'for FILE in $(pkg list font-misc-meltho) ; do rm $FILE ; d
 # Designed to have the same metrics as the proprietary Monotype fonts 
 # Arial, Times New Roman, and Courier New. Ever since, every Linux desktops looks ugly
 chroot ${uzip} sh -c 'for FILE in $(pkg list liberation-fonts-ttf) ; do rm $FILE ; done'
+chroot ${uzip} sh -c 'for FILE in $(pkg list noto-basic) ; do rm $FILE ; done'
 
 # chroot "${uzip}" update-desktop-database # Needed for mountarchive to be associated with the MIME types it can handle; TODO: Get rid of XDG
 
